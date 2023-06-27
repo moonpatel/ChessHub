@@ -21,10 +21,12 @@ const userSchema = new Schema(
         lname: String,
         location: String,
         country: String,
-        friends: {
-            type: [ObjectId],
-            ref: "User",
-        },
+        friends: [
+            {
+                type: ObjectId,
+                ref: "User",
+            },
+        ],
     },
     {
         virtuals: {
@@ -34,7 +36,15 @@ const userSchema = new Schema(
                 },
             },
         },
+        methods: {
+            async getFriends() {
+                await this.populate("friends", "username");
+                console.log(this.friends);
+                return this.friends.map(friend => friend.username);
+            },
+        },
     }
 );
 
-module.exports.User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = { User };

@@ -30,6 +30,7 @@ function checkAuthMiddleware(req, res, next) {
         return next(new NotAuthError("Not authenticated."));
     }
     const authFragments = req.headers.authorization.split(" ");
+    console.log(authFragments);
 
     if (authFragments.length !== 2) {
         console.log("NOT AUTH. AUTH HEADER INVALID.");
@@ -38,7 +39,7 @@ function checkAuthMiddleware(req, res, next) {
     const authToken = authFragments[1];
     try {
         const validatedToken = validateJSONToken(authToken);
-        req.token = validatedToken;
+        req.userid = validatedToken;
     } catch (error) {
         console.log("NOT AUTH. TOKEN INVALID.");
         return next(new NotAuthError("Not authenticated."));
