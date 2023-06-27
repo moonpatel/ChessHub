@@ -2,6 +2,7 @@ import { AppShell, Button, Container, Navbar, Paper, Text, useMantineTheme } fro
 import React, { useState } from 'react'
 import NavbarLinks from '../components/NavbarLinks';
 import { Outlet } from 'react-router-dom'
+import Logout from '../components/Logout';
 
 const MainLayout = () => {
     const theme = useMantineTheme();
@@ -27,7 +28,7 @@ const MainLayout = () => {
                             <NavbarLinks />
                         </Navbar.Section>
                         <Navbar.Section>
-                            <Button color='red' size='md' px='xl'>Logout</Button>
+                            <Logout />
                         </Navbar.Section>
                     </Navbar>
                 }

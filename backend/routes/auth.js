@@ -31,6 +31,7 @@ router.post("/signup", async (req, res, next) => {
     if (user) errors.username = "Username already exists";
 
     if (Object.keys(errors).length > 0) {
+        console.log(errors);
         return res.status(422).json({
             message: "User signup failed due to validation errors.",
             errors,
