@@ -17,8 +17,8 @@ import Play from './pages/Play/Play'
 import AuthenticationPage, { loginAction, signupAction } from './pages/Authentication/Authentication'
 import { getAuthToken } from '../utils/auth'
 import { logoutAction } from './components/Logout'
-
-
+import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
+import ChessGame from './pages/Chess/ChessGame'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -30,11 +30,13 @@ const router = createBrowserRouter([{
     {
       path: 'play', element: <PlayLayout />, children: [
         { index: true, element: <Play /> },
+        { path: 'friend/:friend_username', element: <ChallengeFriend />, action: playFriendAction },
         { path: 'friend', element: <PlayFriend /> },
         { path: 'computer', element: <div>Computer</div> },
         { path: 'online', element: <div>Online</div> }
       ]
     },
+    { path: "game/friend/:roomID", element: <ChessGame /> },
     {
       path: 'settings', element: <Settings />, children: [
         { index: true, element: <Profile /> },

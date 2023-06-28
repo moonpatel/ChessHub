@@ -6,7 +6,7 @@ const Play = () => {
     return (
         <Card sx={{
             width: '450px',
-            height: '100%',
+            height: '600px',
             textAlign: 'center'
         }}>
             <Flex gap="5px" px="20px" justify='center' align='center' wrap='nowrap' direction='column'>
@@ -28,7 +28,7 @@ const CardItem = ({ label, description, src, to }) => {
             label={label}
             icon={<Image src={src} width={50} />}
             description={description}
-            sx={{ backgroundColor: 'gray', borderRadius: '5px' }}
+            sx={{ backgroundColor: 'black', borderRadius: '5px' }}
         />
     )
 }

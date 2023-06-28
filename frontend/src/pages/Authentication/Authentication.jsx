@@ -8,7 +8,7 @@ const AuthenticationPage = (props) => {
     const { isLogin } = props;
 
     return (
-        <Container maw="100%" bg="gray" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Container maw="100%" sx={(theme) => ({ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundImage: theme.fn.gradient({ from: 'blue', to: 'teal' }) })}>
             <Card shadow="md" p="lg" style={{ maxWidth: 400, width: '100%' }}>
                 <Text align="center" variant="h4" style={{ marginBottom: 20 }}>
                     {isLogin ? 'Login' : 'Sign Up'}

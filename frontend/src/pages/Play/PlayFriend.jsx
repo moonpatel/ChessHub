@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Button, Card, CopyButton, Flex, Group, Image, Modal, NativeSelect, NavLink, Select, Text, TextInput, Title } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconSearch } from '@tabler/icons-react'
-import { PersonIcon } from '@radix-ui/react-icons'
+import { IconSearch, IconUserCircle } from '@tabler/icons-react'
+import FriendsList from '../../components/FriendsList'
 
 const createChallengeLink = (color) => {
     let challengeLink = Math.floor(Math.random() * 100_000_000).toString();
@@ -46,10 +46,7 @@ const PlayFriend = () => {
                     <Title order={2}>Play a Friend</Title>
                 </Flex>
                 <TextInput my="5px" placeholder="Search by email or username" icon={<IconSearch />} />
-                <Flex sx={{ flexGrow: '1' }} height="100%" justify="start" align="start" direction="column">
-                    <Title px="md" pt="md" order={3}>Friends</Title>
-                    {friends.map((friend, index) => <NavLink key={index} icon={friend.avatar} label={<Text fw={700}>{friend.username}</Text>} />)}
-                </Flex>
+                <FriendsList />
                 <Flex direction='column' gap='10px'>
                     <Button color='lime' onClick={open}>Create Challenge Link</Button>
                     <Button color='lime'>Join using Challenge Link</Button>
@@ -60,10 +57,10 @@ const PlayFriend = () => {
 }
 
 const friends = [
-    { avatar: <PersonIcon />, username: "friend", rating: 100 },
-    { avatar: <PersonIcon />, username: "friend", rating: 100 },
-    { avatar: <PersonIcon />, username: "friend", rating: 100 },
-    { avatar: <PersonIcon />, username: "friend", rating: 100 },
+    { avatar: <IconUserCircle />, username: "friend", rating: 100 },
+    { avatar: <IconUserCircle />, username: "friend", rating: 100 },
+    { avatar: <IconUserCircle />, username: "friend", rating: 100 },
+    { avatar: <IconUserCircle />, username: "friend", rating: 100 },
 ]
 
 export default PlayFriend

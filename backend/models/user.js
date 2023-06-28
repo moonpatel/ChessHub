@@ -39,7 +39,7 @@ const userSchema = new Schema(
         methods: {
             async getFriends() {
                 await this.populate("friends", "username");
-                console.log(this.friends);
+                // console.log(this.friends);
                 return this.friends.map(friend => friend.username);
             },
         },

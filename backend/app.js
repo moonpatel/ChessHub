@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 mongoose
     .connect("mongodb://127.0.0.1:27017/test")
@@ -14,27 +15,65 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const { sendEmail } = require("./mail");
+const { User } = require("./models/user");
 const io = new Server(server, { cors: { origin: "*" } });
 
-io.on("connection", (socket) => {
-    // console.log("Connected: ", socket.data);
-    socket.broadcast.emit("game", "emitting...");
-    socket.emit("game", "Welcome");
+const activeRooms = new Map();
+const pendingChallenges = new Map();
 
-    socket.on("join-room", async (data) => {
-        if (data?.roomid) await socket.join(roomid);
-        else socket.emit("error", "Room id not received");
+io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+
+    // Handle join event
+    socket.on("join-room", async (roomID, playerUsername, challengedPlayerUsername) => {
+        // room exists
+        if (activeRooms.has(roomID)) {
+            socket.emit("room-full");
+            return;
+        } else if (pendingChallenges.has(roomID)) {
+            const challenge = pendingChallenges.get(roomID);
+            pendingChallenges.delete(roomID);
+            let newRoom = {
+                id: roomID,
+                players: {
+                    challenger: {
+                        id: challenge.challengerID,
+                        name: challenge.challengerUsername,
+                    },
+                    challenged: {
+                        id: socket.id,
+                        name: playerUsername,
+                    },
+                },
+            };
+            activeRooms.set(roomID, newRoom);
+            io.to(roomID).emit("room-created");
+        } else {
+            // no room on pending challenges found
+            const challenge = {
+                roomID,
+                challengerID: socket.id,
+                challengerUsername: playerUsername,
+                challengedUsername: challengedPlayerUsername,
+            };
+            pendingChallenges.set(roomID, challenge);
+
+            console.log(challengedPlayerUsername);
+            // notify the challenged player
+            const email = (await User.findOne({ username: challengedPlayerUsername })).email;
+            sendEmail(
+                email,
+                `Challenge from ${playerUsername}`,
+                `To accept the challenge follow the link: http://localhost:5173/game/friend/${roomID}`
+            );
+
+            socket.emit("challenge-pending");
+        }
     });
 
-    socket.on("play", (data) => {
-        console.log(data);
-        let { fromRow, fromCol, toRow, toCol, room } = data;
-        fromRow = 7 - fromRow;
-        fromCol = 7 - fromCol;
-        toRow = 7 - toRow;
-        toCol = 7 - toCol;
-        socket.to(room).emit("play", { fromCol, fromRow, toCol, toRow });
-        socket.broadcast.emit("play", { fromCol, fromRow, toCol, toRow });
+    socket.on("move", (roomID, moveData) => {
+        socket.to(roomID).emit("opponent-move", moveData);
     });
 });
 
