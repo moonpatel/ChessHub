@@ -3,6 +3,8 @@ import { blackColor, chessBoardInit, getPieceHint, pieces, whiteColor } from '..
 import Cell from '../../components/Cell';
 import { socket } from '../../socket';
 import { Flex } from '@mantine/core';
+import { DndContext } from '@dnd-kit/core'
+
 
 let myColor = 'W';
 
@@ -43,9 +45,15 @@ const reducer = (state, action) => {
 }
 
 const ChessBoard = () => {
+    const moveAudioRef = useRef(null);
+    const captureAudioRef = useRef(null);
+    const gameEndAudioRef = useRef(null);
+    const checkAudioRef = useRef(null);
+
     const [gameState, dispatch] = useReducer(reducer, {
         chessBoard: chessBoardInit(myColor), selectedPiece: null, possibleMoves: [], capturedPieces: [], myTurn: myColor === whiteColor
     });
+    // console.log(gameState)
 
     const chessBoardRef = useRef(gameState.chessBoard);
     chessBoardRef.current = gameState.chessBoard;
@@ -68,7 +76,32 @@ const ChessBoard = () => {
     }, []);
 
     return (
-        <React.Fragment>
+        <DndContext onDragEnd={evt => {
+            let [currentRow, currentCol] = evt.active.id.split('-');
+            let [targetRow, targetCol] = evt.over.id.split('-');
+            let piece = evt.active.data.current;
+            if (gameState.chessBoard[targetRow][targetCol] && gameState.chessBoard[targetRow][targetCol]?.color !== myColor) {
+                console.log('Captured by dragging');
+                let payload = { fromRow: currentRow, fromCol: currentCol, toRow: targetRow, toCol: targetCol, color: piece.color };
+                socket.emit('move', payload);
+                captureAudioRef.current.play();
+                dispatch({ type: 'CAPTURE_PIECE', val: payload })  // capture piece
+                return;
+            }
+            let targetMarked = false;
+            gameState.possibleMoves.forEach((move) => {
+                if (move.row == targetRow && move.col == targetCol)
+                    targetMarked = true;
+            });
+            if (targetMarked) {
+                console.log('Moved by dragging')
+                let payload = { fromRow: currentRow, fromCol: currentCol, toRow: targetRow, toCol: targetCol };
+                socket.emit('move', payload);
+                moveAudioRef.current.play();
+                dispatch({ type: 'MOVE_PIECE', val: payload, }); // move piece
+                return;
+            }
+        }}>
             <Flex w="600px">
                 <div>
                     {gameState.chessBoard.map((line, row) => {
@@ -83,21 +116,26 @@ const ChessBoard = () => {
                                         }
                                     }
                                     let piece = cell ? { type: cell.type, color: cell.color } : null;
-                                    return <Cell
-                                        key={col * 3 + 1}
-                                        selectedPiece={gameState.selectedPiece}
-                                        cellProps={{ row, col, piece, marked }}
-                                        dispatch={dispatch}
-                                        myColor={myColor}
-                                        myTurn={gameState.myTurn}
-                                    />
+                                    return (
+                                        <Cell
+                                            key={col * 3 + 1}
+                                            selectedPiece={gameState.selectedPiece}
+                                            cellProps={{ row, col, piece, marked }}
+                                            dispatch={dispatch}
+                                            myColor={myColor}
+                                            myTurn={gameState.myTurn}
+                                        />)
                                 })}
                             </Flex>
                         )
                     })}
                 </div>
             </Flex>
-        </React.Fragment>
+            <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />
+            <audio src='/src/assets/capture.mp3' ref={captureAudioRef} />
+            <audio src='/src/assets/game-end.webm.mp3' ref={gameEndAudioRef} />
+            <audio src='/src/assets/move-check.mp3' ref={checkAudioRef} />
+        </DndContext>
     )
 }
 
