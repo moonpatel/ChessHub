@@ -2,34 +2,34 @@ import { Image } from '@mantine/core';
 import React, { useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core'
 
-const Piece = ({ piece, row, col, dispatch }) => {
-    if (piece === null) return null;
-    const { type, color } = piece;
+const Piece = ({ cell, dispatch }) => {
+    let { square, type, color } = cell;
+    if (type === undefined) return null;
     let logo;
     switch (type) {
-        case 'P':
-            logo = color === 'W' ? 'pawn_white' : 'pawn_black';
+        case 'p':
+            logo = color === 'w' ? 'pawn_white' : 'pawn_black';
             break;
-        case 'R':
-            logo = color === 'W' ? 'rook_white' : 'rook_black';
+        case 'r':
+            logo = color === 'w' ? 'rook_white' : 'rook_black';
             break;
-        case 'N':
-            logo = color === 'W' ? 'knight_white' : 'knight_black';
+        case 'n':
+            logo = color === 'w' ? 'knight_white' : 'knight_black';
             break;
-        case 'B':
-            logo = color === 'W' ? 'bishop_white' : 'bishop_black';
+        case 'b':
+            logo = color === 'w' ? 'bishop_white' : 'bishop_black';
             break;
-        case 'Q':
-            logo = color === 'W' ? 'queen_white' : 'queen_black';
+        case 'q':
+            logo = color === 'w' ? 'queen_white' : 'queen_black';
             break;
-        case 'K':
-            logo = color === 'W' ? 'king_white' : 'king_black';
+        case 'k':
+            logo = color === 'w' ? 'king_white' : 'king_black';
             break;
     }
 
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-        id: row + '-' + col, data: {
-            ...piece, row, col
+        id: square, data: {
+            ...cell
         }
     });
     const style = transform ? {
@@ -39,7 +39,7 @@ const Piece = ({ piece, row, col, dispatch }) => {
     } : undefined;
     useEffect(() => {
         if (isDragging) {
-            dispatch({ type: 'SELECT_PIECE', val: { row, col, color } });
+            dispatch({ type: 'SELECT_PIECE', val: cell });
         }
     }, [isDragging])
 

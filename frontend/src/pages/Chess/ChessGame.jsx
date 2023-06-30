@@ -20,8 +20,11 @@ const ChessGame = () => {
                     description={"description"}
                 />
             </Flex>
-            <Flex w="450px" bg='gray' h="600px" sx={{ borderRadius: '10px' }}>
+            <Flex w="450px" bg='gray' p="10px" justify='center' h="600px" sx={{ borderRadius: '10px' }}>
                 <Title>Game Data</Title>
+                <Flex>
+                    
+                </Flex>
             </Flex>
         </Flex>
     )
