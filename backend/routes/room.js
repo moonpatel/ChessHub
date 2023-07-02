@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const uuid = require("uuid");
 const { createRoom } = require("../socket");
-const { sendEmail } = require("../mail");
 const { User } = require("../models/user");
 const { checkAuth } = require("../util/auth");
+
+const pendingChallenges = new Map();
 
 // rooms can only be created through HTTP requests and destroyed only by socket.io server
 // and vice versa is not true
@@ -18,6 +19,13 @@ router.post("/create", checkAuth, async (req, res, next) => {
     const roomID = uuid.v4();
     createRoom(roomID, req.body.timeLimit);
 
+    if (pendingChallenges.has(challenged)) {
+        let challenges = pendingChallenges.get(challenged);
+        challenges.push(challenger);
+    } else {
+        pendingChallenges.set(challenged, [challenger]);
+    }
+
     // sendEmail(
     //     challengedEmail,
     //     `Challenge from ${challenger}`,
@@ -27,3 +35,4 @@ router.post("/create", checkAuth, async (req, res, next) => {
 });
 
 module.exports = router;
+module.exports.pendingChallenges = pendingChallenges;

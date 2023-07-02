@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { User } = require("../models/user");
+const { pendingChallenges } = require("./room");
 
 // TODO
 // get user details
@@ -29,6 +30,14 @@ router.post("/:username/friends/:friend_username", async (req, res, next) => {
 // remove a user from friends list
 router.delete("/:username/friends/:friend_username", async (req, res, next) => {
     res.send("TODO");
+});
+
+// get current challenges of the user
+router.get("/:username/challenges", async (req, res, next) => {
+    let username = req.params.username;
+    let challenges = pendingChallenges.get(username);
+    if (!challenges) challenges = [];
+    res.json({ success: true, challenges: challenges });
 });
 
 // TODO
