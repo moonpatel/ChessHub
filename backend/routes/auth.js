@@ -74,7 +74,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = createJSONToken(user.id);
-    return res.json({ token });
+    return res.json({ token, user });
 });
 
 module.exports = router;

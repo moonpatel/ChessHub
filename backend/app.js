@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
+const roomRoutes = require('./routes/room')
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -25,13 +26,22 @@ const pendingChallenges = new Map();
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
+    socket.on("disconnect", () => {
+        console.log("Disconnecting");
+    });
+
     // Handle join event
-    socket.on("join-room", async (roomID, playerUsername, challengedPlayerUsername) => {
+    socket.on("join-room", async (roomID, playerUsername, challengedPlayerUsername, gameData) => {
         // room exists
-        if (activeRooms.has(roomID)) {
-            socket.emit("room-full");
-            return;
-        } else if (pendingChallenges.has(roomID)) {
+        console.log(roomID, playerUsername, challengedPlayerUsername);
+        console.log("activeRooms", activeRooms);
+        console.log("pendingChallenges", pendingChallenges);
+        // if (activeRooms.has(roomID)) {
+        //     socket.emit("room-full");
+        //     console.log('Room full');
+        //     return;
+        // } else
+        if (pendingChallenges.has(roomID)) {
             const challenge = pendingChallenges.get(roomID);
             pendingChallenges.delete(roomID);
             let newRoom = {
@@ -47,8 +57,14 @@ io.on("connection", (socket) => {
                     },
                 },
             };
+            console.log("New room created", roomID);
+            socket.join(roomID);
             activeRooms.set(roomID, newRoom);
-            io.to(roomID).emit("room-created");
+            socket.emit("joined-room", {
+                color: challenge.challengerColor === "w" ? "b" : "w",
+                timeLimit: challenge.timeLimit,
+            });
+            // io.to(roomID).emit("joined-room");
         } else {
             // no room on pending challenges found
             const challenge = {
@@ -56,6 +72,8 @@ io.on("connection", (socket) => {
                 challengerID: socket.id,
                 challengerUsername: playerUsername,
                 challengedUsername: challengedPlayerUsername,
+                challengerColor: gameData.color,
+                timeLimit: gameData.timeLimit,
             };
             pendingChallenges.set(roomID, challenge);
 
@@ -65,10 +83,11 @@ io.on("connection", (socket) => {
             sendEmail(
                 email,
                 `Challenge from ${playerUsername}`,
-                `To accept the challenge follow the link: http://localhost:5173/game/friend/${roomID}`
+                `To accept the challenge follow the link: http://192.168.136.99:5173/game/challenges/${challengedPlayerUsername}/${roomID} \n login through: http://192.168.136.99:5173/login \n roomid:${roomID}`
             );
 
-            socket.emit("challenge-pending");
+            socket.join(roomID);
+            socket.emit("joined-room");
         }
     });
 
@@ -94,6 +113,7 @@ app.use((req, res, next) => {
 // app.use("/", (req, res, next) => res.send('Hello'));
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/room", roomRoutes)
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;
