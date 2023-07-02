@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
-const roomRoutes = require('./routes/room')
+const roomRoutes = require("./routes/room");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -16,7 +16,6 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const { socketIOServerInit } = require("./socket");
-
 
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
@@ -37,7 +36,7 @@ app.use((req, res, next) => {
 // app.use("/", (req, res, next) => res.send('Hello'));
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/room", roomRoutes)
+app.use("/api/room", roomRoutes);
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;

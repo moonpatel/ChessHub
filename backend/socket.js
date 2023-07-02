@@ -3,7 +3,9 @@ const socket = require("socket.io");
 let activeRooms = new Map();
 
 function createRoom(roomID, timeLimit) {
+    console.log(roomID, "created");
     activeRooms.set(roomID, { timeLimit, players: [] });
+    console.log("Currently active rooms", activeRooms.size);
 }
 
 // structure of userDetails: {username,color}

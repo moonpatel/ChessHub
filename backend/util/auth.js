@@ -30,7 +30,6 @@ function checkAuthMiddleware(req, res, next) {
         return next(new NotAuthError("Not authenticated."));
     }
     const authFragments = req.headers.authorization.split(" ");
-    console.log(authFragments);
 
     if (authFragments.length !== 2) {
         console.log("NOT AUTH. AUTH HEADER INVALID.");
