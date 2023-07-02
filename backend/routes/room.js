@@ -10,24 +10,29 @@ const pendingChallenges = new Map();
 // and vice versa is not true
 router.post("/create", checkAuth, async (req, res, next) => {
     console.log(req.body);
-    // challenger and challenged are username
-    const { challenger, challenged } = req.body;
+    // challenger and challenged are username, color is the color played by challenger, timeLimit is the timeLimit for one player
+    const { challenger, challenged, color, timeLimit } = req.body;
 
-    const challengedEmail = (await User.findOne({ username: challenged })).email;
-    console.log(challengedEmail);
+    // get email of the challenged person
+    // const challengedEmail = (await User.findOne({ username: challenged })).email;
+    // console.log(challengedEmail);
 
     const roomID = uuid.v4();
-    createRoom(roomID, req.body.timeLimit);
+    createRoom(roomID, timeLimit);
 
+    // create a challenge and add it to pendingChallenges to notify the challenged user
+    // structure of challenge: {challenger,roomID,color,timeLimit}
     if (pendingChallenges.has(challenged)) {
         let challenges = pendingChallenges.get(challenged);
-        challenges.push(challenger);
+        challenges.push({ challenger, roomID, color, timeLimit });
     } else {
-        pendingChallenges.set(challenged, [{ challenger, roomID }]);
+        // color is the choosed by the challenger
+        pendingChallenges.set(challenged, [{ challenger, roomID, color, timeLimit }]);
     }
 
     console.log("Pending challenges", pendingChallenges);
 
+    // STOP SENDING EMAILS FOR NOW
     // sendEmail(
     //     challengedEmail,
     //     `Challenge from ${challenger}`,

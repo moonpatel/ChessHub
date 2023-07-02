@@ -5,10 +5,6 @@ import { getUserData } from '../../utils/auth'
 
 const Challenges = () => {
     const navigate = useNavigate();
-    const dummyChallenges = [
-        { challenger: 'moonpatel', roomID: 'sgnkjsdbnojsnvjsdnkl' },
-        { challenger: 'user1', roomID: 'sgnkjsdbnojsnvjsdnkl' }
-    ]
     const [challenges, setChallenges] = useState([]);
     const { username } = getUserData()
 
@@ -58,12 +54,19 @@ const Challenges = () => {
             <Title mt="20px" mb="10px" order={3}>Challenges</Title>
             <Stack>
                 {
-                    challenges.map(({ challenger, roomID }) => {
+                    challenges.map(({ challenger, roomID, color, timeLimit }) => {
+                        console.log(challenger, roomID, color, timeLimit);
                         return (
                             <Group position='apart'>
                                 <Text>Challenge by {challenger}</Text>
                                 <Group position='center'>
-                                    <Button color='lime' onClick={() => navigate(`/game/friend/${roomID}`)}>Accept</Button>
+                                    <Button color='lime' onClick={() => {
+                                        localStorage.setItem('myColor', color === 'b' ? 'w' : 'b');
+                                        localStorage.setItem('roomID', roomID);
+                                        localStorage.setItem('opponent', challenger);
+                                        localStorage.setItem('timeLimit', timeLimit);
+                                        navigate(`/game/friend/${roomID}`);
+                                    }}>Accept</Button>
                                     <Button color='gray'>Decline</Button>
                                 </Group>
                             </Group>

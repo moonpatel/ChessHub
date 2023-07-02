@@ -1,37 +1,43 @@
 const socket = require("socket.io");
 
+// roomID => { timeLimit, players:[{username: {color}}] }
 let activeRooms = new Map();
 
 function createRoom(roomID, timeLimit) {
     console.log(roomID, "created");
-    activeRooms.set(roomID, { timeLimit, players: [] });
+    activeRooms.set(roomID, { timeLimit, players: {} });
     console.log("Currently active rooms", activeRooms.size);
 }
 
 // structure of userDetails: {username,color}
 function addUserToRoom(roomID, userDetails) {
+    console.log(userDetails);
     let { username, color } = userDetails;
     let room = activeRooms.get(roomID);
 
-    if (room.players) {
-        // room is full
-        if (Object.keys(room.players).length > 1) {
-            return "room-full";
-        } else {
-            // only one user in room
-            room.players[username].color = color;
-        }
-    } else {
-        // add player in the room
-        room.players = {};
-        room.players[username].color = color;
+    if (room.players[username]) {
+        room.players[username] = { color };
+        return "join-room-success";
     }
+    if (Object.keys(room.players).length > 1) {
+        // room is full
+        console.log(activeRooms);
+        return "room-full";
+    } else {
+        room.players[username] = { color };
+    }
+    console.log(activeRooms);
+
     return "join-room-success";
 }
 
 // initialize the socket server with the given http server instance
 function socketIOServerInit(server) {
-    const io = new socket.Server(server);
+    const io = new socket.Server(server, {
+        cors: {
+            origin: process.env.CORS_ALLOWED_HOST,
+        },
+    });
 
     io.on("connection", (socket) => {
         let id = socket.id;
@@ -56,6 +62,10 @@ function socketIOServerInit(server) {
             } else {
                 socket.emit("join-room-error", "room does not exist");
             }
+        });
+
+        socket.on("move", (roomID, moveData) => {
+            socket.to(roomID).emit("opponent-move", moveData);
         });
     });
 }

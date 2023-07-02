@@ -10,7 +10,6 @@ const Cell = ({ cell, chess, marked, dispatch }) => {
     const [isDropped, setIsDropped] = useState(false);
     let squareColor = chess.squareColor(square) === 'light' ? "w" : "b";
 
-    console.log(chess.turn() !== localStorage.getItem('my_color'))
     const handleClick = () => {
         if (chess.turn() !== localStorage.getItem('my_color')) return;
         if (chess.myColor === color) {

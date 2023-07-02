@@ -1,8 +1,6 @@
 import { Avatar, Button, Card, Flex, Image, Select, Text, TextInput, Title } from '@mantine/core'
 import React from 'react'
-import FriendsList from '../../components/FriendsList'
-import { IconSearch } from '@tabler/icons-react'
-import { Form, Link, redirect, useParams, useSearchParams } from 'react-router-dom'
+import { Form, redirect, useParams } from 'react-router-dom'
 import { getAuthToken, getUserData } from '../../../utils/auth'
 
 const ChallengeFriend = () => {
@@ -23,7 +21,7 @@ const ChallengeFriend = () => {
                     <Avatar mt="lg" color='lime' size="100px">{friend_username[0].toUpperCase()}</Avatar>
                     <Text>{friend_username}</Text>
                 </Flex>
-                <Select label="Time limit" placeholder='Time limit' name='time_limit' defaultValue='10' data={['5', '10', '15', '30']} />
+                <Select label="Time limit" placeholder='Time limit' name='timeLimit' defaultValue='10' data={['5', '10', '15', '30']} />
                 <Select defaultValue='w' my="20px" color='lime' name='color' label={<Text mx="auto" order={3}>I play as</Text>} placeholder='choose your color' data={[
                     { value: 'w', label: 'White' },
                     { value: 'b', label: 'Black' },
@@ -40,13 +38,13 @@ const ChallengeFriend = () => {
 export const playFriendAction = async ({ request, params }) => {
     const formData = await request.formData();
     let color = formData.get('color');
-    let timeLimit = formData.get('time_limit');
+    let timeLimit = formData.get('timeLimit');
     let username = getUserData().username;
     let challenged = params.friend_username;
     console.log(color, timeLimit, username, challenged);
 
     let roomIDURL = `${import.meta.env.VITE_BACKEND_HOST}/api/room/create`;
-    let reqBody = { challenger: username, challenged }
+    let reqBody = { challenger: username, challenged, timeLimit, color }
 
     try {
         console.log(reqBody);
@@ -61,8 +59,9 @@ export const playFriendAction = async ({ request, params }) => {
         const { roomID } = resJSON;
         console.log('Room ID:', roomID);
 
-        localStorage.setItem('roomID', roomID)
-        localStorage.setItem('my_color', color);
+        // set properties of the game
+        localStorage.setItem('roomID', roomID);
+        localStorage.setItem('myColor', color);
         localStorage.setItem('timeLimit', timeLimit);
         localStorage.setItem('opponent', challenged);
 

@@ -11,7 +11,7 @@ const reducer = (state, action) => {
     switch (action.type) {
         case 'SELECT_PIECE':
             {
-                if (state.chess.turn() !== localStorage.getItem('my_color')) return state;
+                if (state.chess.turn() !== localStorage.getItem('myColor')) return state;
                 state.chess.select(action.val.square);
                 return { ...state, moveHints: state.chess.getMoves(state.chess.selected) };
             }
@@ -20,14 +20,14 @@ const reducer = (state, action) => {
                 console.log('Moving', action.val, state.chess.turn());
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor })
                 newChessObj.move(action.val);
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('my_color')), moveHints: [] };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [] };
             }
         case 'CAPTURE_PIECE':
             {
                 console.log('Capture', action.val, state.chess.turn())
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
                 newChessObj.move(action.val);
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('my_color')), moveHints: [] };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [] };
             }
         default:
             return state;
@@ -52,6 +52,7 @@ const ChessBoard = ({ color }) => {
     useEffect(() => {
         function handleOpponentMove(data) {
             let { from, to } = data;
+            console.log(from + to)
             if (!gameState.chess.get(to)) {
                 console.log('Moving piece: ', data)
                 dispatch({ type: 'MOVE_PIECE', val: { from, to } });
