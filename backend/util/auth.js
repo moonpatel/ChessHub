@@ -10,7 +10,7 @@ async function generatePasswordHash(password) {
 }
 
 function createJSONToken(email) {
-    return sign({ email }, KEY, { expiresIn: "1h" });
+    return sign({ email }, KEY);
 }
 
 function validateJSONToken(token) {
