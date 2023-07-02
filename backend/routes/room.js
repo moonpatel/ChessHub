@@ -23,8 +23,10 @@ router.post("/create", checkAuth, async (req, res, next) => {
         let challenges = pendingChallenges.get(challenged);
         challenges.push(challenger);
     } else {
-        pendingChallenges.set(challenged, [challenger]);
+        pendingChallenges.set(challenged, [{ challenger, roomID }]);
     }
+
+    console.log("Pending challenges", pendingChallenges);
 
     // sendEmail(
     //     challengedEmail,

@@ -1,6 +1,7 @@
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { getUserData } from '../../utils/auth'
 
 const Challenges = () => {
     const navigate = useNavigate();
@@ -8,14 +9,15 @@ const Challenges = () => {
         { challenger: 'moonpatel', roomID: 'sgnkjsdbnojsnvjsdnkl' },
         { challenger: 'user1', roomID: 'sgnkjsdbnojsnvjsdnkl' }
     ]
-    const [challenges, setChallenges] = useState(dummyChallenges);
+    const [challenges, setChallenges] = useState([]);
+    const { username } = getUserData()
 
     useEffect(() => {
         const abortController = new AbortController();
         let response = null;
 
         const fetchData = async () => {
-            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/challenges`;
+            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${username}/challenges`;
             try {
                 response = await fetch(url, { signal: abortController.signal })
                 const data = await response.json();
@@ -32,7 +34,15 @@ const Challenges = () => {
                 }
             }
         }
-    })
+
+        fetchData();
+
+        return () => {
+            if (!response) {
+                abortController.abort();
+            }
+        }
+    }, [])
 
     if (!challenges || challenges.length === 0) {
         return (

@@ -37,6 +37,7 @@ router.get("/:username/challenges", async (req, res, next) => {
     let username = req.params.username;
     let challenges = pendingChallenges.get(username);
     if (!challenges) challenges = [];
+    console.log(username,challenges);
     res.json({ success: true, challenges: challenges });
 });
 
