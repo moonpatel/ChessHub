@@ -3,6 +3,8 @@ import { Button, Card, CopyButton, Flex, Group, Image, Modal, NativeSelect, NavL
 import { useDisclosure } from '@mantine/hooks'
 import { IconSearch, IconUserCircle } from '@tabler/icons-react'
 import FriendsList from '../../components/FriendsList'
+import { Form } from 'react-router-dom'
+import Challenges from '../../components/Challenges'
 
 const createChallengeLink = (color) => {
     let challengeLink = Math.floor(Math.random() * 100_000_000).toString();
@@ -16,23 +18,24 @@ const createChallengeLink = (color) => {
 
 const PlayFriend = () => {
     const [opened, { open, close }] = useDisclosure(false);
-    const [color, setColor] = useState('W');
+    const [joinChallengeModalState, modalFunctions] = useDisclosure(false);
     return (
         <>
             <Modal zIndex={10} opened={opened} onClose={close} title={<Text mx="auto" size="xl">Create Challenge Link</Text>} centered>
                 <Text>Start a game with anyone</Text>
                 <div>
-                    <NativeSelect value={color} onChange={(evt) => setColor(evt.target.value)} my="20px" label={<Text mx="auto" order={3}>I play as</Text>} placeholder='choose your color' data={[
+                    <NativeSelect onChange={(evt) => setColor(evt.target.value)} my="20px" label={<Text mx="auto" order={3}>I play as</Text>} placeholder='choose your color' data={[
                         { value: 'W', label: 'White' },
                         { value: 'B', label: 'Black' },
                         { value: 'RANDOM', label: 'Random' }
                     ]} />
                 </div>
-                <CopyButton value={createChallengeLink(color)} timeout={1000000}>
+                {/* TODO: update createChallengeLink function */}
+                {/* <CopyButton>
                     {
-                        ({ copied, copy }) => <Button onClick={copy} color={copied ? 'gray' : 'lime'}> {copied ? 'Copied' : 'Copy Link'} </Button>
+                        ({ copied, copy }) => <Button disabled onClick={copy} color={copied ? 'gray' : 'lime'}> {copied ? 'Copied' : 'Copy Link'} </Button>
                     }
-                </CopyButton>
+                </CopyButton> */}
             </Modal>
             <Card
                 sx={{
@@ -51,6 +54,7 @@ const PlayFriend = () => {
                     <Button color='lime' onClick={open}>Create Challenge Link</Button>
                     <Button color='lime'>Join using Challenge Link</Button>
                 </Flex>
+                <Challenges />
             </Card>
         </>
     )
