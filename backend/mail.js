@@ -8,7 +8,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = (receiverEmail, subject, data) => {
-    console.log(process.env.MAIL_SERVER_PASSWORD);
     let mailDetails = {
         from: "chessroyalemail@gmail.com",
         to: receiverEmail,
