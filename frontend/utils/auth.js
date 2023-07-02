@@ -7,8 +7,13 @@ export function checkAuthStatus() {
 }
 
 export function isLoggedIn() {
-    if(localStorage.getItem('token')) return true;
+    if (localStorage.getItem("token")) return true;
     else return false;
+}
+
+export function getUserData() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    return user;
 }
 
 export function getAuthToken() {

@@ -83,6 +83,7 @@ export const loginAction = async ({ request }) => {
     else {
         const responseBody = await response.json();
         localStorage.setItem('token', responseBody.token);
+        localStorage.setItem('user', JSON.stringify(responseBody.user))
         return redirect('/home');
     }
 }
@@ -109,6 +110,7 @@ export const signupAction = async ({ request }) => {
     else {
         const responseBody = await response.json();
         localStorage.setItem('token', responseBody.token);
+        localStorage.setItem('user', JSON.stringify(responseBody.user))
         return redirect('/home');
     }
 }

@@ -1,46 +1,49 @@
 import React, { useEffect, useReducer, useRef } from 'react';
-import { ChessModified, chess } from '../../../utils/chess';
+import { ChessModified, chess, chessInit } from '../../../utils/chess';
 import Cell from '../../components/Cell';
 import { socket } from '../../socket';
 import { Flex } from '@mantine/core';
 import { DndContext } from '@dnd-kit/core'
 
-let myColor = 'w';
 
 const reducer = (state, action) => {
+    console.log(state.chess.myColor)
     switch (action.type) {
         case 'SELECT_PIECE':
             {
+                if (state.chess.turn() !== localStorage.getItem('my_color')) return state;
                 state.chess.select(action.val.square);
                 return { ...state, moveHints: state.chess.getMoves(state.chess.selected) };
             }
         case 'MOVE_PIECE':
             {
                 console.log('Moving', action.val, state.chess.turn());
-                let newChessObj = new ChessModified(state.chess.fen())
+                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor })
                 newChessObj.move(action.val);
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [] };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('my_color')), moveHints: [] };
             }
         case 'CAPTURE_PIECE':
             {
                 console.log('Capture', action.val, state.chess.turn())
-                let newChessObj = new ChessModified(state.chess.fen())
+                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
                 newChessObj.move(action.val);
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [] };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('my_color')), moveHints: [] };
             }
         default:
             return state;
     }
 }
 
-const ChessBoard = () => {
+const ChessBoard = ({ color }) => {
     const moveAudioRef = useRef(null);
     const captureAudioRef = useRef(null);
     const gameEndAudioRef = useRef(null);
     const checkAudioRef = useRef(null);
 
+    let roomID = localStorage.getItem('roomID');
+
     const [gameState, dispatch] = useReducer(reducer, {
-        chess, chessBoard: chess.getBoard(), moveHints: []
+        chess: chessInit(color), chessBoard: chess.getBoard(color), moveHints: []
     });
 
     const chessBoardRef = useRef(gameState.chessBoard);
@@ -49,14 +52,19 @@ const ChessBoard = () => {
     useEffect(() => {
         function handleOpponentMove(data) {
             let { from, to } = data;
-            if (chessBoardRef.current[toRow][toCol] === null) {
+            if (!gameState.chess.get(to)) {
                 console.log('Moving piece: ', data)
-                dispatch({ type: 'MOVE_PIECE', val: { fromRow, fromCol, toRow, toCol } });
-            } else if (myColor === chessBoardRef.current[toRow][toCol].color) {
-                dispatch({ type: 'CAPTURE_PIECE', val: { fromRow, fromCol, toRow, toCol } });
+                dispatch({ type: 'MOVE_PIECE', val: { from, to } });
+                moveAudioRef.current.play();
+                return;
+            } else {
+                console.log('Capturing piece');
+                dispatch({ type: 'CAPTURE_PIECE', val: { from, to } });
+                captureAudioRef.current.play();
+                return;
             }
         }
-        socket.on('move', handleOpponentMove)
+        socket.on('opponent-move', handleOpponentMove)
 
         return () => {
             socket.off('move', handleOpponentMove);
@@ -73,9 +81,11 @@ const ChessBoard = () => {
                 if (gameState.chess.get(destSquare)) {
                     captureAudioRef.current.play();
                     dispatch({ type: 'CAPTURE_PIECE', val: { from: srcSquare, to: destSquare } });  // capture piece
+                    socket.emit('move', roomID, { from: srcSquare, to: destSquare })
                 } else {
                     moveAudioRef.current.play();
                     dispatch({ type: 'MOVE_PIECE', val: { from: srcSquare, to: destSquare } }); // move piece
+                    socket.emit('move', roomID, { from: srcSquare, to: destSquare })
                 }
             }
         }}>
@@ -84,7 +94,7 @@ const ChessBoard = () => {
                     {gameState.chessBoard.map((row, rowIndex) => {
                         return (
                             <Flex className='flex' key={rowIndex * 2}>
-                                {row.map((cell, colIndex) => {
+                                {row.map((cell) => {
                                     return (
                                         <Cell
                                             key={cell.square}
