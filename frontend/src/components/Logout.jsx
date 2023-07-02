@@ -24,6 +24,7 @@ const Logout = () => {
 
 export const logoutAction = ({ request }) => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     return redirect('/login');
 }
 
