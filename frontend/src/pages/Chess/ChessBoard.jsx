@@ -4,7 +4,8 @@ import { socket } from '../../socket';
 import { Flex, createStyles } from '@mantine/core';
 import { DndContext } from '@dnd-kit/core'
 import { ChessGameContext } from '../../context/chess-game-context';
-
+import { SOCKET_EVENTS } from '../../constants';
+const {CHESS_OPPONENT_MOVE,CHESS_MOVE} = SOCKET_EVENTS
 const useStyles = createStyles((theme) => ({
     chessboard: {
         [theme.fn.largerThan('md')]: {
@@ -31,16 +32,16 @@ const useStyles = createStyles((theme) => ({
     }
 }))
 
-const ChessBoard = ({ color }) => {
+const ChessBoard = () => {
     const { classes } = useStyles();
     const { chessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
     let roomID = localStorage.getItem('roomID');
 
     useEffect(() => {
-        socket.on('opponent-move', handleOpponentMove)
+        socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)
 
         return () => {
-            socket.off('opponent-move');
+            socket.off(CHESS_OPPONENT_MOVE);
         }
     }, []);
 
@@ -49,7 +50,7 @@ const ChessBoard = ({ color }) => {
             let from = evt.active.id;
             let to = evt.over.id;
             handleDrop({ from, to }, (moveData) => {
-                socket.emit('move', roomID, moveData);
+                socket.emit(CHESS_MOVE, roomID, moveData);
             })
         }}>
             <Flex className={classes.chessboard}>

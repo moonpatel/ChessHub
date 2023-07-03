@@ -1,5 +1,7 @@
 const socket = require("socket.io");
-
+const { SOCKET_EVENTS } = require("./constants");
+const { CHESS_MOVE, CHESS_OPPONENT_MOVE, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL } =
+    SOCKET_EVENTS;
 // roomID => { timeLimit, players:[{username: {color}}] }
 let activeRooms = new Map();
 
@@ -17,18 +19,18 @@ function addUserToRoom(roomID, userDetails) {
 
     if (room.players[username]) {
         room.players[username] = { color };
-        return "join-room-success";
+        return JOIN_ROOM_SUCCESS;
     }
     if (Object.keys(room.players).length > 1) {
         // room is full
         console.log(activeRooms);
-        return "room-full";
+        return ROOM_FULL;
     } else {
         room.players[username] = { color };
     }
     console.log(activeRooms);
 
-    return "join-room-success";
+    return JOIN_ROOM_SUCCESS;
 }
 
 // initialize the socket server with the given http server instance
@@ -49,10 +51,10 @@ function socketIOServerInit(server) {
 
         // data is the metadata of the user joining the room played between the users
         // structure: {username,color}
-        socket.on("join-room", (roomID, data) => {
+        socket.on(JOIN_ROOM, (roomID, data) => {
             if (activeRooms.has(roomID)) {
                 let result = addUserToRoom(roomID, data);
-                if (result === "join-room-success") {
+                if (result === JOIN_ROOM_SUCCESS) {
                     socket.join(roomID);
                     io.to(roomID).emit("new user joined the room");
                     socket.emit(result); // room joined successfully
@@ -60,13 +62,13 @@ function socketIOServerInit(server) {
                     socket.emit(result); // room is full
                 }
             } else {
-                socket.emit("join-room-error", "room does not exist");
+                socket.emit(JOIN_ROOM_ERROR, "room does not exist");
             }
         });
 
-        socket.on("move", (roomID, moveData) => {
+        socket.on(CHESS_MOVE, (roomID, moveData) => {
             console.log(moveData);
-            socket.to(roomID).emit("opponent-move", moveData);
+            socket.to(roomID).emit(CHESS_OPPONENT_MOVE, moveData);
         });
     });
 }

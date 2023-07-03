@@ -1,6 +1,7 @@
 import React, { createContext, useReducer, useRef } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
-
+import { DISPATCH_EVENTS } from '../constants';
+const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE } = DISPATCH_EVENTS
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
@@ -8,19 +9,19 @@ export const ChessGameContext = createContext();
 const reducer = (state, action) => {
     console.log(state.chess.myColor)
     switch (action.type) {
-        case 'SELECT_PIECE':
+        case SELECT_PIECE:
             {
                 console.log('SELECTING...', action.val)
                 return { ...state, moveHints: state.chess.getMoves(action.val), selected: action.val };
             }
-        case 'MOVE_PIECE':
+        case MOVE_PIECE:
             {
                 console.log('Moving', action.val, state.chess.turn());
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor })
                 newChessObj.move(action.val);
                 return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null };
             }
-        case 'CAPTURE_PIECE':
+        case CAPTURE_PIECE:
             {
                 console.log('Capture', action.val, state.chess.turn())
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor, selected: null });
@@ -58,12 +59,12 @@ const ChessGameContextProvider = ({ children }) => {
         console.log(from + to)
         if (!chess.get(to)) {
             console.log('Moving piece: ', data)
-            dispatch({ type: 'MOVE_PIECE', val: { from, to } });
+            dispatch({ type: MOVE_PIECE, val: { from, to } });
             moveAudioRef.current.play();
             return;
         } else {
             console.log('Capturing piece');
-            dispatch({ type: 'CAPTURE_PIECE', val: { from, to } });
+            dispatch({ type: CAPTURE_PIECE, val: { from, to } });
             captureAudioRef.current.play();
             return;
         }
@@ -78,13 +79,13 @@ const ChessGameContextProvider = ({ children }) => {
         console.log(!type, selected, marked)
         if (chess.turn() === myColor) {
             if (type && color === myColor) {
-                return dispatch({ type: 'SELECT_PIECE', val: square });
+                return dispatch({ type: SELECT_PIECE, val: square });
             }
             if (!type && selected && marked) {
-                dispatch({ type: 'MOVE_PIECE', val: { from: selected, to: square } })
+                dispatch({ type: MOVE_PIECE, val: { from: selected, to: square } })
             }
             if (type && marked) {
-                dispatch({ type: 'CAPTURE_PIECE', val: { from: selected, to: square } })
+                dispatch({ type: CAPTURE_PIECE, val: { from: selected, to: square } })
             }
         } else {
             return;
@@ -96,11 +97,11 @@ const ChessGameContextProvider = ({ children }) => {
         if (moveHints.includes(to)) {
             console.log(chess.get(from))
             if (chess.get(to)) {
-                dispatch({ type: 'CAPTURE_PIECE', val: { from: from, to: to } });  // capture piece
+                dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
                 captureAudioRef.current.play();
                 emitToSocketCallback(moveData);
             } else {
-                dispatch({ type: 'MOVE_PIECE', val: { from: from, to: to } }); // move piece
+                dispatch({ type: MOVE_PIECE, val: { from: from, to: to } }); // move piece
                 moveAudioRef.current.play();
                 emitToSocketCallback(moveData);
             }
@@ -110,7 +111,7 @@ const ChessGameContextProvider = ({ children }) => {
     function selectPiece({ square, type, color: pieceColor }) {
         if (pieceColor === myColor && myColor === chess.turn()) {
             console.log(square, type, pieceColor)
-            dispatch({ type: 'SELECT_PIECE', val: square });
+            dispatch({ type: SELECT_PIECE, val: square });
         }
     }
 
