@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import { ChessGameContext } from '../context/chess-game-context'
-import { Button, Flex, Text } from '@mantine/core';
+import { Button, Flex, Group, Text } from '@mantine/core';
 
 const GameHistory = () => {
-    const { gameHistory, jumpTo } = useContext(ChessGameContext)
+    const { gameHistory, jumpTo, currentIndex,goBack,goAhead } = useContext(ChessGameContext)
 
     let gameHistoryJSX = [];
     for (let i = 0; i < gameHistory.length;) {
@@ -21,10 +21,14 @@ const GameHistory = () => {
             </Flex>
         )
     }
-
+    console.log(currentIndex)
     return (
         <div>
             {gameHistoryJSX}
+            <Group>
+                <Button onClick={() => {goBack()}} disabled={currentIndex <= 0 ? true : false}>Go Back</Button>
+                <Button onClick={() => {goAhead()}} disabled={currentIndex + 1 === gameHistory.length ? true : false}>Next</Button>
+            </Group>
         </div>
     )
 }

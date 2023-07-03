@@ -22,7 +22,7 @@ const reducer = (state, action) => {
                 let updatedGameHistory = state.gameHistory;
                 let move = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: move.san, fen: newChessObj.fen() });
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: -1 };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
             }
         case CAPTURE_PIECE:
             {
@@ -31,7 +31,7 @@ const reducer = (state, action) => {
                 let updatedGameHistory = state.gameHistory;
                 let move = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: move.san, fen: newChessObj.fen() });
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: -1 };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
             }
         case JUMP_TO:
             {
@@ -153,9 +153,21 @@ const ChessGameContextProvider = ({ children }) => {
         }
     }
 
+    function goBack() {
+        if (currentIndex > 0) {
+            jumpTo(currentIndex - 1);
+        }
+    }
+
+    function goAhead() {
+        if (currentIndex < gameHistory.length - 1) {
+            jumpTo(currentIndex + 1);
+        }
+    }
+
     return (
         <ChessGameContext.Provider value={{
-            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard
+            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />
