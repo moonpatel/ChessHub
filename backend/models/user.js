@@ -38,9 +38,14 @@ const userSchema = new Schema(
         },
         methods: {
             async getFriends() {
-                await this.populate("friends", "username");
+                await this.populate("friends", "username email");
                 // console.log(this.friends);
-                return this.friends.map(friend => friend.username);
+                return this.friends.map((friend) => {
+                    return {
+                        username: friend.username,
+                        email: friend.email,
+                    };
+                });
             },
         },
     }

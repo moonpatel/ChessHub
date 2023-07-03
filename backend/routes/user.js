@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { User } = require("../models/user");
+const { checkAuth } = require("../util/auth");
 const { pendingChallenges } = require("./room");
 
 // TODO
@@ -13,11 +14,15 @@ router.get("/:username", async (req, res, next) => {
 router.post("/:username", async (req, res, next) => {});
 
 // get friends of the user
-router.get("/:username/friends", async (req, res, next) => {
+router.get("/:username/friends", checkAuth, async (req, res, next) => {
     const username = req.params.username;
     const user = await User.findOne({ username });
-    const friends = await user.getFriends();
-    return res.json({ success: true, friends });
+    if (user) {
+        const friends = await user.getFriends();
+        return res.json({ success: true, friends });
+    } else {
+        return res.json({ success: false, error: "Invalid username" });
+    }
 });
 
 // TODO
@@ -37,7 +42,7 @@ router.get("/:username/challenges", async (req, res, next) => {
     let username = req.params.username;
     let challenges = pendingChallenges.get(username);
     if (!challenges) challenges = [];
-    console.log(username,challenges);
+    console.log(username, challenges);
     res.json({ success: true, challenges: challenges });
 });
 

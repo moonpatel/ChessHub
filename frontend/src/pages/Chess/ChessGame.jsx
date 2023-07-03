@@ -1,6 +1,6 @@
 import { Avatar, Button, Flex, Image, Loader, MediaQuery, NavLink, Text, Title } from '@mantine/core'
 import React, { useEffect, useState } from 'react'
-import ChessBoard from '../Play/ChessBoard'
+import ChessBoard from '../Chess/ChessBoard'
 import { useNavigate, useParams } from 'react-router-dom'
 import { socket } from '../../socket'
 import { getUserData } from '../../../utils/auth'
