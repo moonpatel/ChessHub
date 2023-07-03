@@ -65,6 +65,7 @@ function socketIOServerInit(server) {
         });
 
         socket.on("move", (roomID, moveData) => {
+            console.log(moveData);
             socket.to(roomID).emit("opponent-move", moveData);
         });
     });

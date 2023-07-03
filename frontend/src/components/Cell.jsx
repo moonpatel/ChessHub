@@ -1,43 +1,32 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import Piece from './Piece';
 import { socket } from '../socket';
 import { Box, Flex } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
+import { ChessGameContext } from '../context/chess-game-context';
 
-const Cell = ({ cell, chess, marked, dispatch,selected }) => {
-    const { square, type, color } = cell;
-    const { isOver, setNodeRef } = useDroppable({ id: square });
+const Cell = ({ cell }) => {
+    let { square, type, color } = cell;
+    const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
     const [isDropped, setIsDropped] = useState(false);
-    let squareColor = chess.squareColor(square) === 'light' ? "w" : "b";
+    const { isOver, setNodeRef } = useDroppable({ id: square });
+    let squareColor = getSquareColor(square);
+    let marked = isSquareMarked(square);
 
     const handleClick = () => {
-        console.log(!type, selected, marked)
-        if (chess.turn() !== localStorage.getItem('myColor')) return;
-        if (chess.myColor === color) {
-            if (type && chess.turn() === chess.myColor) {
-                return dispatch({ type: 'SELECT_PIECE', val: square });
-            }
-            if (!type && selected && marked) {
-                console.log(square)
-                dispatch({ type: 'MOVE_PIECE', val: { from: selected, to: square } })
-            }
-            if (type && marked) {
-                dispatch({ type: 'CAPTURE_PIECE', val: { from: selected, to: square } })
-            }
-        }
+        handleSquareClick(square);
     }
 
-    let content;
-    content = marked ? <Mark /> : <Piece cell={cell} dispatch={dispatch} />;
+    let content = marked ? <Mark /> : <Piece cell={cell} />;
 
     return (
-        <Flex ref={setNodeRef} style={{aspectRatio:'1/1'}} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
+        <Flex ref={setNodeRef} style={{ aspectRatio: '1/1' }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
             {content}
         </Flex>
     )
 }
 
-export const Mark = () => {
+const Mark = () => {
     return (
         <Box w="33%" h="33%" sx={{ backgroundColor: '#77777777', borderRadius: '100%' }} m="auto"></Box>
     )

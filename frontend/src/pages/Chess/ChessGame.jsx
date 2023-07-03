@@ -4,6 +4,7 @@ import ChessBoard from '../Chess/ChessBoard'
 import { useNavigate, useParams } from 'react-router-dom'
 import { socket } from '../../socket'
 import { getUserData } from '../../../utils/auth'
+import ChessGameContextProvider from '../../context/chess-game-context'
 
 const ChessGame = () => {
     const user = getUserData();
@@ -71,7 +72,9 @@ const ChessGame = () => {
                     icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
                     description={"description"}
                 />
-                <ChessBoard color={localStorage.getItem('myColor')} />
+                <ChessGameContextProvider>
+                    <ChessBoard />
+                </ChessGameContextProvider>
                 <NavLink
                     p="2px"
                     label={username}

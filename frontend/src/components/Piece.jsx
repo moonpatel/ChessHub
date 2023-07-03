@@ -1,8 +1,10 @@
 import { Image } from '@mantine/core';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core'
+import { ChessGameContext } from '../context/chess-game-context';
 
-const Piece = ({ cell, dispatch }) => {
+const Piece = ({ cell }) => {
+    const { selectPiece } = useContext(ChessGameContext)
     let { square, type, color } = cell;
     let logo = null;
     switch (type) {
@@ -31,6 +33,7 @@ const Piece = ({ cell, dispatch }) => {
             ...cell
         }
     });
+
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
@@ -38,19 +41,21 @@ const Piece = ({ cell, dispatch }) => {
         aspectRatio: '1',
         touchAction: 'none'
     } : undefined;
+
     useEffect(() => {
         if (isDragging) {
-            dispatch({ type: 'SELECT_PIECE', val: cell });
+            selectPiece(cell);
         }
     }, [isDragging])
+
+
     if (logo) {
         return (
             <Image ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
         )
     } else {
         return (
-            <div style={{width:'100%'}}>
-            </div>
+            <div style={{ width: '100%' }}></div>
         )
     }
 }
