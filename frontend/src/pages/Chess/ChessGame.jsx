@@ -13,6 +13,7 @@ const ChessGame = () => {
     const [isWaiting, setIsWaiting] = useState(true);
     const roomID = localStorage.getItem('roomID')
     const navigate = useNavigate();
+    const opponent = localStorage.getItem('opponent');
 
     const exitGame = () => {
         localStorage.removeItem('socketid');
@@ -57,37 +58,17 @@ const ChessGame = () => {
 
     }, []);
 
-    // useEffect(() => {
-    //     if (hasJoinedRoom) {
-    //     } else {
-    //         console.log('Connecting');
-    //         socket.connect();
-    //         socket.on('connect', () => {
-    //             localStorage.setItem('socketid', socket.id);
-    //             console.log('Connected');
-    //         });
-    //         socket.emit('join-room', roomID, username, localStorage.getItem('opponent'), { color: localStorage.getItem('myColor'), timeLimit: localStorage.getItem('timeLimit') });
-    //         socket.on('joined-room', () => {
-    //             setHasJoinedRoom(true);
-    //         });
-    //         socket.on('room-created', () => {
-    //             console.log('Room is created')
-    //             setIsWaiting(false);
-    //         });
-    //     }
-    // }, []);
-
-    if (!hasJoinedRoom) return (
-        <Loader variant='bars' />
-    )
+    // if (!hasJoinedRoom) return (
+    //     <Loader variant='bars' />
+    // )
 
     return (
         <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
             <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
                 <NavLink
                     p="2px"
-                    label={"username"}
-                    icon={<Avatar radius="3px" />}
+                    label={opponent}
+                    icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
                     description={"description"}
                 />
                 <ChessBoard color={localStorage.getItem('myColor')} />

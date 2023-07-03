@@ -4,25 +4,25 @@ import { socket } from '../socket';
 import { Box, Flex } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
 
-const Cell = ({ cell, chess, marked, dispatch }) => {
+const Cell = ({ cell, chess, marked, dispatch,selected }) => {
     const { square, type, color } = cell;
     const { isOver, setNodeRef } = useDroppable({ id: square });
     const [isDropped, setIsDropped] = useState(false);
     let squareColor = chess.squareColor(square) === 'light' ? "w" : "b";
 
     const handleClick = () => {
-        if (chess.turn() !== localStorage.getItem('my_color')) return;
+        console.log(!type, selected, marked)
+        if (chess.turn() !== localStorage.getItem('myColor')) return;
         if (chess.myColor === color) {
             if (type && chess.turn() === chess.myColor) {
                 return dispatch({ type: 'SELECT_PIECE', val: square });
             }
-            console.log(type, chess.selected, marked)
-            if (!type && chess.selected && marked) {
+            if (!type && selected && marked) {
                 console.log(square)
-                dispatch({ type: 'MOVE_PIECE', val: { from: chess.selected, to: square } })
+                dispatch({ type: 'MOVE_PIECE', val: { from: selected, to: square } })
             }
             if (type && marked) {
-                dispatch({ type: 'CAPTURE_PIECE', val: { from: chess.selected, to: square } })
+                dispatch({ type: 'CAPTURE_PIECE', val: { from: selected, to: square } })
             }
         }
     }

@@ -38,20 +38,19 @@ const reducer = (state, action) => {
         case 'SELECT_PIECE':
             {
                 if (state.chess.turn() !== localStorage.getItem('myColor')) return state;
-                state.chess.select(action.val.square);
-                return { ...state, moveHints: state.chess.getMoves(state.chess.selected) };
+                return { ...state, moveHints: state.chess.getMoves(action.val.square), selected: action.val.square };
             }
         case 'MOVE_PIECE':
             {
                 console.log('Moving', action.val, state.chess.turn());
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor })
                 newChessObj.move(action.val);
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [] };
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null };
             }
         case 'CAPTURE_PIECE':
             {
                 console.log('Capture', action.val, state.chess.turn())
-                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
+                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor, selected: null });
                 newChessObj.move(action.val);
                 return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [] };
             }
@@ -72,7 +71,7 @@ const ChessBoard = ({ color }) => {
     let roomID = localStorage.getItem('roomID');
 
     const [gameState, dispatch] = useReducer(reducer, {
-        chess: chessInit(color), chessBoard: chess.getBoard(color), moveHints: []
+        chess: chessInit(color), chessBoard: chess.getBoard(color), moveHints: [], selected: null
     });
 
     const chessBoardRef = useRef(gameState.chessBoard);
@@ -134,6 +133,7 @@ const ChessBoard = ({ color }) => {
                                             chess={chess}
                                             marked={gameState.moveHints.includes(cell.square)}
                                             dispatch={dispatch}
+                                            selected={gameState.selected}
                                         />)
                                 })}
                             </Flex>

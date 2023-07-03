@@ -35,7 +35,8 @@ const Piece = ({ cell, dispatch }) => {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
         zIndex: isDragging ? 100 : 20,
-        aspectRatio: '1'
+        aspectRatio: '1',
+        touchAction: 'none'
     } : undefined;
     useEffect(() => {
         if (isDragging) {
