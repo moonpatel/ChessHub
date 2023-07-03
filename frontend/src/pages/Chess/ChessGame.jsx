@@ -1,12 +1,14 @@
 import { Avatar, Button, Flex, Image, Loader, MediaQuery, NavLink, Text, Title } from '@mantine/core'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import ChessBoard from '../Chess/ChessBoard'
 import { useNavigate, useParams } from 'react-router-dom'
 import { socket } from '../../socket'
 import { getUserData } from '../../../utils/auth'
-import ChessGameContextProvider from '../../context/chess-game-context'
+import { ChessGameContext } from '../../context/chess-game-context'
+import GameHistory from '../../components/GameHistory'
 
 const ChessGame = () => {
+    const { gameHistory } = useContext(ChessGameContext);
     const user = getUserData();
     let username = user.username;
     let color = localStorage.getItem('myColor')
@@ -59,9 +61,9 @@ const ChessGame = () => {
 
     }, []);
 
-    // if (!hasJoinedRoom) return (
-    //     <Loader variant='bars' />
-    // )
+    if (!hasJoinedRoom) return (
+        <Loader variant='bars' />
+    )
 
     return (
         <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
@@ -72,9 +74,7 @@ const ChessGame = () => {
                     icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
                     description={"description"}
                 />
-                <ChessGameContextProvider>
-                    <ChessBoard />
-                </ChessGameContextProvider>
+                <ChessBoard />
                 <NavLink
                     p="2px"
                     label={username}
@@ -83,7 +83,6 @@ const ChessGame = () => {
                 />
             </Flex>
             <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
-
                 <Flex maw={450} sx={{
                     width: '100%',
                     height: '600px',
@@ -91,6 +90,9 @@ const ChessGame = () => {
                     borderRadius: '10px'
                 }} bg='gray' p="10px" justify='start' align='center' direction='column' h="600px">
                     <Title>Game Data</Title>
+                    <Flex direction='column'>
+                        <GameHistory />
+                    </Flex>
                     <Flex>
                         <Button onClick={exitGame} color='red'>Exit Game</Button>
                     </Flex>

@@ -5,7 +5,7 @@ import { Flex, createStyles } from '@mantine/core';
 import { DndContext } from '@dnd-kit/core'
 import { ChessGameContext } from '../../context/chess-game-context';
 import { SOCKET_EVENTS } from '../../constants';
-const {CHESS_OPPONENT_MOVE,CHESS_MOVE} = SOCKET_EVENTS
+const { CHESS_OPPONENT_MOVE, CHESS_MOVE } = SOCKET_EVENTS
 const useStyles = createStyles((theme) => ({
     chessboard: {
         [theme.fn.largerThan('md')]: {
@@ -34,8 +34,9 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = () => {
     const { classes } = useStyles();
-    const { chessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
+    const { getChessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
     let roomID = localStorage.getItem('roomID');
+    const chessBoard = getChessBoard();
 
     useEffect(() => {
         socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)

@@ -21,6 +21,7 @@ import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
 import JoinChallenge from './components/JoinChallenge'
 import ErrorBoundary from './components/ErrorBoundary'
+import ChessGameContextProvider, { ChessGameContext } from './context/chess-game-context'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -38,7 +39,14 @@ const router = createBrowserRouter([{
         { path: 'online', element: <div>Online</div> }
       ]
     },
-    { path: "game/friend/:roomID", element: <ChessGame /> },
+    {
+      path: "game/friend/:roomID", element:
+        <div>
+          <ChessGameContextProvider>
+            <ChessGame />
+          </ChessGameContextProvider>
+        </div>
+    },
     {
       path: 'settings', element: <Settings />, children: [
         { index: true, element: <Profile /> },
@@ -52,7 +60,7 @@ const router = createBrowserRouter([{
 },
 { path: "/game/challenges/:challenger/:roomID", element: <JoinChallenge /> },
 {
-  path: '/login', element: <AuthenticationPage isLogin={true} />,action: loginAction, loader: () => { if (getAuthToken()) return redirect('/home'); else return null; }
+  path: '/login', element: <AuthenticationPage isLogin={true} />, action: loginAction, loader: () => { if (getAuthToken()) return redirect('/home'); else return null; }
 }, {
   path: '/signup', element: <AuthenticationPage isLogin={false} />, action: signupAction, loader: () => { if (getAuthToken()) return redirect('/signup'); else return null; }
 }, {
