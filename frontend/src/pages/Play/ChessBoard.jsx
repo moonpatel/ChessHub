@@ -2,9 +2,35 @@ import React, { useEffect, useReducer, useRef } from 'react';
 import { ChessModified, chess, chessInit } from '../../../utils/chess';
 import Cell from '../../components/Cell';
 import { socket } from '../../socket';
-import { Flex } from '@mantine/core';
+import { Flex, createStyles } from '@mantine/core';
 import { DndContext } from '@dnd-kit/core'
+import { useElementSize } from '@mantine/hooks';
 
+const useStyles = createStyles((theme) => ({
+    chessboard: {
+        [theme.fn.largerThan('md')]: {
+            width: '600px'
+        },
+
+        [theme.fn.smallerThan('md')]: {
+            width: '560px'
+        },
+        [theme.fn.smallerThan('sm')]: {
+            width: '360px',
+        },
+    },
+    boardrow: {
+        [theme.fn.largerThan('md')]: {
+            height: '75px'
+        },
+        [theme.fn.smallerThan('md')]: {
+            height: '70px'
+        },
+        [theme.fn.smallerThan('sm')]: {
+            height: '45px'
+        },
+    }
+}))
 
 const reducer = (state, action) => {
     console.log(state.chess.myColor)
@@ -35,6 +61,9 @@ const reducer = (state, action) => {
 }
 
 const ChessBoard = ({ color }) => {
+    const ref = useRef()
+    const { height, width } = useElementSize(ref)
+    const { classes } = useStyles();
     const moveAudioRef = useRef(null);
     const captureAudioRef = useRef(null);
     const gameEndAudioRef = useRef(null);
@@ -90,11 +119,13 @@ const ChessBoard = ({ color }) => {
                 }
             }
         }}>
-            <Flex w="600px">
+            <Flex ref={ref} className={
+                classes.chessboard
+            }>
                 <div>
                     {gameState.chessBoard.map((row, rowIndex) => {
                         return (
-                            <Flex className='flex' key={rowIndex * 2}>
+                            <Flex className={classes.boardrow} key={rowIndex * 2}>
                                 {row.map((cell) => {
                                     return (
                                         <Cell
@@ -114,7 +145,7 @@ const ChessBoard = ({ color }) => {
             <audio src='/src/assets/capture.mp3' ref={captureAudioRef} />
             <audio src='/src/assets/game-end.webm.mp3' ref={gameEndAudioRef} />
             <audio src='/src/assets/move-check.mp3' ref={checkAudioRef} />
-        </DndContext>
+        </DndContext >
     )
 }
 

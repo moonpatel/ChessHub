@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 
 const Play = () => {
     return (
-        <Card sx={{
-            width: '450px',
+        <Card maw={450} sx={{
+            width: '100%',
             height: '600px',
             textAlign: 'center'
         }}>

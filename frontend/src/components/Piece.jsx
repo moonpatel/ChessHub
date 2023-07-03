@@ -4,8 +4,7 @@ import { useDraggable } from '@dnd-kit/core'
 
 const Piece = ({ cell, dispatch }) => {
     let { square, type, color } = cell;
-    if (type === undefined) return null;
-    let logo;
+    let logo = null;
     switch (type) {
         case 'p':
             logo = color === 'w' ? 'pawn_white' : 'pawn_black';
@@ -35,17 +34,24 @@ const Piece = ({ cell, dispatch }) => {
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
-        zIndex: isDragging ? 100 : 20
+        zIndex: isDragging ? 100 : 20,
+        aspectRatio: '1'
     } : undefined;
     useEffect(() => {
         if (isDragging) {
             dispatch({ type: 'SELECT_PIECE', val: cell });
         }
     }, [isDragging])
-
-    return (
-        <Image ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
-    )
+    if (logo) {
+        return (
+            <Image ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
+        )
+    } else {
+        return (
+            <div style={{width:'100%'}}>
+            </div>
+        )
+    }
 }
 
 export default Piece

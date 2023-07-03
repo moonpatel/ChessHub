@@ -1,15 +1,37 @@
-import { AppShell, Button, Container, Navbar, Paper, Text, useMantineTheme } from '@mantine/core'
+import { AppShell, Burger, Button, Container, Header, MediaQuery, Navbar, Paper, Text, createStyles, useMantineTheme } from '@mantine/core'
 import React, { useState } from 'react'
 import NavbarLinks from '../components/NavbarLinks';
 import { Outlet } from 'react-router-dom'
 import Logout from '../components/Logout';
 
+const useStyles = createStyles((theme) => ({
+    body: {
+        width: '100%',
+        height:'100%'
+
+    },
+    root: {
+        width: '100%',
+        height:'100vh'
+
+    },
+    main: {
+        width: '100%',
+        height:'100vh'
+    }
+}))
+
 const MainLayout = () => {
+    const { classes } = useStyles();
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
     return (
         <Paper>
-            <AppShell
+            <AppShell classNames={{
+                body: classes.body,
+                root: classes.root,
+                main: classes.main
+            }}
                 styles={{
                     main: {
                         background: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0]
@@ -18,22 +40,39 @@ const MainLayout = () => {
                         textAlign: 'center'
                     }
                 }}
-                navbarOffsetBreakpoint="sm"
+                layout='alt'
                 navbar={
-                    <Navbar py="md" px="0" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 30, lg: 180 }}>
+                    <Navbar py="md" px="0" hiddenBreakpoint="md" hidden={!opened} width={{ md: 150 }}>
                         <Navbar.Section>
                             <Text size={30} weight={700}>Chess</Text>
                         </Navbar.Section>
                         <Navbar.Section grow mt="md">
                             <NavbarLinks />
                         </Navbar.Section>
-                        <Navbar.Section>
+                        <Navbar.Section >
                             <Logout />
                         </Navbar.Section>
                     </Navbar>
                 }
+                header={
+                    <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                        <Header zIndex={1000} p="md">
+                            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                                <Burger
+                                    opened={opened}
+                                    onClick={() => setOpened((o) => !o)}
+                                    size="sm"
+                                    color={theme.colors.gray[6]}
+                                    mr="xl"
+                                />
+
+                                <Text>Application header</Text>
+                            </div>
+                        </Header>
+                    </MediaQuery>
+                }
             >
-                <Container size="100%" px="100px" >
+                <Container size="100%" px={{ 'md': '10px', 'lg': '30px' }} >
                     <Outlet />
                 </Container>
             </AppShell>

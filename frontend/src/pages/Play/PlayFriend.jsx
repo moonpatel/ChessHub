@@ -38,8 +38,8 @@ const PlayFriend = () => {
                 </CopyButton> */}
             </Modal>
             <Card
-                sx={{
-                    width: '450px',
+                maw={450} sx={{
+                    width: '100%',
                     height: '600px',
                     textAlign: 'center'
                 }}

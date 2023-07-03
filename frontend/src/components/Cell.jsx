@@ -31,7 +31,7 @@ const Cell = ({ cell, chess, marked, dispatch }) => {
     content = marked ? <Mark /> : <Piece cell={cell} dispatch={dispatch} />;
 
     return (
-        <Flex ref={setNodeRef} onClick={handleClick} w="75px" h="75px" bg={squareColor === 'w' ? "white" : "gray"} >
+        <Flex ref={setNodeRef} style={{aspectRatio:'1/1'}} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
             {content}
         </Flex>
     )

@@ -1,4 +1,4 @@
-import { Avatar, Button, Flex, Image, Loader, NavLink, Text, Title } from '@mantine/core'
+import { Avatar, Button, Flex, Image, Loader, MediaQuery, NavLink, Text, Title } from '@mantine/core'
 import React, { useEffect, useState } from 'react'
 import ChessBoard from '../Play/ChessBoard'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -82,7 +82,7 @@ const ChessGame = () => {
     )
 
     return (
-        <Flex gap="xl" justify='center' align='center' wrap='nowrap' direction='row'>
+        <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
             <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
                 <NavLink
                     p="2px"
@@ -98,12 +98,20 @@ const ChessGame = () => {
                     description={"description"}
                 />
             </Flex>
-            <Flex w="450px" bg='gray' p="10px" justify='start' align='center' direction='column' h="600px" sx={{ borderRadius: '10px' }}>
-                <Title>Game Data</Title>
-                <Flex>
-                    <Button onClick={exitGame} color='red'>Exit Game</Button>
+            <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
+
+                <Flex maw={450} sx={{
+                    width: '100%',
+                    height: '600px',
+                    textAlign: 'center',
+                    borderRadius: '10px'
+                }} bg='gray' p="10px" justify='start' align='center' direction='column' h="600px">
+                    <Title>Game Data</Title>
+                    <Flex>
+                        <Button onClick={exitGame} color='red'>Exit Game</Button>
+                    </Flex>
                 </Flex>
-            </Flex>
+            </MediaQuery>
         </Flex>
     )
 }
