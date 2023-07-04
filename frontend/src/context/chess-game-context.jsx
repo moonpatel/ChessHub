@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useRef } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
 import { DISPATCH_EVENTS } from '../constants';
 import ChessBoard from '../pages/Chess/ChessBoard';
-const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO } = DISPATCH_EVENTS
+const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY } = DISPATCH_EVENTS
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
@@ -20,8 +20,8 @@ const reducer = (state, action) => {
                 console.log('Moving', action.val, state.chess.turn());
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
                 let updatedGameHistory = state.gameHistory;
-                let move = newChessObj.move(action.val);
-                updatedGameHistory.push({ move: move.san, fen: newChessObj.fen() });
+                let { san, after } = newChessObj.move(action.val);
+                updatedGameHistory.push({ move: san, fen: after });
                 return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
             }
         case CAPTURE_PIECE:
@@ -29,14 +29,25 @@ const reducer = (state, action) => {
                 console.log('Capture', action.val, state.chess.turn());
                 let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
                 let updatedGameHistory = state.gameHistory;
-                let move = newChessObj.move(action.val);
-                updatedGameHistory.push({ move: move.san, fen: newChessObj.fen() });
+                let { san, after } = newChessObj.move(action.val);
+                updatedGameHistory.push({ move: san, fen: after });
                 return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
             }
         case JUMP_TO:
             {
                 let index = action.val;
                 return { ...state, currentIndex: index }
+            }
+        case SET_GAME_HISTORY:
+            {
+                let fetchedGameHistory = action.val;
+                let newChessObj = new ChessModified({ color: state.chess.myColor });
+                let updatedGameHistory = [];
+                for (let i = 0; i < fetchedGameHistory.length; i++) {
+                    let { san, after } = newChessObj.move(fetchedGameHistory[i]);
+                    updatedGameHistory.push({ fen: after, move: san })
+                }
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(state.chess.myColor), gameHistory: updatedGameHistory }
             }
         default:
             return state;
@@ -60,7 +71,7 @@ const ChessGameContextProvider = ({ children }) => {
     let myColor = localStorage.getItem('myColor');
     console.log('INSIDE CONTEXT PROVIDER');
     const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
-    console.log(gameHistory)
+    console.log(gameHistory);
 
 
     console.log(gameHistory);
@@ -71,7 +82,7 @@ const ChessGameContextProvider = ({ children }) => {
 
     // data received through socket
     function handleOpponentMove(data) {
-        let { from, to } = data;
+        let { from, to, fen } = data;
         console.log(from + to);
         if (!chess.get(to)) {
             console.log('Moving piece: ', data);
@@ -87,7 +98,7 @@ const ChessGameContextProvider = ({ children }) => {
     }
 
     // called when user clicks a square
-    function handleSquareClick(square) {
+    function handleSquareClick(square, emitToSocketCallback) {
         let { type, color } = chess.get(square);
         let marked = moveHints.includes(square);
         console.log('handleSquareClick', square)
@@ -99,9 +110,13 @@ const ChessGameContextProvider = ({ children }) => {
             }
             if (!type && selected && marked) {
                 dispatch({ type: MOVE_PIECE, val: { from: selected, to: square } })
+                emitToSocketCallback({ from: selected, to: square })
+                captureAudioRef.current.play();
             }
             if (type && marked) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: selected, to: square } })
+                emitToSocketCallback({ from: selected, to: square })
+                moveAudioRef.current.play();
             }
         } else {
             return;
@@ -165,9 +180,14 @@ const ChessGameContextProvider = ({ children }) => {
         }
     }
 
+    // fetchedGameHistory is an array of objects of the form {from,to}
+    function setGameHistory(fetchedGameHistory) {
+        dispatch({ type: SET_GAME_HISTORY, val: fetchedGameHistory })
+    }
+
     return (
         <ChessGameContext.Provider value={{
-            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack
+            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />

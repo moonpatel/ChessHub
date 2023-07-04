@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react'
 import Piece from './Piece';
 import { socket } from '../socket';
-import { Box, Flex } from '@mantine/core';
+import { Box, Flex, Modal } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
 import { ChessGameContext } from '../context/chess-game-context';
+import { SOCKET_EVENTS } from '../constants';
+const { CHESS_MOVE } = SOCKET_EVENTS
 
 const Cell = ({ cell }) => {
+    let roomID = localStorage.getItem('roomID');
     let { square, type, color } = cell;
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
     const [isDropped, setIsDropped] = useState(false);
@@ -14,7 +17,10 @@ const Cell = ({ cell }) => {
     let marked = isSquareMarked(square);
 
     const handleClick = () => {
-        handleSquareClick(square);
+        handleSquareClick(square, (moveData) => {
+            // moveData contains fen string, from, to squares of the move
+            socket.emit(CHESS_MOVE, roomID, moveData);
+        });
     }
 
     let content = marked ? <Mark /> : <Piece cell={cell} />;

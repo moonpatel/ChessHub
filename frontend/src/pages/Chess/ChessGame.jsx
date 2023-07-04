@@ -8,7 +8,7 @@ import { ChessGameContext } from '../../context/chess-game-context'
 import GameHistory from '../../components/GameHistory'
 
 const ChessGame = () => {
-    const { gameHistory } = useContext(ChessGameContext);
+    const { gameHistory,setGameHistory } = useContext(ChessGameContext);
     const user = getUserData();
     let username = user.username;
     let color = localStorage.getItem('myColor')
@@ -35,8 +35,9 @@ const ChessGame = () => {
             console.log('Connected');
         });
 
-        socket.on('join-room-success', () => {
+        socket.on('join-room-success', (fetchedGameHistory) => {
             console.log('Room joined:', roomID);
+            setGameHistory(fetchedGameHistory);
             setHasJoinedRoom(true);
         });
 

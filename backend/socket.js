@@ -2,13 +2,17 @@ const socket = require("socket.io");
 const { SOCKET_EVENTS } = require("./constants");
 const { CHESS_MOVE, CHESS_OPPONENT_MOVE, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL } =
     SOCKET_EVENTS;
-// roomID => { timeLimit, players:[{username: {color}}] }
+// roomID => { timeLimit,gameHistory , players:[{username: {color}}] }
 let activeRooms = new Map();
 
 function createRoom(roomID, timeLimit) {
     console.log(roomID, "created");
-    activeRooms.set(roomID, { timeLimit, players: {} });
+    activeRooms.set(roomID, { timeLimit, players: {}, gameHistory: [] });
     console.log("Currently active rooms", activeRooms.size);
+}
+
+function getRoom(roomID) {
+    return activeRooms.get(roomID);
 }
 
 // structure of userDetails: {username,color}
@@ -57,7 +61,9 @@ function socketIOServerInit(server) {
                 if (result === JOIN_ROOM_SUCCESS) {
                     socket.join(roomID);
                     io.to(roomID).emit("new user joined the room");
-                    socket.emit(result); // room joined successfully
+                    console.log(data, "joined");
+                    let room = getRoom(roomID);
+                    socket.emit(result, room.gameHistory); // room joined successfully
                 } else {
                     socket.emit(result); // room is full
                 }
@@ -68,6 +74,8 @@ function socketIOServerInit(server) {
 
         socket.on(CHESS_MOVE, (roomID, moveData) => {
             console.log(moveData);
+            let room = activeRooms.get(roomID);
+            room.gameHistory.push(moveData);
             socket.to(roomID).emit(CHESS_OPPONENT_MOVE, moveData);
         });
     });
