@@ -1,7 +1,6 @@
 import React, { createContext, useReducer, useRef } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
 import { DISPATCH_EVENTS } from '../constants';
-import ChessBoard from '../pages/Chess/ChessBoard';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY } = DISPATCH_EVENTS
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
@@ -13,6 +12,7 @@ const reducer = (state, action) => {
         case SELECT_PIECE:
             {
                 console.log('SELECTING...', action.val);
+                if (state.chess.turn() === state.chess.myColor && state.currentIndex < state.gameHistory.length - 1) return { ...state, currentIndex: state.gameHistory.length - 1 }
                 return { ...state, moveHints: state.chess.getMoves(action.val), selected: action.val };
             }
         case MOVE_PIECE:
@@ -47,7 +47,7 @@ const reducer = (state, action) => {
                     let { san, after } = newChessObj.move(fetchedGameHistory[i]);
                     updatedGameHistory.push({ fen: after, move: san })
                 }
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(state.chess.myColor), gameHistory: updatedGameHistory }
+                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(state.chess.myColor), gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 }
             }
         default:
             return state;
@@ -161,7 +161,7 @@ const ChessGameContextProvider = ({ children }) => {
     function getChessBoard() {
         console.log(gameHistory, currentIndex);
         if (currentIndex === -1 || gameHistory.length === 0) {
-            return chessBoard;
+            return new ChessModified({ color: myColor }).getBoard(myColor);
         } else {
             let currentChessBoard = new ChessModified({ prop: gameHistory[currentIndex].fen, color: myColor }).getBoard(myColor);
             return currentChessBoard;
