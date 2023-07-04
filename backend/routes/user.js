@@ -1,7 +1,7 @@
 const router = require("express").Router();
+const { Challenge } = require("../models/challenge");
 const { User } = require("../models/user");
 const { checkAuth } = require("../util/auth");
-const { pendingChallenges } = require("./room");
 
 // TODO
 // get user details
@@ -40,10 +40,26 @@ router.delete("/:username/friends/:friend_username", async (req, res, next) => {
 // get current challenges of the user
 router.get("/:username/challenges", async (req, res, next) => {
     let username = req.params.username;
-    let challenges = pendingChallenges.get(username);
+    let challenges = await Challenge.find({ challenged: username });
     if (!challenges) challenges = [];
-    console.log(username, challenges);
+    console.log("Challenges to", username, challenges);
     res.json({ success: true, challenges: challenges });
+});
+
+// accept or decline a challenge
+// challengeID here refers to the roomID associated with the challenge
+router.delete("/:username/challenges/:challengeID", async (req, res) => {
+    let challengeResponse = req.query.response;
+    let { challengeID } = req.params;
+    if (challengeResponse === "accept") {
+        let { deletedCount } = await Challenge.deleteOne({ roomID: challengeID });
+        return res.json({ success: true });
+    } else if (challengeResponse === "decline") {
+        let { deletedCount } = await Challenge.deleteOne({ roomID: challengeID });
+        return res.json({ success: true });
+    } else {
+        res.json({ success: false, error: { message: "Invalid query parameter" } });
+    }
 });
 
 // TODO

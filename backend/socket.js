@@ -16,13 +16,13 @@ function getRoom(roomID) {
 }
 
 // structure of userDetails: {username,color}
-function addUserToRoom(roomID, userDetails) {
+function addUserToRoom(roomID, socket, userDetails) {
     console.log(userDetails);
     let { username, color } = userDetails;
     let room = activeRooms.get(roomID);
 
     if (room.players[username]) {
-        room.players[username] = { color };
+        room.players[username] = { color, socket };
         return JOIN_ROOM_SUCCESS;
     }
     if (Object.keys(room.players).length > 1) {
@@ -30,7 +30,7 @@ function addUserToRoom(roomID, userDetails) {
         console.log(activeRooms);
         return ROOM_FULL;
     } else {
-        room.players[username] = { color };
+        room.players[username] = { color, socket };
     }
     console.log(activeRooms);
 
@@ -57,7 +57,7 @@ function socketIOServerInit(server) {
         // structure: {username,color}
         socket.on(JOIN_ROOM, (roomID, data) => {
             if (activeRooms.has(roomID)) {
-                let result = addUserToRoom(roomID, data);
+                let result = addUserToRoom(roomID, socket, data);
                 if (result === JOIN_ROOM_SUCCESS) {
                     socket.join(roomID);
                     io.to(roomID).emit("new user joined the room");
@@ -82,6 +82,7 @@ function socketIOServerInit(server) {
 }
 
 module.exports = {
+    activeRooms,
     createRoom,
     addUserToRoom,
     socketIOServerInit,
