@@ -22,6 +22,7 @@ import ChessGame from './pages/Chess/ChessGame'
 import JoinChallenge from './components/JoinChallenge'
 import ErrorBoundary from './components/ErrorBoundary'
 import ChessGameContextProvider, { ChessGameContext } from './context/chess-game-context'
+import useCountDown from './hooks/useCountDown'
 
 const router = createBrowserRouter([{
   path: '/',
