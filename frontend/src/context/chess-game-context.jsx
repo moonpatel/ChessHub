@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useRef } from 'react'
+import React, { createContext, useReducer, useRef, useState } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
 import { DISPATCH_EVENTS } from '../constants';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY } = DISPATCH_EVENTS
@@ -71,6 +71,7 @@ const ChessGameContextProvider = ({ children }) => {
     let myColor = localStorage.getItem('myColor');
     console.log('INSIDE CONTEXT PROVIDER');
     const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
+    const [isTimerOn, setIsTimerOn] = useState(true);
     console.log(gameHistory);
 
 
@@ -111,11 +112,13 @@ const ChessGameContextProvider = ({ children }) => {
             if (!type && selected && marked) {
                 dispatch({ type: MOVE_PIECE, val: { from: selected, to: square } })
                 emitToSocketCallback({ from: selected, to: square })
+                setIsTimerOn(false)
                 captureAudioRef.current.play();
             }
             if (type && marked) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: selected, to: square } })
                 emitToSocketCallback({ from: selected, to: square })
+                setIsTimerOn(false);
                 moveAudioRef.current.play();
             }
         } else {
@@ -130,10 +133,12 @@ const ChessGameContextProvider = ({ children }) => {
             if (chess.get(to)) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
                 captureAudioRef.current.play();
+                setIsTimerOn(false)
                 emitToSocketCallback(moveData);
             } else {
                 dispatch({ type: MOVE_PIECE, val: { from: from, to: to } }); // move piece
                 moveAudioRef.current.play();
+                setIsTimerOn(false)
                 emitToSocketCallback(moveData);
             }
         }
@@ -187,7 +192,7 @@ const ChessGameContextProvider = ({ children }) => {
 
     return (
         <ChessGameContext.Provider value={{
-            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory
+            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory, isTimerOn
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />

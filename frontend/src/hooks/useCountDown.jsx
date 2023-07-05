@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
-const useCountDown = (timeLimit) => {
+const useCountDown = (timeLimit,isTimerOn) => {
     const [timeLeft, setTimeLeft] = useState(timeLimit * 60 * 1000);
 
     useEffect(() => {
+        if(!isTimerOn) {
+            return;
+        }
         if (timeLeft > 0) {
             const interval = setInterval(() => {
                 setTimeLeft((prev) => prev - 1000);

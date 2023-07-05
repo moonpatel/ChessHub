@@ -1,4 +1,4 @@
-import { Avatar, Button, Flex, Image, Loader, MediaQuery, NavLink, Text, Title } from '@mantine/core'
+import { Avatar, Button, Flex, Group, Image, Loader, MediaQuery, NavLink, Text, Title } from '@mantine/core'
 import React, { useContext, useEffect, useState } from 'react'
 import ChessBoard from '../Chess/ChessBoard'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -6,15 +6,16 @@ import { socket } from '../../socket'
 import { getUserData } from '../../../utils/auth'
 import { ChessGameContext } from '../../context/chess-game-context'
 import GameHistory from '../../components/GameHistory'
+import Timer from './Timer'
 
 const ChessGame = () => {
-    const { gameHistory,setGameHistory } = useContext(ChessGameContext);
+    const { gameHistory, setGameHistory, isTimerOn,setIsTimerOn } = useContext(ChessGameContext);
     const user = getUserData();
     let username = user.username;
     let color = localStorage.getItem('myColor')
     const [hasJoinedRoom, setHasJoinedRoom] = useState(localStorage.getItem('socketid'));
     const [isWaiting, setIsWaiting] = useState(true);
-    const roomID = localStorage.getItem('roomID')
+    const roomID = localStorage.getItem('roomID');
     const navigate = useNavigate();
     const opponent = localStorage.getItem('opponent');
 
@@ -57,7 +58,8 @@ const ChessGame = () => {
         })
 
         socket.on('opponent-move', (data) => {
-            console.log(data)
+            console.log(data);
+            // setIsTimerOn(true);
         })
 
     }, []);
@@ -69,19 +71,27 @@ const ChessGame = () => {
     return (
         <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
             <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
-                <NavLink
-                    p="2px"
-                    label={opponent}
-                    icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
-                    description={"description"}
-                />
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <NavLink
+                     style={{width:"500px"}}
+                        p="2px"
+                        label={opponent}
+                        icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
+                        description={"description"}
+                    />
+                    {/* <Timer on={!isTimerOn} /> */}
+                </div>
                 <ChessBoard />
-                <NavLink
-                    p="2px"
-                    label={username}
-                    icon={<Avatar radius="3px" />}
-                    description={"description"}
-                />
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <NavLink
+                     style={{width:"500px"}}
+                        p="2px"
+                        label={username}
+                        icon={<Avatar radius="3px" children={username[0].toUpperCase()} />}
+                        description={"description"}
+                    />
+                    {/* <Timer on={isTimerOn} /> */}
+                </div>
             </Flex>
             <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
                 <Flex maw={450} sx={{
