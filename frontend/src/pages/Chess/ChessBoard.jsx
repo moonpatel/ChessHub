@@ -34,9 +34,15 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = () => {
     const { classes } = useStyles();
-    const { getChessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
+    const { getChessBoard, handleOpponentMove, handleDrop,hasGameEnded,gameEndedReason } = useContext(ChessGameContext)
     let roomID = localStorage.getItem('roomID');
     const chessBoard = getChessBoard();
+
+    if(hasGameEnded) {
+        console.log('Game ended due to',gameEndedReason)
+    } else {
+        console.log('Game not ended yet')
+    }
 
     useEffect(() => {
         socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)

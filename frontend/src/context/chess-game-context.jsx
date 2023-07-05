@@ -22,7 +22,11 @@ const reducer = (state, action) => {
                 let updatedGameHistory = state.gameHistory;
                 let { san, after } = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: san, fen: after });
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                if (newChessObj.isCheckmate()) {
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                } else {
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                }
             }
         case CAPTURE_PIECE:
             {
@@ -31,7 +35,11 @@ const reducer = (state, action) => {
                 let updatedGameHistory = state.gameHistory;
                 let { san, after } = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: san, fen: after });
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                if (newChessObj.isCheckmate()) {
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                } else {
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                }
             }
         case JUMP_TO:
             {
@@ -61,8 +69,10 @@ function chessGameStateInit(myColor) {
     let gameHistory = [];
     let selected = null;
     let currentIndex = -1;
+    let hasGameEnded = false;
+    let gameEndedReason = "";
 
-    return { chess, chessBoard, moveHints, selected, gameHistory, currentIndex };
+    return { chess, chessBoard, moveHints, selected, gameHistory, currentIndex, hasGameEnded, gameEndedReason };
 }
 
 // the ChessGameContextProvider seperates the game logic from the ChessBoard component and exposes 
@@ -70,7 +80,7 @@ function chessGameStateInit(myColor) {
 const ChessGameContextProvider = ({ children }) => {
     let myColor = localStorage.getItem('myColor');
     console.log('INSIDE CONTEXT PROVIDER');
-    const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
+    const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex, hasGameEnded, gameEndedReason }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
     const [isTimerOn, setIsTimerOn] = useState(true);
     console.log(gameHistory);
 
@@ -192,7 +202,9 @@ const ChessGameContextProvider = ({ children }) => {
 
     return (
         <ChessGameContext.Provider value={{
-            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory, isTimerOn
+            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
+            selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
+            isTimerOn, hasGameEnded, gameEndedReason
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />

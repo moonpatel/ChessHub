@@ -1,7 +1,7 @@
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { getUserData } from '../../utils/auth'
+import { getAuthToken, getUserData } from '../../utils/auth'
 
 const Challenges = () => {
     const navigate = useNavigate();
@@ -15,7 +15,11 @@ const Challenges = () => {
         const fetchData = async () => {
             let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${username}/challenges`;
             try {
-                response = await fetch(url, { signal: abortController.signal })
+                response = await fetch(url, {
+                    signal: abortController.signal, headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    }
+                })
                 const data = await response.json();
                 if (data.success) {
                     setChallenges(data.challenges);

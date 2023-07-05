@@ -1,4 +1,6 @@
 export const SOCKET_EVENTS = {
+    CONNECT:'connect',
+    DISCONNECT:'disconnect',
     CONNECTION: "connection",
     JOIN_ROOM: "join-room",
     JOIN_ROOM_SUCCESS: "join-room-success",
