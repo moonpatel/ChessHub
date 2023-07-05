@@ -7,6 +7,7 @@ const SOCKET_EVENTS = {
     CHESS_MOVE: "move",
     CHESS_OPPONENT_MOVE: "opponent-move",
     USER_JOINED_ROOM: "user-joined-room",
+    USER_RESIGNED: "user-resigned",
 };
 
 module.exports = {

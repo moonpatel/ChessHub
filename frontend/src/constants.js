@@ -1,6 +1,6 @@
 export const SOCKET_EVENTS = {
-    CONNECT:'connect',
-    DISCONNECT:'disconnect',
+    CONNECT: "connect",
+    DISCONNECT: "disconnect",
     CONNECTION: "connection",
     JOIN_ROOM: "join-room",
     JOIN_ROOM_SUCCESS: "join-room-success",
@@ -9,6 +9,7 @@ export const SOCKET_EVENTS = {
     CHESS_MOVE: "move",
     CHESS_OPPONENT_MOVE: "opponent-move",
     USER_JOINED_ROOM: "user-joined-room",
+    USER_RESIGNED: "user-resigned",
 };
 
 export const DISPATCH_EVENTS = {
@@ -17,4 +18,5 @@ export const DISPATCH_EVENTS = {
     CAPTURE_PIECE: "CAPTURE_PIECE",
     JUMP_TO: "JUMP_TO",
     SET_GAME_HISTORY: "SET_GAME_HISTORY",
+    END_GAME: "END_GAME",
 };

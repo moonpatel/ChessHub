@@ -1,7 +1,16 @@
 const socket = require("socket.io");
 const { SOCKET_EVENTS } = require("./constants");
-const { CHESS_MOVE, CHESS_OPPONENT_MOVE, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL } =
-    SOCKET_EVENTS;
+const {
+    CHESS_MOVE,
+    CHESS_OPPONENT_MOVE,
+    CONNECTION,
+    JOIN_ROOM,
+    JOIN_ROOM_ERROR,
+    JOIN_ROOM_SUCCESS,
+    ROOM_FULL,
+    USER_JOINED_ROOM,
+    USER_RESIGNED,
+} = SOCKET_EVENTS;
 // roomID => { timeLimit,gameHistory , players:[{username: {color}}] }
 let activeRooms = new Map();
 
@@ -63,6 +72,7 @@ function socketIOServerInit(server) {
                     io.to(roomID).emit("new user joined the room");
                     console.log(data, "joined");
                     let room = getRoom(roomID);
+                    io.to(roomID).emit(USER_JOINED_ROOM, data.username);
                     socket.emit(result, room.gameHistory); // room joined successfully
                 } else {
                     socket.emit(result); // room is full
@@ -77,6 +87,10 @@ function socketIOServerInit(server) {
             let room = activeRooms.get(roomID);
             room.gameHistory.push(moveData);
             socket.to(roomID).emit(CHESS_OPPONENT_MOVE, moveData);
+        });
+
+        socket.on(USER_RESIGNED, (roomID, username) => {
+            socket.to(roomID).emit(USER_RESIGNED, username);
         });
     });
 }

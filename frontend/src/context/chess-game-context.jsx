@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useRef, useState } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
 import { DISPATCH_EVENTS } from '../constants';
-const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY } = DISPATCH_EVENTS
+const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
@@ -56,6 +56,10 @@ const reducer = (state, action) => {
                     updatedGameHistory.push({ fen: after, move: san })
                 }
                 return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(state.chess.myColor), gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 }
+            }
+        case END_GAME:
+            {
+                return { ...state, hasGameEnded: true, gameEndedReason: action.val }
             }
         default:
             return state;
@@ -200,11 +204,15 @@ const ChessGameContextProvider = ({ children }) => {
         dispatch({ type: SET_GAME_HISTORY, val: fetchedGameHistory })
     }
 
+    function endGame(reason) {
+        dispatch({ type: END_GAME, val: reason })
+    }
+
     return (
         <ChessGameContext.Provider value={{
             myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
             selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
-            isTimerOn, hasGameEnded, gameEndedReason
+            isTimerOn, hasGameEnded, gameEndedReason,endGame
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />

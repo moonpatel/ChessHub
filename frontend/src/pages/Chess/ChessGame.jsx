@@ -9,15 +9,15 @@ import GameHistory from '../../components/GameHistory'
 import Timer from './Timer'
 import { useDisclosure } from '@mantine/hooks'
 import { SOCKET_EVENTS } from '../../constants'
-const { CONNECT, DISCONNECT, CHESS_MOVE, CHESS_OPPONENT_MOVE, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
+const { CONNECT, DISCONNECT, CHESS_MOVE, CHESS_OPPONENT_MOVE, USER_RESIGNED, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
 
 const ChessGame = () => {
-    const { setGameHistory, isTimerOn, setIsTimerOn, hasGameEnded, gameEndedReason } = useContext(ChessGameContext);
+    const { setGameHistory, isTimerOn, setIsTimerOn, hasGameEnded, gameEndedReason, endGame } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
 
     const user = getUserData();
     let username = user.username;
-    let color = localStorage.getItem('myColor')
+    let color = localStorage.getItem('myColor');
     const [hasJoinedRoom, setHasJoinedRoom] = useState(localStorage.getItem('socketid'));
     const [isWaiting, setIsWaiting] = useState(true);
     const roomID = localStorage.getItem('roomID');
@@ -25,6 +25,7 @@ const ChessGame = () => {
     const opponent = localStorage.getItem('opponent');
 
     const exitGame = () => {
+        // cleanup game related data
         localStorage.removeItem('socketid');
         localStorage.removeItem('roomID');
         localStorage.removeItem('opponent');
@@ -32,6 +33,12 @@ const ChessGame = () => {
         localStorage.removeItem('timeLimit');
         socket.disconnect();
         navigate('/play/friend');
+    }
+
+    const resign = () => {
+        socket.emit(USER_RESIGNED,roomID, username);
+        endGame('RESIGN');
+        exitGame();
     }
 
     useEffect(() => {
@@ -70,6 +77,14 @@ const ChessGame = () => {
             setIsWaiting(false);
         });
 
+        socket.on(USER_RESIGNED, (roomID, username) => {
+            endGame('RESIGN');
+        })
+
+        return () => {
+            socket.offAny();
+            socket.disconnect()
+        }
     }, []);
 
     if (!hasJoinedRoom) return (
@@ -132,7 +147,7 @@ const ChessGame = () => {
                             <GameHistory />
                         </Flex>
                         <Flex>
-                            <Button onClick={exitGame} color='red'>Exit Game</Button>
+                            <Button onClick={resign} color='red'>Exit Game</Button>
                         </Flex>
                     </Flex>
                 </MediaQuery>
