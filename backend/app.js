@@ -41,6 +41,7 @@ app.use("/api/room", roomRoutes);
 app.use((error, req, res, next) => {
     const status = error.status || 500;
     const message = error.message || "Something went wrong.";
+    console.log(error)
     res.status(status).json({ message: message });
 });
 

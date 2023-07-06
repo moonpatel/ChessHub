@@ -142,7 +142,7 @@ router.get(
         let { userData } = req;
         let challenges = await Challenge.find({ challenged: userData.username });
         if (!challenges) challenges = [];
-        console.log("Challenges to", username, challenges);
+        console.log("Challenges to", userData.username, challenges);
         res.json({ success: true, challenges: challenges });
     })
 );

@@ -6,12 +6,12 @@ import { getAuthToken, getUserData } from '../../utils/auth'
 const FriendsList = () => {
     const [friends, setFriends] = useState(null);
     const user = getUserData();
-    let { username } = user;
+    let { id:userid } = user;
     useEffect(() => {
         let response = null;
 
         const fetchData = async () => {
-            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${username}/friends`;
+            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}/friends`;
             try {
                 response = await fetch(url, {
                     headers: {

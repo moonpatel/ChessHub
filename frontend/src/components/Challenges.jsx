@@ -6,14 +6,16 @@ import { getAuthToken, getUserData } from '../../utils/auth'
 const Challenges = () => {
     const navigate = useNavigate();
     const [challenges, setChallenges] = useState([]);
-    const { username } = getUserData()
+    const { id: userid } = getUserData();
+    const [error, setError] = useState(null);
+
 
     useEffect(() => {
         const abortController = new AbortController();
         let response = null;
 
         const fetchData = async () => {
-            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${username}/challenges`;
+            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}/challenges`;
             try {
                 response = await fetch(url, {
                     signal: abortController.signal, headers: {
@@ -44,6 +46,40 @@ const Challenges = () => {
         }
     }, [])
 
+    const acceptChallengeHandler = async ({ challenger, roomID, color, timeLimit }) => {
+        return async () => {
+            const res = await deleteChallenge(roomID, 'accept');
+            if (res?.success) {
+                localStorage.setItem('myColor', color === 'b' ? 'w' : 'b');
+                localStorage.setItem('roomID', roomID);
+                localStorage.setItem('opponent', challenger);
+                localStorage.setItem('timeLimit', timeLimit);
+                navigate(`/game/friend/${roomID}`);
+            }
+        }
+    }
+
+    const declineChallengeHandler = async ({ challenger, roomID, color, timeLimit }) => {
+        return async () => {
+            const res = await deleteChallenge(roomID, 'decline');
+        }
+    }
+
+    const deleteChallenge = async (challengeID, response) => {
+        try {
+            let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}/challenges/${challengeID}?response=${response}`
+            let response = await fetch(url, {
+                method: 'DELETE', headers: {
+                    Authorization: `Bearer ${getAuthToken()}`,
+                }
+            })
+            const resData = await response.json();
+            return resData;
+        } catch (err) {
+            setError(err)
+        }
+    }
+
     if (!challenges || challenges.length === 0) {
         return (
             <>
@@ -64,14 +100,8 @@ const Challenges = () => {
                             <Group position='apart'>
                                 <Text>Challenge by {challenger}</Text>
                                 <Group position='center'>
-                                    <Button color='lime' onClick={() => {
-                                        localStorage.setItem('myColor', color === 'b' ? 'w' : 'b');
-                                        localStorage.setItem('roomID', roomID);
-                                        localStorage.setItem('opponent', challenger);
-                                        localStorage.setItem('timeLimit', timeLimit);
-                                        navigate(`/game/friend/${roomID}`);
-                                    }}>Accept</Button>
-                                    <Button color='gray'>Decline</Button>
+                                    <Button color='lime' onClick={acceptChallengeHandler({ challenger, roomID, color, timeLimit })}>Accept</Button>
+                                    <Button color='gray' onClick={declineChallengeHandler({ challenger, roomID, color, timeLimit })}>Decline</Button>
                                 </Group>
                             </Group>
                         )
