@@ -27,6 +27,12 @@ const userSchema = new Schema(
                 ref: "User",
             },
         ],
+        games: [
+            {
+                type: ObjectId,
+                ref: "Game",
+            },
+        ],
     },
     {
         virtuals: {
@@ -44,8 +50,13 @@ const userSchema = new Schema(
                     return {
                         username: friend.username,
                         email: friend.email,
+                        id: friend.id,
                     };
                 });
+            },
+            async getGames() {
+                await this.populate("games");
+                return this.games;
             },
         },
     }

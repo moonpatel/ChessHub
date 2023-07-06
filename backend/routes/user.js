@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const { Challenge } = require("../models/challenge");
+const { Game } = require("../models/game");
 const { User } = require("../models/user");
 const { checkAuth } = require("../util/auth");
 const { catchAsync } = require("../util/errors");
@@ -174,16 +175,34 @@ router.get(
     "/:userid/games",
     checkAuth,
     catchAsync(async (req, res, next) => {
-        res.send("TODO");
+        const userData = await User.findOne();
+        let gamesData = await userData.getGames();
+        if (!gamesData) gamesData = [];
+        return res.status(200).json({ success: true, data: gamesData });
     })
 );
+
+// TODO
+// add a game
+router.post("/:userid/game", checkAuth, async (req, res, next) => {
+    const gameData = req.body;
+    const gameDoc = await Game.create(gameData);
+    return res.json({ success: true, data: gameDoc });
+});
 
 // TODO
 // get a particular game
 router.get(
     "/:userid/games/:gameid",
+    checkAuth,
     catchAsync(async (req, res, next) => {
-        res.send("TODO");
+        const { gameid } = req.params;
+        const gameData = await Game.findById(gameid);
+        if (gameData) {
+            return res.status(200).json({ success: true, data: gameData });
+        } else {
+            return res.status(404).json({ success: false, error: { message: "Game not found" } });
+        }
     })
 );
 
