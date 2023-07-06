@@ -28,11 +28,12 @@ router.post("/signup", async (req, res, next) => {
     }
 
     let user = await User.findOne({ username: data.username });
-    if (user) errors.username = "Username already exists";
+    if (user) errors.username = "Username already taken";
 
     if (Object.keys(errors).length > 0) {
         console.log(errors);
-        return res.status(422).json({
+        return res.status(409).json({
+            success: false,
             message: "User signup failed due to validation errors.",
             errors,
         });
@@ -44,10 +45,18 @@ router.post("/signup", async (req, res, next) => {
             username: data.username,
             password_hash: await generatePasswordHash(data.password),
         };
-        userDoc = new User(userData);
+        let userDoc = new User(userData);
         await userDoc.save();
+        console.log(userDoc.id)
         const authToken = createJSONToken(userDoc.id);
-        res.status(201).json({ message: "User created.", user: userDoc, token: authToken });
+
+        const { id, username, email } = userDoc;
+        res.status(201).json({
+            success: true,
+            message: "User created.",
+            user: { id, username, email },
+            token: authToken,
+        });
     } catch (error) {
         next(error);
     }
@@ -62,19 +71,23 @@ router.post("/login", async (req, res) => {
         user = await User.findOne({ username });
         if (!user) return res.status(401).json({ message: "User not found" });
     } catch (error) {
-        return res.status(401).json({ message: "AutheFntication failed." });
+        return res.status(401).json({ success: false, message: "AutheFntication failed." });
     }
 
     const pwIsValid = await isValidPassword(password, user.password_hash);
     if (!pwIsValid) {
         return res.status(422).json({
+            success: false,
             message: "Invalid credentials.",
             errors: { credentials: "Invalid email or password entered." },
         });
     }
 
     const token = createJSONToken(user.id);
-    return res.json({ token, user });
+    console.log(username)
+    return res
+        .status(200)
+        .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
 });
 
 module.exports = router;

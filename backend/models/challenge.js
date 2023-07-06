@@ -4,12 +4,10 @@ const { String, ObjectId, Number } = Schema.Types;
 const challengeSchema = new Schema({
     challenger: {
         type: String,
-        unique: true,
         required: true,
     },
     challenged: {
         type: String,
-        unique: true,
         required: true,
     },
     color: {
@@ -24,7 +22,7 @@ const challengeSchema = new Schema({
     roomID: {
         type: String,
         required: true,
-        unique: true,
+        // unique: true,
     },
 });
 
