@@ -10,6 +10,7 @@ export const SOCKET_EVENTS = {
     CHESS_OPPONENT_MOVE: "opponent-move",
     USER_JOINED_ROOM: "user-joined-room",
     USER_RESIGNED: "user-resigned",
+    GAME_END: "game-end",
 };
 
 export const DISPATCH_EVENTS = {

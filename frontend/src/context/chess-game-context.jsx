@@ -1,7 +1,9 @@
 import React, { createContext, useReducer, useRef, useState } from 'react'
 import { ChessModified, chessInit } from '../../utils/chess';
-import { DISPATCH_EVENTS } from '../constants';
+import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
+import { socket } from '../socket';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
+const { GAME_END } = SOCKET_EVENTS;
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
@@ -23,8 +25,13 @@ const reducer = (state, action) => {
                 let { san, after } = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: san, fen: after });
                 if (newChessObj.isCheckmate()) {
+                    socket.emit(GAME_END, localStorage.getItem('roomID'));
                     return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
-                } else {
+                } else if (newChessObj.isStalemate()) {
+                    socket.emit(GAME_END, localStorage.getItem('roomID'));
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                }
+                else {
                     return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
                 }
             }
@@ -36,8 +43,13 @@ const reducer = (state, action) => {
                 let { san, after } = newChessObj.move(action.val);
                 updatedGameHistory.push({ move: san, fen: after });
                 if (newChessObj.isCheckmate()) {
+                    socket.emit(GAME_END, localStorage.getItem('roomID'));
                     return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
-                } else {
+                } else if (newChessObj.isStalemate()) {
+                    socket.emit(GAME_END, localStorage.getItem('roomID'));
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                }
+                else {
                     return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
                 }
             }
@@ -83,6 +95,7 @@ function chessGameStateInit(myColor) {
 // some functions to update game state.
 const ChessGameContextProvider = ({ children }) => {
     let myColor = localStorage.getItem('myColor');
+    let roomID = localStorage.getItem('roomID');
     console.log('INSIDE CONTEXT PROVIDER');
     const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex, hasGameEnded, gameEndedReason }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
     const [isTimerOn, setIsTimerOn] = useState(true);
@@ -182,6 +195,7 @@ const ChessGameContextProvider = ({ children }) => {
         if (currentIndex === -1 || gameHistory.length === 0) {
             return new ChessModified({ color: myColor }).getBoard(myColor);
         } else {
+            // console.log(chess);
             let currentChessBoard = new ChessModified({ prop: gameHistory[currentIndex].fen, color: myColor }).getBoard(myColor);
             return currentChessBoard;
         }
@@ -206,13 +220,14 @@ const ChessGameContextProvider = ({ children }) => {
 
     function endGame(reason) {
         dispatch({ type: END_GAME, val: reason })
+        socket.emit(GAME_END, roomID);
     }
 
     return (
         <ChessGameContext.Provider value={{
             myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
             selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
-            isTimerOn, hasGameEnded, gameEndedReason,endGame
+            isTimerOn, hasGameEnded, gameEndedReason, endGame
         }}>
             {children}
             <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />

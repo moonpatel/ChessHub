@@ -1,5 +1,8 @@
 const socket = require("socket.io");
 const { SOCKET_EVENTS } = require("./constants");
+const { Chess } = require("chess.js");
+const { User } = require("./models/user");
+const { Game } = require("./models/game");
 const {
     CHESS_MOVE,
     CHESS_OPPONENT_MOVE,
@@ -10,8 +13,9 @@ const {
     ROOM_FULL,
     USER_JOINED_ROOM,
     USER_RESIGNED,
+    GAME_END,
 } = SOCKET_EVENTS;
-// roomID => { timeLimit,gameHistory , players:[{username: {color}}] }
+// roomID => { timeLimit,gameHistory , players:{'b': {username,userid}, 'w':{username,userid} } }
 let activeRooms = new Map();
 
 function createRoom(roomID, timeLimit) {
@@ -24,14 +28,18 @@ function getRoom(roomID) {
     return activeRooms.get(roomID);
 }
 
-// structure of userDetails: {username,color}
+function destoryRoom(roomID) {
+    activeRooms.delete(roomID);
+}
+
+// structure of userDetails: {username,userid,color}
 function addUserToRoom(roomID, socket, userDetails) {
     console.log(userDetails);
-    let { username, color } = userDetails;
+    let { username, color, userid } = userDetails;
     let room = activeRooms.get(roomID);
 
-    if (room.players[username]) {
-        room.players[username] = { color, socket };
+    if (room.players[color]) {
+        room.players[color] = { username, userid, socket };
         return JOIN_ROOM_SUCCESS;
     }
     if (Object.keys(room.players).length > 1) {
@@ -39,7 +47,7 @@ function addUserToRoom(roomID, socket, userDetails) {
         console.log(activeRooms);
         return ROOM_FULL;
     } else {
-        room.players[username] = { color, socket };
+        room.players[color] = { username, userid, socket };
     }
     console.log(activeRooms);
 
@@ -69,7 +77,7 @@ function socketIOServerInit(server) {
                 let result = addUserToRoom(roomID, socket, data);
                 if (result === JOIN_ROOM_SUCCESS) {
                     socket.join(roomID);
-                    io.to(roomID).emit("new user joined the room");
+                    // io.to(roomID).emit("new user joined the room");
                     console.log(data, "joined");
                     let room = getRoom(roomID);
                     io.to(roomID).emit(USER_JOINED_ROOM, data.username);
@@ -89,8 +97,44 @@ function socketIOServerInit(server) {
             socket.to(roomID).emit(CHESS_OPPONENT_MOVE, moveData);
         });
 
-        socket.on(USER_RESIGNED, (roomID, username) => {
+        socket.on(USER_RESIGNED, async (roomID, username) => {
             socket.to(roomID).emit(USER_RESIGNED, username);
+        });
+
+        socket.on(GAME_END, async (roomID) => {
+            console.log("Ending game...");
+            const room = getRoom(roomID);
+            const black = room.players["b"];
+            const white = room.players["w"];
+            io.socketsLeave(roomID);
+            black.socket.disconnect();
+            white.socket.disconnect();
+
+            // generating pgn
+            let moves = room.gameHistory;
+            let chess = new Chess();
+            for (let move of moves) {
+                let { from, to } = move;
+                chess.move({ from, to });
+            }
+            let pgn = chess.pgn();
+
+            const blackPlayerDoc = await User.findById(black.userid);
+            const whitePlayerDoc = await User.findById(white.userid);
+
+            let gameData = {
+                white: whitePlayerDoc.id,
+                black: blackPlayerDoc.id,
+                timeLimit: room.timeLimit,
+                roomID,
+                pgn,
+            };
+            const gameDoc = await Game.create(gameData);
+
+            blackPlayerDoc.games.push(gameDoc.id);
+            await blackPlayerDoc.save();
+            whitePlayerDoc.games.push(gameDoc.id);
+            await whitePlayerDoc.save();
         });
     });
 }

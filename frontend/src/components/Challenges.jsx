@@ -46,8 +46,8 @@ const Challenges = () => {
         }
     }, [])
 
-    const acceptChallengeHandler = async ({ challenger, roomID, color, timeLimit }) => {
-        return async () => {
+    const acceptChallengeHandler = ({ challenger, roomID, color, timeLimit }) => {
+        async function handler() {
             const res = await deleteChallenge(roomID, 'accept');
             if (res?.success) {
                 localStorage.setItem('myColor', color === 'b' ? 'w' : 'b');
@@ -57,25 +57,29 @@ const Challenges = () => {
                 navigate(`/game/friend/${roomID}`);
             }
         }
+        return handler;
     }
 
-    const declineChallengeHandler = async ({ challenger, roomID, color, timeLimit }) => {
-        return async () => {
+    const declineChallengeHandler = ({ challenger, roomID, color, timeLimit }) => {
+        async function handler() {
             const res = await deleteChallenge(roomID, 'decline');
         }
+        return handler;
     }
 
     const deleteChallenge = async (challengeID, response) => {
         try {
             let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}/challenges/${challengeID}?response=${response}`
-            let response = await fetch(url, {
+            console.log(url)
+            let res = await fetch(url, {
                 method: 'DELETE', headers: {
                     Authorization: `Bearer ${getAuthToken()}`,
                 }
             })
-            const resData = await response.json();
+            const resData = await res.json();
             return resData;
         } catch (err) {
+            console.log(err)
             setError(err)
         }
     }

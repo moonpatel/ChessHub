@@ -17,6 +17,7 @@ const ChessGame = () => {
 
     const user = getUserData();
     let username = user.username;
+    let userid = user.id;
     let color = localStorage.getItem('myColor');
     const [hasJoinedRoom, setHasJoinedRoom] = useState(localStorage.getItem('socketid'));
     const [isWaiting, setIsWaiting] = useState(true);
@@ -36,7 +37,7 @@ const ChessGame = () => {
     }
 
     const resign = () => {
-        socket.emit(USER_RESIGNED,roomID, username);
+        socket.emit(USER_RESIGNED, roomID, username);
         endGame('RESIGN');
         exitGame();
     }
@@ -62,7 +63,7 @@ const ChessGame = () => {
         })
 
         console.log('JOINING ROOM')
-        socket.emit(JOIN_ROOM, roomID, { username, color })
+        socket.emit(JOIN_ROOM, roomID, { username, color, userid })
 
         socket.on(DISCONNECT, (reason) => {
             console.log('Socket disconnected due to', reason);
