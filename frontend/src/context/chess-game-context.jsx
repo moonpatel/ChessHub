@@ -9,7 +9,7 @@ export const ChessGameContext = createContext();
 
 
 const reducer = (state, action) => {
-    console.log(state.chess.myColor)
+    console.log(state.chessBoard)
     switch (action.type) {
         case SELECT_PIECE:
             {
@@ -96,13 +96,10 @@ function chessGameStateInit(myColor) {
 const ChessGameContextProvider = ({ children }) => {
     let myColor = localStorage.getItem('myColor');
     let roomID = localStorage.getItem('roomID');
-    console.log('INSIDE CONTEXT PROVIDER');
     const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex, hasGameEnded, gameEndedReason }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
     const [isTimerOn, setIsTimerOn] = useState(true);
-    console.log(gameHistory);
 
 
-    console.log(gameHistory);
     const moveAudioRef = useRef(null);
     const captureAudioRef = useRef(null);
     const gameEndAudioRef = useRef(null);
@@ -111,7 +108,6 @@ const ChessGameContextProvider = ({ children }) => {
     // data received through socket
     function handleOpponentMove(data) {
         let { from, to, fen } = data;
-        console.log(from + to);
         if (!chess.get(to)) {
             console.log('Moving piece: ', data);
             dispatch({ type: MOVE_PIECE, val: { from, to } });
@@ -129,9 +125,7 @@ const ChessGameContextProvider = ({ children }) => {
     function handleSquareClick(square, emitToSocketCallback) {
         let { type, color } = chess.get(square);
         let marked = moveHints.includes(square);
-        console.log('handleSquareClick', square)
 
-        console.log(!type, selected, marked)
         if (chess.turn() === myColor) {
             if (type && color === myColor) {
                 return dispatch({ type: SELECT_PIECE, val: square });
@@ -156,7 +150,6 @@ const ChessGameContextProvider = ({ children }) => {
     function handleDrop(moveData, emitToSocketCallback) {
         let { from, to } = moveData;
         if (moveHints.includes(to)) {
-            console.log(chess.get(from))
             if (chess.get(to)) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
                 captureAudioRef.current.play();
@@ -173,7 +166,6 @@ const ChessGameContextProvider = ({ children }) => {
 
     function selectPiece({ square, type, color: pieceColor }) {
         if (pieceColor === myColor && myColor === chess.turn()) {
-            console.log(square, type, pieceColor)
             dispatch({ type: SELECT_PIECE, val: square });
         }
     }

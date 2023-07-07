@@ -1,11 +1,21 @@
-import { Image } from '@mantine/core';
+import { Image, createStyles } from '@mantine/core';
 import React, { useContext, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core'
 import { ChessGameContext } from '../context/chess-game-context';
 
+const useStyles = createStyles((theme) => ({
+    'chess-piece': {
+        outlineStyle: 'none',
+        boxShadow: 'none',
+        borderColor: 'transparent'
+    }
+}))
+
 const Piece = ({ cell }) => {
-    const { selectPiece } = useContext(ChessGameContext)
+    const { classes } = useStyles();
+    const { selectPiece, isSquareMarked } = useContext(ChessGameContext)
     let { square, type, color } = cell;
+    let marked = isSquareMarked(square);
     let logo = null;
     switch (type) {
         case 'p':
@@ -34,12 +44,17 @@ const Piece = ({ cell }) => {
         }
     });
 
+    let borderColor = marked ? '#77777766' : 'transparent'
+
+
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
         zIndex: isDragging ? 100 : 20,
         aspectRatio: '1',
-        touchAction: 'none'
+        touchAction: 'none',
+        borderRadius: '10px',
+        outline: 'none'
     } : undefined;
 
     useEffect(() => {
@@ -51,7 +66,11 @@ const Piece = ({ cell }) => {
 
     if (logo) {
         return (
-            <Image ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
+            <div style={{ position: 'relative', zIndex: 100 }}>
+                <div style={{ position: 'absolute', borderRadius: '50%', boxSizing: 'border-box', borderWidth: '8px', width: '100%', height: '100%', borderStyle: 'solid', borderColor }}>
+                </div>
+                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
+            </div>
         )
     } else {
         return (

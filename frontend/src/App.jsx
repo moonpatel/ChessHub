@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import { Button } from '@mantine/core'
 import { createBrowserRouter, redirect, RouterProvider } from 'react-router-dom'
 import Home from './pages/Home'
 import MainLayout from './layout/MainLayout'
@@ -19,10 +15,7 @@ import { getAuthToken } from '../utils/auth'
 import { logoutAction } from './components/Logout'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
-import JoinChallenge from './components/JoinChallenge'
-import ErrorBoundary from './components/ErrorBoundary'
-import ChessGameContextProvider, { ChessGameContext } from './context/chess-game-context'
-import useCountDown from './hooks/useCountDown'
+import ChessGameContextProvider from './context/chess-game-context'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -59,7 +52,6 @@ const router = createBrowserRouter([{
     },
   ]
 },
-{ path: "/game/challenges/:challenger/:roomID", element: <JoinChallenge /> },
 {
   path: '/login', element: <AuthenticationPage isLogin={true} />, action: loginAction, loader: () => { if (getAuthToken()) return redirect('/home'); else return null; }
 }, {
