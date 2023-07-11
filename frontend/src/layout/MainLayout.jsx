@@ -34,7 +34,7 @@ const MainLayout = () => {
             }}
                 styles={{
                     main: {
-                        background: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0]
+                        background: theme.colorScheme === 'dark' ? '#302e2a' : theme.colors.gray[0]
                     },
                     body: {
                         textAlign: 'center'
@@ -42,7 +42,7 @@ const MainLayout = () => {
                 }}
                 layout='alt'
                 navbar={
-                    <Navbar py="md" px="0" hiddenBreakpoint="md" hidden={!opened} width={{ md: 150 }}>
+                    <Navbar py="md" px="0" hiddenBreakpoint="md" sx={{backgroundColor:'#262523'}} hidden={!opened} width={{ md: 150 }}>
                         <Navbar.Section>
                             <Text size={30} weight={700}>Chess</Text>
                         </Navbar.Section>

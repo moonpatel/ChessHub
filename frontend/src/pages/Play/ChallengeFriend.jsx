@@ -12,7 +12,8 @@ const ChallengeFriend = () => {
         maw={450} sx={{
             width: '100%',
             height: '600px',
-            textAlign: 'center'
+            textAlign: 'center',
+            backgroundColor:'#262523'
         }}
         >
             <Form action={`/play/friend/${friend_username}`} method='POST'>

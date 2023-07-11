@@ -41,7 +41,8 @@ const PlayFriend = () => {
                 maw={450} sx={{
                     width: '100%',
                     height: '600px',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    backgroundColor:'#262523'
                 }}
             >
                 <Flex align="center" justify="center" gap="xs" my="lg">

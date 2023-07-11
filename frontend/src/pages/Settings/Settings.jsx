@@ -15,7 +15,7 @@ const Settings = () => {
             </Flex>
             <Flex justify="start" direction="row" gap="xl" w="100%">
                 <Flex w="300px" gap="3px" align="center" justify="start" direction="column">
-                    {linksList.map((link, index) => <NavLink w="100%" p="10px" key={index} component={Link} sx={{ backgroundColor: 'gray' }} label={link.label} icon={link.icon} to={link.to} />)}
+                    {linksList.map((link, index) => <NavLink w="100%" p="10px" key={index} component={Link} sx={{ backgroundColor: '#262523' }} label={link.label} icon={link.icon} to={link.to} />)}
                 </Flex>
                 <Outlet />
             </Flex>

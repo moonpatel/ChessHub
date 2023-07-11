@@ -7,7 +7,8 @@ const Play = () => {
         <Card maw={450} sx={{
             width: '100%',
             height: '600px',
-            textAlign: 'center'
+            textAlign: 'center',
+            backgroundColor:'#262523'
         }}>
             <Flex gap="5px" px="20px" justify='center' align='center' wrap='nowrap' direction='column'>
                 <Title order={2} >Play Chess</Title>
@@ -28,7 +29,7 @@ const CardItem = ({ label, description, src, to }) => {
             label={label}
             icon={<Image src={src} width={50} />}
             description={description}
-            sx={{ backgroundColor: 'black', borderRadius: '5px' }}
+            sx={{ backgroundColor: '#1f1f1a', borderRadius: '5px' }}
         />
     )
 }
