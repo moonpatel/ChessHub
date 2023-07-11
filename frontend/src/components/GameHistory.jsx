@@ -21,7 +21,7 @@ const GameHistory = () => {
             </Flex>
         )
     }
-    console.log(currentIndex)
+    // console.log(currentIndex)
     return (
         <div>
             {gameHistoryJSX}

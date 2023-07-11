@@ -49,7 +49,6 @@ const ChessGame = () => {
         });
 
         socket.on(JOIN_ROOM_SUCCESS, (fetchedGameHistory) => {
-            console.log('Room joined:', roomID);
             setGameHistory(fetchedGameHistory);
             setHasJoinedRoom(true);
         });
@@ -62,7 +61,6 @@ const ChessGame = () => {
             console.error("Error:", err);
         })
 
-        console.log('JOINING ROOM')
         socket.emit(JOIN_ROOM, roomID, { username, color, userid })
 
         socket.on(DISCONNECT, (reason) => {
@@ -70,7 +68,7 @@ const ChessGame = () => {
         });
 
         socket.on(CHESS_OPPONENT_MOVE, (data) => {
-            console.log(data);
+            // console.log(data);
             // setIsTimerOn(true);
         })
 

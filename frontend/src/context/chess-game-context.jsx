@@ -3,84 +3,89 @@ import { ChessModified, chessInit } from '../../utils/chess';
 import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
 import { socket } from '../socket';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
-const { GAME_END } = SOCKET_EVENTS;
+const { GAME_END, CHESS_MOVE, CHESS_OPPONENT_MOVE } = SOCKET_EVENTS;
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
 
 const reducer = (state, action) => {
-    console.log(state.chessBoard)
-    switch (action.type) {
-        case SELECT_PIECE:
-            {
-                console.log('SELECTING...', action.val);
-                if (state.chess.turn() === state.chess.myColor && state.currentIndex < state.gameHistory.length - 1) return { ...state, currentIndex: state.gameHistory.length - 1 }
-                return { ...state, moveHints: state.chess.getMoves(action.val), selected: action.val };
-            }
-        case MOVE_PIECE:
-            {
-                console.log('Moving', action.val, state.chess.turn());
-                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
-                let updatedGameHistory = state.gameHistory;
-                let { san, after } = newChessObj.move(action.val);
-                updatedGameHistory.push({ move: san, fen: after });
-                if (newChessObj.isCheckmate()) {
-                    socket.emit(GAME_END, localStorage.getItem('roomID'));
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
-                } else if (newChessObj.isStalemate()) {
-                    socket.emit(GAME_END, localStorage.getItem('roomID'));
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+    // console.log('Before', state);
+    try {
+        switch (action.type) {
+            case SELECT_PIECE:
+                {
+                    if (state.chess.turn() === state.chess.myColor && state.currentIndex < state.gameHistory.length - 1) return { ...state, currentIndex: state.gameHistory.length - 1 }
+                    return { ...state, moveHints: state.chess.getMoves(action.val), selected: action.val };
                 }
-                else {
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+            case MOVE_PIECE:
+                {
+                    let newChessObj = new ChessModified(state.chess.fen());
+                    let updatedGameHistory = state.gameHistory;
+                    let { san, after } = newChessObj.move(action.val);
+                    updatedGameHistory.push({ move: san, fen: after });
+                    if (newChessObj.isCheckmate()) {
+                        socket.emit(GAME_END, localStorage.getItem('roomID'));
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                    } else if (newChessObj.isStalemate()) {
+                        socket.emit(GAME_END, localStorage.getItem('roomID'));
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                    }
+                    else {
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                    }
                 }
-            }
-        case CAPTURE_PIECE:
-            {
-                console.log('Capture', action.val, state.chess.turn());
-                let newChessObj = new ChessModified({ prop: state.chess.fen(), color: state.chess.myColor });
-                let updatedGameHistory = state.gameHistory;
-                let { san, after } = newChessObj.move(action.val);
-                updatedGameHistory.push({ move: san, fen: after });
-                if (newChessObj.isCheckmate()) {
-                    socket.emit(GAME_END, localStorage.getItem('roomID'));
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
-                } else if (newChessObj.isStalemate()) {
-                    socket.emit(GAME_END, localStorage.getItem('roomID'));
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+            case CAPTURE_PIECE:
+                {
+                    let newChessObj = new ChessModified(state.chess.fen());
+                    let updatedGameHistory = state.gameHistory;
+                    let { san, after } = newChessObj.move(action.val);
+                    updatedGameHistory.push({ move: san, fen: after });
+                    if (newChessObj.isCheckmate()) {
+                        socket.emit(GAME_END, localStorage.getItem('roomID'));
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                    } else if (newChessObj.isStalemate()) {
+                        socket.emit(GAME_END, localStorage.getItem('roomID'));
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                    }
+                    else {
+                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                    }
                 }
-                else {
-                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(localStorage.getItem('myColor')), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+            case JUMP_TO:
+                {
+                    let index = action.val;
+                    return { ...state, currentIndex: index }
                 }
-            }
-        case JUMP_TO:
-            {
-                let index = action.val;
-                return { ...state, currentIndex: index }
-            }
-        case SET_GAME_HISTORY:
-            {
-                let fetchedGameHistory = action.val;
-                let newChessObj = new ChessModified({ color: state.chess.myColor });
-                let updatedGameHistory = [];
-                for (let i = 0; i < fetchedGameHistory.length; i++) {
-                    let { san, after } = newChessObj.move(fetchedGameHistory[i]);
-                    updatedGameHistory.push({ fen: after, move: san })
+            case SET_GAME_HISTORY:
+                {
+                    let fetchedGameHistory = action.val;
+                    let newChessObj = new ChessModified();
+                    let updatedGameHistory = [];
+                    for (let i = 0; i < fetchedGameHistory.length; i++) {
+                        let { san, after } = newChessObj.move(fetchedGameHistory[i]);
+                        updatedGameHistory.push({ fen: after, move: san })
+                    }
+                    return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 }
                 }
-                return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(state.chess.myColor), gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 }
-            }
-        case END_GAME:
-            {
-                return { ...state, hasGameEnded: true, gameEndedReason: action.val }
-            }
-        default:
-            return state;
+            case END_GAME:
+                {
+                    return { ...state, hasGameEnded: true, gameEndedReason: action.val }
+                }
+            default:
+                return state;
+        }
+    } catch (err) {
+        console.log('Error', err);
+        console.log('After', state);
+        // state.chess.getBoard()
     }
+    // console.log('After', state);
+    return state;
 }
 
 function chessGameStateInit(myColor) {
     let chess = chessInit(myColor);
-    let chessBoard = chess.getBoard(myColor);
+    let chessBoard = chess.getBoard()
     let moveHints = [];
     let gameHistory = [];
     let selected = null;
@@ -107,16 +112,17 @@ const ChessGameContextProvider = ({ children }) => {
 
     // data received through socket
     function handleOpponentMove(data) {
-        let { from, to, fen } = data;
+        let { from, to } = data;
+        console.log(from, to, chess.get(to), chess.ascii());
         if (!chess.get(to)) {
-            console.log('Moving piece: ', data);
             dispatch({ type: MOVE_PIECE, val: { from, to } });
             moveAudioRef.current.play();
+            console.log(chess.ascii())
             return;
         } else {
-            console.log('Capturing piece');
             dispatch({ type: CAPTURE_PIECE, val: { from, to } });
             captureAudioRef.current.play();
+            console.log(chess.ascii())
             return;
         }
     }
@@ -147,19 +153,20 @@ const ChessGameContextProvider = ({ children }) => {
         }
     }
 
-    function handleDrop(moveData, emitToSocketCallback) {
+    function handleDrop(moveData) {
         let { from, to } = moveData;
+        // console.log(from, to, ch ess.get(to), chess.ascii())
         if (moveHints.includes(to)) {
             if (chess.get(to)) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
                 captureAudioRef.current.play();
-                setIsTimerOn(false)
-                emitToSocketCallback(moveData);
+                // setIsTimerOn(false)
+                socket.emit(CHESS_MOVE, roomID, moveData);
             } else {
                 dispatch({ type: MOVE_PIECE, val: { from: from, to: to } }); // move piece
                 moveAudioRef.current.play();
-                setIsTimerOn(false)
-                emitToSocketCallback(moveData);
+                // setIsTimerOn(false)
+                socket.emit(CHESS_MOVE, roomID, moveData);
             }
         }
     }
@@ -183,12 +190,11 @@ const ChessGameContextProvider = ({ children }) => {
     }
 
     function getChessBoard() {
-        console.log(gameHistory, currentIndex);
         if (currentIndex === -1 || gameHistory.length === 0) {
-            return new ChessModified({ color: myColor }).getBoard(myColor);
+            return new ChessModified().getBoard();
         } else {
             // console.log(chess);
-            let currentChessBoard = new ChessModified({ prop: gameHistory[currentIndex].fen, color: myColor }).getBoard(myColor);
+            let currentChessBoard = new ChessModified(gameHistory[currentIndex].fen).getBoard();
             return currentChessBoard;
         }
     }
@@ -217,7 +223,7 @@ const ChessGameContextProvider = ({ children }) => {
 
     return (
         <ChessGameContext.Provider value={{
-            myColor, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
+            myColor, chess, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
             selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
             isTimerOn, hasGameEnded, gameEndedReason, endGame
         }}>

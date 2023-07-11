@@ -2,14 +2,12 @@ import { Chess } from "chess.js";
 
 export class ChessModified extends Chess {
     constructor(obj) {
-        let prop = obj?.prop;
-        if (prop) {
-            super(prop);
+        if (obj) {
+            super(obj);
         } else {
             super();
         }
         this.selected = null;
-        this.myColor = obj?.color;
     }
 
     select(square) {
@@ -25,7 +23,7 @@ export class ChessModified extends Chess {
         return letter + number;
     }
 
-    getBoard(color) {
+    getBoard() {
         let board = this.board();
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[i].length; j++) {
@@ -34,14 +32,6 @@ export class ChessModified extends Chess {
                     board[i][j] = { square };
                 }
             }
-        }
-        if (color === "b") {
-            let newBoard = structuredClone(board);
-            newBoard.reverse();
-            for (let i = 0; i < newBoard.length; i++) {
-                newBoard[i].reverse();
-            }
-            return newBoard;
         }
         return board;
     }
@@ -58,6 +48,6 @@ export class ChessModified extends Chess {
 
 export let chess = new ChessModified();
 
-export function chessInit(color) {
-    return new ChessModified({ color });
+export function chessInit() {
+    return new ChessModified();
 }

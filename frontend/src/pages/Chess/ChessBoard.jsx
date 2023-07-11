@@ -34,15 +34,16 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = () => {
     const { classes } = useStyles();
-    const { getChessBoard, handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
+    const { getChessBoard,chess, chessBoard,handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
     let roomID = localStorage.getItem('roomID');
-    const chessBoard = getChessBoard();
+    // const chessBoard = getChessBoard();
+    let myColor = localStorage.getItem('myColor')
 
-    if (hasGameEnded) {
-        console.log('Game ended due to', gameEndedReason)
-    } else {
-        console.log('Game not ended yet')
-    }
+    // if (hasGameEnded) {
+    //     console.log('Game ended due to', gameEndedReason)
+    // } else {
+    //     console.log('Game not ended yet')
+    // }
 
     useEffect(() => {
         socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)
@@ -52,27 +53,49 @@ const ChessBoard = () => {
         }
     }, []);
 
-    return (
-        <DndContext onDragEnd={evt => {
-            let from = evt.active.id;
-            let to = evt.over.id;
-            handleDrop({ from, to }, (moveData) => {
-                socket.emit(CHESS_MOVE, roomID, moveData);
-            })
-        }}>
-            <Flex className={classes.chessboard}>
-                <div>
-                    {chessBoard.map((row, rowIndex) => {
-                        return (
-                            <Flex className={classes.boardrow} key={rowIndex * 2}>
-                                {row.map(cell => <Cell key={cell.square} cell={cell} />)}
-                            </Flex>
-                        )
-                    })}
-                </div>
-            </Flex>
-        </DndContext>
-    )
+    if (myColor === 'w') {
+        return (
+            <DndContext onDragEnd={evt => {
+                let from = evt.active.id;
+                let to = evt.over.id;
+                handleDrop({ from, to });
+            }}>
+                <Flex className={classes.chessboard}>
+                    <div>
+                        {chessBoard.map((row, rowIndex) => {
+                            return (
+                                <Flex className={classes.boardrow} key={rowIndex * 2}>
+                                    {row.map(cell => <Cell key={cell.square} cell={cell} />)}
+                                </Flex>
+                            )
+                        })}
+                    </div>
+                </Flex>
+            </DndContext>
+        )
+    } else {
+        return (
+            <DndContext onDragEnd={evt => {
+                let from = evt.active.id;
+                let to = evt.over.id;
+                handleDrop({ from, to }, (moveData) => {
+                    socket.emit(CHESS_MOVE, roomID, moveData);
+                })
+            }}>
+                <Flex className={classes.chessboard}>
+                    <div>
+                        {chessBoard.map((row, rowIndex) => {
+                            return (
+                                <Flex className={classes.boardrow} key={rowIndex * 2}>
+                                    {row.map(cell => <Cell key={cell.square} cell={cell} />).reverse()}
+                                </Flex>
+                            )
+                        }).reverse()}
+                    </div>
+                </Flex>
+            </DndContext>
+        )
+    }
 }
 
 export default ChessBoard
