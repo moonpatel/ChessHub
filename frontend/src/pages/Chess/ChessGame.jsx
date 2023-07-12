@@ -9,7 +9,7 @@ import GameHistory from '../../components/GameHistory'
 import Timer from './Timer'
 import { useDisclosure } from '@mantine/hooks'
 import { SOCKET_EVENTS } from '../../constants'
-const { CONNECT, DISCONNECT, CHESS_MOVE, CHESS_OPPONENT_MOVE, USER_RESIGNED, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
+const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
 
 const ChessGame = () => {
     const { setGameHistory, isTimerOn, setIsTimerOn, hasGameEnded, gameEndedReason, endGame } = useContext(ChessGameContext);
@@ -137,12 +137,13 @@ const ChessGame = () => {
                 <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
                     <Flex maw={450} sx={{
                         width: '100%',
-                        height: '600px',
+                        height: '100%',
                         textAlign: 'center',
-                        borderRadius: '10px'
-                    }} bg='gray' p="10px" justify='start' align='center' direction='column' h="600px">
-                        <Title>Game Data</Title>
-                        <Flex direction='column'>
+                        borderRadius: '10px',
+                        backgroundColor:'#272623'
+                    }} bg='gray' justify='start' py='md' align='center' direction='column' h="600px">
+                        <Title my='20px'>Game Data</Title>
+                        <Flex direction='column' w='100%'>
                             <GameHistory />
                         </Flex>
                         <Flex>

@@ -5,7 +5,7 @@ import './index.css'
 import { MantineProvider } from '@mantine/styles'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <MantineProvider theme={{ colorScheme: 'dark', fontFamily: 'Segoe UI',primaryColor:'lime' }}>
+  <MantineProvider theme={{ colorScheme: 'dark', fontFamily: 'monospace', primaryColor: 'lime' }}>
     <App />
   </MantineProvider>
 )

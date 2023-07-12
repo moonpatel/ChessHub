@@ -34,9 +34,9 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = () => {
     const { classes } = useStyles();
-    const { getChessBoard,chess, chessBoard,handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
+    const { getChessBoard, handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
     let roomID = localStorage.getItem('roomID');
-    // const chessBoard = getChessBoard();
+    const chessBoard = getChessBoard();
     let myColor = localStorage.getItem('myColor')
 
     // if (hasGameEnded) {
@@ -60,7 +60,7 @@ const ChessBoard = () => {
                 let to = evt.over.id;
                 handleDrop({ from, to });
             }}>
-                <Flex className={classes.chessboard}>
+                <Flex className={classes.chessboard} sx={{ userSelect: 'none' }}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
                             return (
