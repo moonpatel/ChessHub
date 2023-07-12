@@ -29,7 +29,7 @@ const Cell = ({ cell }) => {
     return (
         <Flex ref={setNodeRef} style={{ aspectRatio: '1/1', position: 'relative' }} sx={theme => {
             let color = theme.colors.lime
-            return { backgroundColor: squareColor === 'b' ? color[8] : color[1] }
+            return { backgroundColor: squareColor === 'b' ? color[8] : color[1], filter: 'saturate(0.5)' }
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
             {
                 isOver ?
