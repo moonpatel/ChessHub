@@ -75,11 +75,13 @@ router.get(
 // TO BE TESTED
 // add a friend
 router.post(
-    "/:userid/friends/:friendid",
+    "/:userid/friends/:friendusername",
     checkAuth,
     catchAsync(async (req, res, next) => {
-        let { friendid } = req.params;
-        let friendData = await User.findById(friendid);
+        let { friendusername } = req.params;
+        if (req.userData.username === friendusername)
+            res.json({ success: false, error: { message: "Cannot add yourself as friend" } });
+        let friendData = await User.findOne({ username: friendusername });
         if (friendData) {
             if (friendData.friends.includes(req.userData._id)) {
                 res.json({ success: false, error: { message: "User is already added as a friend" } });
@@ -91,7 +93,7 @@ router.post(
                 res.json({ success: true });
             }
         } else {
-            res.status(404).json({ success: false, error: { message: "No user with the given username found" } });
+            res.status(404).json({ success: false, error: { message: "username does not exist" } });
         }
     })
 );
