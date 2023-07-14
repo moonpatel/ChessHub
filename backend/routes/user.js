@@ -11,7 +11,6 @@ router.use(
     catchAsync(async (req, res, next) => {
         let userID = req.url.split("/")[1];
         let userData = await User.findById(userID);
-        console.log(userData);
         if (userData) {
             req.userData = userData;
             next();
@@ -28,8 +27,19 @@ router.get(
     checkAuth,
     catchAsync(async (req, res, next) => {
         let userData = req.userData;
-        let { id, username, email, friends, fullName, country, location } = userData;
-        let resData = { id, username, email, friends, fullName, country, location };
+        let {
+            id,
+            username,
+            email,
+            fname,
+            lname,
+            country,
+            location,
+        } = userData;
+        let friends = await userData.getFriends();
+        let games = await userData.getGames();
+        let resData = { id, username, email, friends, fname, lname, country, location, games };
+        console.log(resData)
         return res.json({ success: true, data: resData });
     })
 );
@@ -42,6 +52,7 @@ router.patch(
     catchAsync(async (req, res, next) => {
         let { userid } = req.params;
         let updatedData = req.body;
+        console.log('Updated data: ',updatedData)
         // console.log(updatedData)
         await User.findByIdAndUpdate(userid, { ...updatedData });
         let { id, username, email, fname, lname, location, country, fullName } = await User.findById(userid);

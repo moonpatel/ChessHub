@@ -1,5 +1,5 @@
-import { Box, Flex, NavLink, Stack, Text, ThemeIcon, Title } from '@mantine/core'
-import { ColorWheelIcon, GearIcon, GlobeIcon, LockOpen1Icon, LockOpen2Icon, PersonIcon } from '@radix-ui/react-icons'
+import { Box, Flex, NavLink, Title } from '@mantine/core'
+import { ColorWheelIcon, GearIcon, GlobeIcon, LockOpen1Icon, PersonIcon } from '@radix-ui/react-icons'
 import React, { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom';
 

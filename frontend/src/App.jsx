@@ -16,6 +16,7 @@ import { logoutAction } from './components/Logout'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
 import ChessGameContextProvider from './context/chess-game-context'
+import { action as profileAction } from './pages/Settings/Profile'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -43,8 +44,8 @@ const router = createBrowserRouter([{
     },
     {
       path: 'settings', element: <Settings />, children: [
-        { index: true, element: <Profile /> },
-        { path: 'profile', element: <Profile /> },
+        { index: true, element: <Profile />, action: profileAction },
+        { path: 'profile', element: <Profile />, action: profileAction },
         { path: 'themes', element: <Themes /> },
         { path: 'password', element: <Password /> },
         { path: 'friends', element: <Friends /> },

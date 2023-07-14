@@ -1,9 +1,26 @@
-import React from 'react'
-import { Avatar, Card, Container, Flex, Grid, Group, Image, Stack, Text, TextInput, Title } from '@mantine/core'
-import { getUserData } from '../../../utils/auth'
+import React, { useContext } from 'react'
+import { Avatar, Button, Flex, Grid, Group, Loader, Stack, Text, TextInput, Title } from '@mantine/core'
+import { getAuthToken, getUserData } from '../../../utils/auth'
+import { UserDataContext } from '../../context/user-data-context'
+import { useForm } from '@mantine/form'
+import { Form } from 'react-router-dom'
 
 const Profile = () => {
-    let { username } = getUserData()
+    let { user } = useContext(UserDataContext);
+
+    if(!user) {
+        return <Loader />
+    }
+
+    let { username, email, fname, lname, country, location } = user;
+    const form = useForm({
+        initialValues: {
+            username, fname, email, lname, country, location
+        },
+    })
+
+    let fullName = (fname && lname) ? fname + ' ' + lname : null;
+
     return (
         <Stack>
             <Flex gap="md" sx={{ display: 'flex', backgroundColor: '#272623', borderRadius: '5px' }} bg='gray' w="100%" p="30px">
@@ -15,29 +32,66 @@ const Profile = () => {
                 <div>
                     <Title>{username}</Title>
                     <Group position='left'>
-                        <Text>{'-------'}</Text>
-                        <Text>city</Text>
+                        <Text>{fullName || '-------'},</Text>
+                        <Text>{location || '-----'}</Text>
                     </Group>
                 </div>
             </Flex>
-            <Flex gap="md" sx={{ display: 'flex', backgroundColor: '#272623', borderRadius: '5px', textAlign: 'left' }} bg='gray' w="100%" p="30px">
-                <Grid w='100%' gutter={30} columns={12}>
-                    <Grid.Col span={6}>
-                        <TextInput label='Username' />
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                        <TextInput label='Email address' />
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                        <TextInput label='First Name' />
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                        <TextInput label='Last Name' />
-                    </Grid.Col>
-                </Grid>
-            </Flex>
+            <Form action='/settings/profile' method='patch' >
+                <Flex gap="md" sx={{ display: 'flex', backgroundColor: '#272623', borderRadius: '5px', textAlign: 'left' }} bg='gray' w="100%" p="30px">
+                    <Grid w='100%' gutter={30} columns={12}>
+                        <Grid.Col span={6}>
+                            <TextInput name='username' label='Username' readOnly value={form.values.username} />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                            <TextInput name='email' label='Email address' readOnly value={form.values.email} />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                            <TextInput name='fname' label='First Name' {...form.getInputProps('fname')} />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                            <TextInput name='lname' label='Last Name' {...form.getInputProps('lname')} />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                            <TextInput name='location' label='City' {...form.getInputProps('location')} />
+                        </Grid.Col>
+                        <Grid.Col span={6}>
+                            <TextInput name='country' label='Country' {...form.getInputProps('country')} />
+                        </Grid.Col>
+                    </Grid>
+                    <Group>
+                        <Button onClick={form.reset} color='dark'>Cancel</Button>
+                        <Button type='submit' color='lime'>Save</Button>
+                    </Group>
+                </Flex>
+            </Form>
         </Stack>
     )
 }
+
+export const action = async ({ request }) => {
+    const data = await request.formData();
+    let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${getUserData().id}`
+
+    const reqBody = {
+        fname: data.get('fname'), lname: data.get('lname'), country: data.get('country'), location: data.get('location')
+    }
+    console.log(reqBody)
+
+    const response = await fetch(url, {
+        body: JSON.stringify(reqBody),
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+            'Content-Type':'application/json'
+        }
+    })
+    const resData = await response.json();
+    console.log(resData)
+    if (!resData.success) {
+        return resData.error;
+    } else return null;
+}
+
 
 export default Profile
