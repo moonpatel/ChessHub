@@ -21,27 +21,45 @@ function isValidPassword(password, storedPassword) {
     return compare(password, storedPassword);
 }
 
+// function checkAuthMiddleware(req, res, next) {
+//     if (req.method === "OPTIONS") {
+//         return next();
+//     }
+//     if (!req.headers.authorization) {
+//         console.log("NOT AUTH. AUTH HEADER MISSING.");
+//         return next(new NotAuthError("Not authenticated."));
+//     }
+//     const authFragments = req.headers.authorization.split(" ");
+
+//     if (authFragments.length !== 2) {
+//         console.log("NOT AUTH. AUTH HEADER INVALID.");
+//         return next(new NotAuthError("Not authenticated."));
+//     }
+//     const authToken = authFragments[1];
+//     try {
+//         const validatedToken = validateJSONToken(authToken);
+//         req.userid = validatedToken;
+//     } catch (error) {
+//         console.log("NOT AUTH. TOKEN INVALID.");
+//         return next(new NotAuthError("Not authenticated."));
+//     }
+//     next();
+// }
+
 function checkAuthMiddleware(req, res, next) {
     if (req.method === "OPTIONS") {
         return next();
     }
-    if (!req.headers.authorization) {
-        console.log("NOT AUTH. AUTH HEADER MISSING.");
-        return next(new NotAuthError("Not authenticated."));
+    let authToken = req.cookies["auth-token"];
+    if (!authToken) {
+        return res.status(401).json({ userMessage: "Not authenticated", devMessage: "Auth token not found" });
     }
-    const authFragments = req.headers.authorization.split(" ");
-
-    if (authFragments.length !== 2) {
-        console.log("NOT AUTH. AUTH HEADER INVALID.");
-        return next(new NotAuthError("Not authenticated."));
-    }
-    const authToken = authFragments[1];
     try {
         const validatedToken = validateJSONToken(authToken);
         req.userid = validatedToken;
     } catch (error) {
         console.log("NOT AUTH. TOKEN INVALID.");
-        return next(new NotAuthError("Not authenticated."));
+        return res.status(401).json({ userMessage: "Not authenticated", devMessage: "Invalid auth token" });
     }
     next();
 }

@@ -5,6 +5,7 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const roomRoutes = require("./routes/room");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 mongoose
@@ -17,14 +18,15 @@ const http = require("http");
 const server = http.createServer(app);
 const { socketIOServerInit } = require("./socket");
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    // res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+    // res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
+    // res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
     next();
 });
+app.use(cookieParser());
 
 socketIOServerInit(server);
 
@@ -40,9 +42,11 @@ app.use("/api/room", roomRoutes);
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;
-    const message = error.message || "Something went wrong.";
-    console.log(error)
-    res.status(status).json({ message: message });
+    console.log(error);
+    res.status(status).json({
+        userMessage: "Something went wrong",
+        devMessage: error?.message || "Internal server error",
+    });
 });
 
 server.listen(8080, () => {

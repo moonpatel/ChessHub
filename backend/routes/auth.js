@@ -1,93 +1,122 @@
 const express = require("express");
-const { createJSONToken, isValidPassword, validateJSONToken, generatePasswordHash } = require("../util/auth");
+const {
+    createJSONToken,
+    isValidPassword,
+    validateJSONToken,
+    generatePasswordHash,
+    checkAuth,
+} = require("../util/auth");
 const { isValidEmail, isValidText } = require("../util/validation");
 const { User } = require("../models/user");
+const { z, ZodError } = require("zod");
 
 const router = express.Router();
 
+const loginSchema = z
+    .object({
+        username: z
+            .string()
+            .min(5, { message: "Username should not be less than 5 characters" })
+            .max(15, { message: "Username should not be more than 15 characters" }),
+        password: z
+            .string()
+            .min(8, { message: "Password should not be less than 8 characters" })
+            .max(15, { message: "Password should not be more than 15 characters" }),
+    })
+    .required();
+
+const signupSchema = z
+    .object({
+        username: z
+            .string()
+            .min(5, { message: "Username should not be less than 5 characters" })
+            .max(15, { message: "Username should not be more than 15 characters" }),
+        email: z.string().email({ message: "Please enter a valid email address" }),
+        password: z
+            .string()
+            .min(8, { message: "Password should not be less than 8 characters" })
+            .max(15, { message: "Password should not be more than 15 characters" }),
+    })
+    .required();
+
 router.post("/signup", async (req, res, next) => {
-    console.log(req.body);
-    const data = { email: req.body.email, password: req.body.password, username: req.body.username };
-    let errors = {};
-
-    if (!isValidEmail(data.email)) {
-        errors.email = "Invalid email.";
-    } else {
-        try {
-            let user = await User.findOne({ email: data.email });
-            if (user) {
-                errors.email = "Email exists already.";
-            }
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    if (!isValidText(data.password, 6)) {
-        errors.password = "Password must be at least 6 characters long.";
-    }
-
-    let user = await User.findOne({ username: data.username });
-    if (user) errors.username = "Username already taken";
-
-    if (Object.keys(errors).length > 0) {
-        console.log(errors);
-        return res.status(409).json({
-            success: false,
-            message: "User signup failed due to validation errors.",
-            errors,
-        });
-    }
-
     try {
+        const data = { email: req.body.email, password: req.body.password, username: req.body.username };
+
+        signupSchema.parse(data);
+
+        // check if username or email already exists
+        if (await User.findOne({ username: data.username }))
+            return res.status(409).json({ error: { username: "username already taken" } });
+        if (await User.findOne({ email: data.email }))
+            return res.status(409).json({ error: { email: "user with this email already exists" } });
+
         let userData = {
             email: data.email,
             username: data.username,
             password_hash: await generatePasswordHash(data.password),
         };
-        let userDoc = new User(userData);
-        await userDoc.save();
-        console.log(userDoc.id)
+        let userDoc = await User.create(userData);
         const authToken = createJSONToken(userDoc.id);
 
         const { id, username, email } = userDoc;
-        res.status(201).json({
+        res.status(201).cookie("auth-token", authToken, { httpOnly: true, sameSite: "strict" }).json({
             success: true,
-            message: "User created.",
             user: { id, username, email },
             token: authToken,
         });
+    } catch (err) {
+        if (err instanceof ZodError) {
+            return res.status(400).json({ userMessage: "Invalid data submitted", devMessage: "Invalid schema" });
+        }
+        next(err);
+    }
+});
+
+router.post("/login", async (req, res, next) => {
+    try {
+        let username = req.body.username,
+            password = req.body.password;
+
+        loginSchema.parse({ username, password });
+
+        let user;
+        user = await User.findOne({ username });
+        if (!user)
+            return res.status(404).json({
+                userMessage: "User does not exist",
+                devMessage: "'username' not found in db",
+            });
+
+        const pwIsValid = await isValidPassword(password, user.password_hash);
+        if (!pwIsValid) {
+            return res.status(401).json({
+                success: false,
+                userMessage: "Invalid credentials",
+                devMessage: "Invalid credentials",
+            });
+        }
+
+        const token = createJSONToken(user.id);
+        res.cookie("auth-token", token, { httpOnly: true, sameSite: "strict" });
+        return res
+            .status(200)
+            .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
     } catch (error) {
+        if (error instanceof ZodError) {
+            return res.status(401).json({ userMessage: "Invalid Credentials", devMessage: "Invalid schema" });
+        }
         next(error);
     }
 });
 
-router.post("/login", async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    let user;
+router.delete("/logout", checkAuth, (req, res, next) => {
     try {
-        user = await User.findOne({ username });
-        if (!user) return res.status(401).json({ message: "User not found" });
-    } catch (error) {
-        return res.status(401).json({ success: false, message: "AutheFntication failed." });
+        res.clearCookie("auth-token", { httpOnly: true, sameSite: "strict" });
+        res.status(200).json({ success: true });
+    } catch (err) {
+        next(err);
     }
-
-    const pwIsValid = await isValidPassword(password, user.password_hash);
-    if (!pwIsValid) {
-        return res.status(422).json({
-            success: false,
-            message: "Invalid credentials.",
-            errors: { credentials: "Invalid email or password entered." },
-        });
-    }
-
-    const token = createJSONToken(user.id);
-    console.log(username)
-    return res
-        .status(200)
-        .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
 });
 
 module.exports = router;
