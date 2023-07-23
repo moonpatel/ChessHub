@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
-import { Button, Card, Container, Text, TextInput } from '@mantine/core';
+import { Button, Card, Container, Text, TextInput, Title } from '@mantine/core';
 import { Form, redirect, useNavigate } from 'react-router-dom';
-import { isLoggedIn } from '../../../utils/auth';
+import { ZodError, z } from 'zod';
+import { useForm } from 'react-hook-form'
+
+let host = import.meta.env.VITE_BACKEND_HOST;
+
+const loginSchema = z.object({
+    username: z.string().min(5, { message: 'Username should not be less than 5 characters' }).max(15, { message: 'Username should not be more than 15 characters' }),
+    password: z.string().min(8, { message: 'Password should not be less than 8 characters' }).max(15, { message: 'Password should not be more than 15 characters' })
+}).required();
+
+const signupSchema = z.object({
+    username: z.string().min(5, { message: 'Username should not be less than 5 characters' }).max(15, { message: 'Username should not be more than 15 characters' }),
+    email: z.string().email({ message: 'Please enter a valid email address' }),
+    password: z.string().min(8, { message: 'Password should not be less than 8 characters' }).max(15, { message: 'Password should not be more than 15 characters' }),
+}).required();
 
 const AuthenticationPage = (props) => {
     const navigate = useNavigate();
@@ -10,9 +24,9 @@ const AuthenticationPage = (props) => {
     return (
         <Container maw="100%" sx={(theme) => ({ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundImage: theme.fn.gradient({ from: 'blue', to: 'teal' }) })}>
             <Card shadow="md" p="lg" style={{ maxWidth: 400, width: '100%' }}>
-                <Text align="center" variant="h4" style={{ marginBottom: 20 }}>
+                <Title align="center" variant="h4" order={1} style={{ marginBottom: 20 }}>
                     {isLogin ? 'Login' : 'Sign Up'}
-                </Text>
+                </Title>
                 <div>
                     {isLogin ? <LoginForm /> : <SignupForm />}
 
@@ -38,53 +52,137 @@ const AuthenticationPage = (props) => {
 };
 
 const LoginForm = () => {
+    const { register, handleSubmit, setError, formState: { errors } } = useForm();
+    const [errorMsg, setErrorMsg] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const loginHandler = async (data) => {
+        setIsLoading(true);
+        try {
+            loginSchema.parse(data);
+            let loginUrl = `${host}/api/auth/login`
+            const response = await fetch(loginUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, credentials: 'include' })
+            const resData = await response.json();
+            setIsLoading(false);
+            if (response.ok) {
+                localStorage.setItem('user', JSON.stringify(resData.user))
+                return navigate('/');
+            } else {
+                setErrorMsg(resData.userMessage || "Something went wrong")
+            }
+        } catch (err) {
+            setIsLoading(false);
+            if (err instanceof ZodError) {
+                let formattedError = err.format();
+                formattedError.username && setError('username', { message: formattedError.username._errors[0] });
+                formattedError.password && setError('password', { message: formattedError.password._errors[0] });
+            } else {
+                console.error(err);
+                setErrorMsg("Something went wrong")
+            }
+        }
+    }
     return (
-        <Form action='/login' method='POST'>
-            <TextInput name="username" type="text" placeholder="username" style={{ marginBottom: 10, padding: '10px' }} />
-            <TextInput name="password" type="password" placeholder="Password" style={{ marginBottom: 10, padding: '10px' }} />
-            <Button type="submit" fullWidth variant="filled" color="lime" style={{ marginBottom: 10 }}>
+        <form onSubmit={handleSubmit(loginHandler)}>
+            <TextInput error={errors?.username?.message} name="username" type="text" placeholder="username" {...register('username')} style={{ marginBottom: 10, padding: '10px' }} />
+            <TextInput error={errors?.password?.message} type="password" placeholder="Password" {...register('password')} style={{ marginBottom: 10, padding: '10px' }} />
+            <Button loading={isLoading} type="submit" fullWidth variant="filled" color="lime" style={{ marginBottom: 10 }}>
                 Login
             </Button>
-        </Form>
+            <Text style={{ color: 'red', textAlign: 'center', fontSize: '150%' }}>
+                {errorMsg}
+            </Text>
+        </form>
     );
 };
 
 const SignupForm = () => {
+    const navigate = useNavigate();
+    const { register, handleSubmit, setError, formState: { errors } } = useForm();
+    const [errorMsg, setErrorMsg] = useState("")
+    const [isLoading, setIsLoading] = useState(false);
+
+    const signupHandler = async (data) => {
+        setIsLoading(true)
+        try {
+            signupSchema.parse(data)
+            let signupUrl = `${host}/api/auth/signup`;
+            const response = await fetch(signupUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' } })
+            const resData = await response.json();
+            if (response.ok) {
+                localStorage.setItem('user', JSON.stringify(resData.user))
+                return navigate('/');
+            } else {
+                setIsLoading(false);
+                console.log(resData);
+                console.log(resData.devMessage);
+                setErrorMsg(resData.userMessage);
+                resData?.error?.username && setError('username', { message: resData.error.username });
+                resData?.error?.email && setError('email', { message: resData.error.email });
+            }
+        } catch (err) {
+            setIsLoading(false);
+            if (err instanceof ZodError) {
+                let formattedError = err.format();
+                formattedError.username && setError('username', { message: formattedError.username._errors[0] });
+                formattedError.email && setError('email', { message: formattedError.email._errors[0] });
+                formattedError.password && setError('password', { message: formattedError.password._errors[0] });
+            } else {
+                console.error(err)
+                setErrorMsg("Something went wrong")
+            }
+        }
+    }
+
     return (
-        <Form action='/signup' method='POST'>
-            <TextInput name="username" type="text" placeholder="Username" style={{ marginBottom: 10, padding: '10px' }} />
-            <TextInput name="email" type="email" placeholder="Email" style={{ marginBottom: 10, padding: '10px' }} />
-            <TextInput name="password" type="password" placeholder="Password" style={{ marginBottom: 10, padding: '10px' }} />
-            <Button type="submit" fullWidth variant="filled" color="lime" style={{ marginBottom: 10 }}>
+        <form onSubmit={handleSubmit(signupHandler)}>
+            <TextInput {...register('username')} error={errors?.username?.message} type="text" placeholder="Username" style={{ marginBottom: 10, padding: '10px' }} />
+            <TextInput {...register('email')} error={errors?.email?.message} type="email" placeholder="Email" style={{ marginBottom: 10, padding: '10px' }} />
+            <TextInput {...register('password')} error={errors?.password?.message} type="password" placeholder="Password" style={{ marginBottom: 10, padding: '10px' }} />
+            <Button loading={isLoading} type="submit" fullWidth variant="filled" color="lime" style={{ marginBottom: 10 }}>
                 Sign Up
             </Button>
-        </Form>
+            <Text style={{ color: 'red', textAlign: 'center', fontSize: '150%' }}>
+                {errorMsg}
+            </Text>
+        </form>
     );
 };
 
 export const loginAction = async ({ request }) => {
-    const data = await request.formData();
-    let url = `${import.meta.env.VITE_BACKEND_HOST}/api/auth/login`;
+    try {
+        const data = await request.formData();
+        let url = `${import.meta.env.VITE_BACKEND_HOST}/api/auth/login`;
 
-    const authData = {
-        username: data.get('username'),
-        password: data.get('password')
-    }
-
-    const response = await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(authData),
-        headers: {
-            'Content-Type': 'application/json'
+        const authData = {
+            username: data.get('username'),
+            password: data.get('password')
         }
-    })
 
-    if (response.status >= 400) return response;
-    else {
-        const responseBody = await response.json();
-        localStorage.setItem('token', responseBody.token);
-        localStorage.setItem('user', JSON.stringify(responseBody.user))
-        return redirect('/home');
+
+
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(authData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        if (response.status >= 400) return response;
+        else {
+            const responseBody = await response.json();
+            localStorage.setItem('token', responseBody.token);
+            localStorage.setItem('user', JSON.stringify(responseBody.user))
+            return redirect('/home');
+        }
+    } catch (err) {
+        if (err instanceof ZodError) {
+
+        } else {
+            console.er
+        }
     }
 }
 

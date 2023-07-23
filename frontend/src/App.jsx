@@ -11,7 +11,7 @@ import PlayLayout from './pages/Play/Layout'
 import PlayFriend from './pages/Play/PlayFriend'
 import Play from './pages/Play/Play'
 import AuthenticationPage, { loginAction, signupAction } from './pages/Authentication/Authentication'
-import { getAuthToken } from '../utils/auth'
+import { getAuthToken, getUserData } from '../utils/auth'
 import { logoutAction } from './components/Logout'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
@@ -21,7 +21,7 @@ import { action as profileAction } from './pages/Settings/Profile'
 const router = createBrowserRouter([{
   path: '/',
   element: <MainLayout />,
-  loader: () => getAuthToken() || redirect('/login'),
+  loader: () => getUserData() || redirect('/login'),
   children: [
     { index: true, element: <Home /> },
     { path: 'home', element: <Home /> },
