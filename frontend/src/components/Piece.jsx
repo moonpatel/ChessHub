@@ -69,7 +69,7 @@ const Piece = ({ cell }) => {
             <div style={{ position: 'relative', zIndex: 100 }}>
                 <div style={{ position: 'absolute', borderRadius: '50%', boxSizing: 'border-box', borderWidth: '8px', width: '100%', height: '100%', borderStyle: 'solid', borderColor }}>
                 </div>
-                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/${logo}.png`} />
+                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/images/pieces/${logo}.png`} />
             </div>
         )
     } else {

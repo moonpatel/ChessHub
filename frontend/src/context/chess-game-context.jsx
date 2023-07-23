@@ -228,10 +228,10 @@ const ChessGameContextProvider = ({ children }) => {
             isTimerOn, hasGameEnded, gameEndedReason, endGame
         }}>
             {children}
-            <audio src='/src/assets/move-self.mp3' ref={moveAudioRef} />
-            <audio src='/src/assets/capture.mp3' ref={captureAudioRef} />
-            <audio src='/src/assets/game-end.webm.mp3' ref={gameEndAudioRef} />
-            <audio src='/src/assets/move-check.mp3' ref={checkAudioRef} />
+            <audio src='/src/assets/audio/move-self.mp3' ref={moveAudioRef} />
+            <audio src='/src/assets/audio/capture.mp3' ref={captureAudioRef} />
+            <audio src='/src/assets/audio/game-end.webm.mp3' ref={gameEndAudioRef} />
+            <audio src='/src/assets/audio/move-check.mp3' ref={checkAudioRef} />
         </ChessGameContext.Provider>
     )
 }

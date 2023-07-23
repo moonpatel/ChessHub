@@ -1,5 +1,5 @@
 import React from 'react'
-import loaderImage from '../assets/chess_board_loader.png'
+import loaderImage from '../assets/images/chess_board_loader.png'
 import { Loader } from '@mantine/core'
 
 const MainLoader = () => {
