@@ -1,32 +1,32 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { getAuthToken, getUserData } from '../../utils/auth';
+import Cookie from 'js-cookie'
 export const UserDataContext = createContext();
 
 
 const UserDataContextProvider = ({ children }) => {
-    let { id: userid } = getUserData();
+    // TODO: use more secure mechanism insted of localstorage
+    const [isLoggedIn, setIsLoggedIn] = useState(JSON.parse(localStorage.getItem('loggedIn')));
     const [user, setUser] = useState(null);
-    const [friends, setFriends] = useState(null)
-    const [games, setGames] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
 
     async function fetchUserDetails() {
-        let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}`;
-        let response = await fetch(url, {
-            headers: {
-                Authorization: `Bearer ${getAuthToken()}`
+        try {
+            if (isLoggedIn) {
+                let { id: userid } = JSON.parse(localStorage.getItem('user'));
+                let userDetailsUrl = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}`
+                const response = await fetch(userDetailsUrl, {
+                    credentials: 'include'
+                });
+                const resData = await response.json();
+                if (response.ok) {
+                    setUser(resData);
+                } else {
+                    console.log(resData.devMessage);
+                    setErrorMessage(resData.userMessage);
+                }
             }
-        });
-        let resData = await response.json();
-        if (resData.success) {
-            let { id, username, email, friends: _friends_, fname, lname, fullName, country, location, games: _games_ } = resData.data;
-            setUser({ id, username, email, fname, lname, fullName, country, location })
-            setFriends(_friends_)
-            setGames(_games_)
-            localStorage.setItem('user', JSON.stringify({ id, username, email, fname, lname, fullName, country, location }));
-            localStorage.setItem('friends', JSON.stringify(_friends_));
-            localStorage.setItem('games', JSON.stringify(_games_));
-        } else {
-            throw resData.error
+        } catch (err) {
+            setErrorMessage("Something went wrong");
         }
     }
 
@@ -35,7 +35,7 @@ const UserDataContextProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserDataContext.Provider value={{ user, friends, games }}>
+        <UserDataContext.Provider value={{ user, errorMessage, isLoggedIn,setIsLoggedIn }}>
             {children}
         </UserDataContext.Provider>
     )

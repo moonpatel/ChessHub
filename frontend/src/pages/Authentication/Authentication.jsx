@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Card, Container, Text, TextInput, Title } from '@mantine/core';
 import { Form, redirect, useNavigate } from 'react-router-dom';
 import { ZodError, z } from 'zod';
 import { useForm } from 'react-hook-form'
+import { UserDataContext } from '../../context/user-data-context';
 
 let host = import.meta.env.VITE_BACKEND_HOST;
 
@@ -52,6 +53,7 @@ const AuthenticationPage = (props) => {
 };
 
 const LoginForm = () => {
+    const { setIsLoggedIn } = useContext(UserDataContext)
     const { register, handleSubmit, setError, formState: { errors } } = useForm();
     const [errorMsg, setErrorMsg] = useState("")
     const [isLoading, setIsLoading] = useState(false);
@@ -67,9 +69,11 @@ const LoginForm = () => {
             setIsLoading(false);
             if (response.ok) {
                 localStorage.setItem('user', JSON.stringify(resData.user))
+                localStorage.setItem('loggedIn', true);
+                setIsLoggedIn(true);
                 return navigate('/');
             } else {
-                setErrorMsg(resData.userMessage || "Something went wrong")
+                setErrorMsg(resData.userMessage || "Something went wrong");
             }
         } catch (err) {
             setIsLoading(false);
@@ -99,6 +103,7 @@ const LoginForm = () => {
 
 const SignupForm = () => {
     const navigate = useNavigate();
+    const { setIsLoggedIn } = useContext(UserDataContext)
     const { register, handleSubmit, setError, formState: { errors } } = useForm();
     const [errorMsg, setErrorMsg] = useState("")
     const [isLoading, setIsLoading] = useState(false);
@@ -112,6 +117,8 @@ const SignupForm = () => {
             const resData = await response.json();
             if (response.ok) {
                 localStorage.setItem('user', JSON.stringify(resData.user))
+                localStorage.setItem('loggedIn', true);
+                setIsLoggedIn(true);
                 return navigate('/');
             } else {
                 setIsLoading(false);

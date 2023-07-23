@@ -4,12 +4,13 @@ import { getAuthToken, getUserData } from '../../../utils/auth'
 import { UserDataContext } from '../../context/user-data-context'
 import { useForm } from '@mantine/form'
 import { Form } from 'react-router-dom'
+import MainLoader from '../../components/MainLoader'
 
 const Profile = () => {
     let { user } = useContext(UserDataContext);
 
-    if(!user) {
-        return <Loader />
+    if (!user) {
+        return <MainLoader />
     }
 
     let { username, email, fname, lname, country, location } = user;
@@ -83,7 +84,7 @@ export const action = async ({ request }) => {
         method: 'PATCH',
         headers: {
             Authorization: `Bearer ${getAuthToken()}`,
-            'Content-Type':'application/json'
+            'Content-Type': 'application/json'
         }
     })
     const resData = await response.json();

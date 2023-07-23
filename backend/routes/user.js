@@ -10,12 +10,18 @@ const { catchAsync } = require("../util/errors");
 router.use(
     catchAsync(async (req, res, next) => {
         let userID = req.url.split("/")[1];
+        if (userID?.length !== 24)
+            return res.status(404).json({ userMessage: "User not found", devMessage: "Invalid user ID" });
         let userData = await User.findById(userID);
         if (userData) {
             req.userData = userData;
             next();
         } else {
-            res.status(404).json({ success: false, error: { message: "User not found" } });
+            res.status(404).json({
+                success: false,
+                userMessage: "User not found",
+                devMessage: "User ID does not exists",
+            });
         }
     })
 );
@@ -24,23 +30,12 @@ router.use(
 // get user details
 router.get(
     "/:userid",
-    checkAuth,
     catchAsync(async (req, res, next) => {
         let userData = req.userData;
-        let {
-            id,
-            username,
-            email,
-            fname,
-            lname,
-            country,
-            location,
-        } = userData;
+        let { id, username, email, fname, lname, country, location } = userData;
         let friends = await userData.getFriends();
         let games = await userData.getGames();
-        let resData = { id, username, email, friends, fname, lname, country, location, games };
-        console.log(resData)
-        return res.json({ success: true, data: resData });
+        return res.status(200).json({ id, username, email, friends, fname, lname, country, location, games });
     })
 );
 
@@ -52,7 +47,7 @@ router.patch(
     catchAsync(async (req, res, next) => {
         let { userid } = req.params;
         let updatedData = req.body;
-        console.log('Updated data: ',updatedData)
+        console.log("Updated data: ", updatedData);
         // console.log(updatedData)
         await User.findByIdAndUpdate(userid, { ...updatedData });
         let { id, username, email, fname, lname, location, country, fullName } = await User.findById(userid);

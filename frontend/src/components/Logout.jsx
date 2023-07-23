@@ -24,6 +24,7 @@ const Logout = () => {
                 console.log('Logged out')
                 localStorage.removeItem('user');
                 close();
+                localStorage.removeItem('loggedIn');
                 return navigate('/login');
             } else {
                 return setErrorMsg(resData.userMessage || "Something went wrong")
