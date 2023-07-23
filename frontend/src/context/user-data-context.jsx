@@ -8,6 +8,7 @@ const UserDataContextProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(JSON.parse(localStorage.getItem('loggedIn')));
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    console.log(user)
 
     async function fetchUserDetails() {
         try {
@@ -35,7 +36,7 @@ const UserDataContextProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserDataContext.Provider value={{ user, errorMessage, isLoggedIn,setIsLoggedIn }}>
+        <UserDataContext.Provider value={{ user, friends: user?.friends , games: user?.games, errorMessage, isLoggedIn, setIsLoggedIn }}>
             {children}
         </UserDataContext.Provider>
     )
