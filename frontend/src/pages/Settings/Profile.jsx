@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
-import { Avatar, Button, Flex, Grid, Group, Loader, Stack, Text, TextInput, Title } from '@mantine/core'
-import { getAuthToken, getUserData } from '../../../utils/auth'
+import { Avatar, Button, Flex, Grid, Group, Stack, Text, TextInput, Title } from '@mantine/core'
+import { getUserData } from '../../utils/auth'
 import { UserDataContext } from '../../context/user-data-context'
 import { useForm } from '@mantine/form'
 import { Form } from 'react-router-dom'
@@ -83,9 +83,9 @@ export const action = async ({ request }) => {
         body: JSON.stringify(reqBody),
         method: 'PATCH',
         headers: {
-            Authorization: `Bearer ${getAuthToken()}`,
             'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
     })
     const resData = await response.json();
     console.log(resData)

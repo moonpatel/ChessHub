@@ -1,10 +1,9 @@
 import { Box, Flex, NavLink, Title } from '@mantine/core'
 import { ColorWheelIcon, GearIcon, GlobeIcon, LockOpen1Icon, PersonIcon } from '@radix-ui/react-icons'
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, Outlet } from 'react-router-dom';
 
 const Settings = () => {
-    const [active, setActive] = useState(null);
     return (
         <Box ml='45px'>
             <Flex align="center" my="lg">

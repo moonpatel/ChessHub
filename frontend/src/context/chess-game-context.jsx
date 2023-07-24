@@ -1,9 +1,9 @@
 import React, { createContext, useReducer, useRef, useState } from 'react'
-import { ChessModified, chessInit } from '../../utils/chess';
+import { ChessModified, chessInit } from '../utils/chess';
 import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
 import { socket } from '../socket';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
-const { GAME_END, CHESS_MOVE, CHESS_OPPONENT_MOVE } = SOCKET_EVENTS;
+const { GAME_END, CHESS_MOVE } = SOCKET_EVENTS;
 export const ChessGameContext = createContext();
 // myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
@@ -171,7 +171,7 @@ const ChessGameContextProvider = ({ children }) => {
         }
     }
 
-    function selectPiece({ square, type, color: pieceColor }) {
+    function selectPiece({ square, color: pieceColor }) {
         if (pieceColor === myColor && myColor === chess.turn()) {
             dispatch({ type: SELECT_PIECE, val: square });
         }

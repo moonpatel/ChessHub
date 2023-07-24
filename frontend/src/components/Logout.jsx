@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Flex, Modal, Text, Title } from '@mantine/core'
-import { Form, redirect, useNavigate } from 'react-router-dom'
+import { redirect, useNavigate } from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks'
 
 const Logout = () => {
@@ -27,7 +27,7 @@ const Logout = () => {
                 localStorage.removeItem('loggedIn');
                 return navigate('/login');
             } else {
-                return setErrorMsg(resData.userMessage || "Something went wrong")
+                return setErrorMsg(resData.message || "Something went wrong")
             }
         } catch (err) {
             setIsLoading(false)
@@ -54,11 +54,4 @@ const Logout = () => {
         </>
     )
 }
-
-export const logoutAction = ({ request }) => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    return redirect('/login');
-}
-
 export default Logout

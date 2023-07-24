@@ -1,14 +1,12 @@
 import React, { createContext, useEffect, useState } from 'react'
-import Cookie from 'js-cookie'
-export const UserDataContext = createContext();
 
+export const UserDataContext = createContext();
 
 const UserDataContextProvider = ({ children }) => {
     // TODO: use more secure mechanism insted of localstorage
     const [isLoggedIn, setIsLoggedIn] = useState(JSON.parse(localStorage.getItem('loggedIn')));
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
-    console.log(user)
 
     async function fetchUserDetails() {
         try {
@@ -22,8 +20,7 @@ const UserDataContextProvider = ({ children }) => {
                 if (response.ok) {
                     setUser(resData);
                 } else {
-                    console.log(resData.devMessage);
-                    setErrorMessage(resData.userMessage);
+                    setErrorMessage(resData.message);
                 }
             }
         } catch (err) {
@@ -36,7 +33,7 @@ const UserDataContextProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserDataContext.Provider value={{ user, friends: user?.friends , games: user?.games, errorMessage, isLoggedIn, setIsLoggedIn }}>
+        <UserDataContext.Provider value={{ user, friends: user?.friends, games: user?.games, errorMessage, isLoggedIn, setIsLoggedIn }}>
             {children}
         </UserDataContext.Provider>
     )

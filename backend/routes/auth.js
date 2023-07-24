@@ -67,7 +67,7 @@ router.post("/signup", async (req, res, next) => {
         });
     } catch (err) {
         if (err instanceof ZodError) {
-            return res.status(400).json({ userMessage: "Invalid data submitted", devMessage: "Invalid schema" });
+            return res.status(400).json({ message: "Invalid data submitted", description: "Invalid schema" });
         }
         next(err);
     }
@@ -84,16 +84,16 @@ router.post("/login", async (req, res, next) => {
         user = await User.findOne({ username });
         if (!user)
             return res.status(404).json({
-                userMessage: "User does not exist",
-                devMessage: "'username' not found in db",
+                message: "User does not exist",
+                description: "'username' not found in db",
             });
 
         const pwIsValid = await isValidPassword(password, user.password_hash);
         if (!pwIsValid) {
             return res.status(401).json({
                 success: false,
-                userMessage: "Invalid credentials",
-                devMessage: "Invalid credentials",
+                message: "Invalid credentials",
+                description: "Invalid credentials",
             });
         }
 
@@ -104,7 +104,7 @@ router.post("/login", async (req, res, next) => {
             .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
     } catch (error) {
         if (error instanceof ZodError) {
-            return res.status(401).json({ userMessage: "Invalid Credentials", devMessage: "Invalid schema" });
+            return res.status(401).json({ message: "Invalid Credentials", description: "Invalid schema" });
         }
         next(error);
     }

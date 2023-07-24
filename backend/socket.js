@@ -6,7 +6,6 @@ const { Game } = require("./models/game");
 const {
     CHESS_MOVE,
     CHESS_OPPONENT_MOVE,
-    CONNECTION,
     JOIN_ROOM,
     JOIN_ROOM_ERROR,
     JOIN_ROOM_SUCCESS,

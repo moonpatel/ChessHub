@@ -21,7 +21,7 @@ const FriendsList = () => {
                         No friends
                     </Text>
                     :
-                    friends.map((friend, index) => <NavLink key={index} component={Link} to={`/play/friend/${friend.username}`} p='5px' icon={<Avatar size='sm' color='blue' children={friend.username[0].toUpperCase()} />} label={<Text fw={700}>{friend.username}</Text>} />)
+                    friends.map((friend, index) => <NavLink key={index} component={Link} to={`/play/friend/${friend.username}`} p='5px' icon={<Avatar size='sm' color='blue' >{friend.username[0].toUpperCase()}</Avatar>} label={<Text fw={700}>{friend.username}</Text>} />)
             }
         </Flex>
     )

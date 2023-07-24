@@ -9,7 +9,7 @@ const useStyles = createStyles((theme) => ({
         boxShadow: 'none',
         borderColor: 'transparent'
     }
-}))
+}));
 
 const Piece = ({ cell }) => {
     const { classes } = useStyles();
@@ -50,7 +50,7 @@ const Piece = ({ cell }) => {
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
-        zIndex: isDragging ? 100 : 20,
+        zIndex: isDragging ? 1000 : 10,
         aspectRatio: '1',
         touchAction: 'none',
         borderRadius: '10px',
@@ -66,15 +66,15 @@ const Piece = ({ cell }) => {
 
     if (logo) {
         return (
-            <div style={{ position: 'relative', zIndex: 100 }}>
+            <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', borderRadius: '50%', boxSizing: 'border-box', borderWidth: '8px', width: '100%', height: '100%', borderStyle: 'solid', borderColor }}>
                 </div>
-                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/images/pieces/${logo}.png`} />
+                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/images/${logo}.png`} />
             </div>
         )
     } else {
         return (
-            <div style={{ width: '100%' }}></div>
+            <div style={{ width: '100%', zIndex: 100 }}></div>
         )
     }
 }

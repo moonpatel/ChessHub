@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import Piece from './Piece';
 import { socket } from '../socket';
-import { Box, Flex, Modal } from '@mantine/core';
+import { Box, Flex } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
 import { ChessGameContext } from '../context/chess-game-context';
 import { SOCKET_EVENTS } from '../constants';
@@ -9,7 +9,7 @@ const { CHESS_MOVE } = SOCKET_EVENTS
 
 const Cell = ({ cell }) => {
     let roomID = localStorage.getItem('roomID');
-    let { square, type, color } = cell;
+    let { square, type } = cell;
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
     const { isOver, setNodeRef } = useDroppable({ id: square });
     let squareColor = getSquareColor(square);
@@ -24,11 +24,16 @@ const Cell = ({ cell }) => {
         });
     }
 
-    let content = marked && !type ? <Mark /> : <Piece cell={cell} />;
+    let content = null;
+    if (marked) {
+        content = <Mark />
+    } else if (type) {
+        content = <Piece cell={cell} />
+    }
 
     return (
-        <Flex ref={setNodeRef} style={{ aspectRatio: '1/1', position: 'relative' }} sx={theme => {
-            let color = theme.colors.lime
+        <Flex ref={setNodeRef} style={{ aspectRatio: '1/1' }} sx={theme => {
+            let color = theme.colors.lime;
             return { backgroundColor: squareColor === 'b' ? color[8] : color[1], filter: 'saturate(0.5)' }
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
             {

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const useCountDown = (timeLimit,isTimerOn) => {
+const useCountDown = (timeLimit, isTimerOn) => {
     const [timeLeft, setTimeLeft] = useState(timeLimit * 60 * 1000);
 
     useEffect(() => {
-        if(!isTimerOn) {
+        if (!isTimerOn) {
             return;
         }
         if (timeLeft > 0) {

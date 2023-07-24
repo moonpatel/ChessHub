@@ -5,177 +5,228 @@ const { User } = require("../models/user");
 const { checkAuth } = require("../util/auth");
 const { catchAsync } = require("../util/errors");
 
-// TO BE TESTED
-// attaches user data to the route object
-router.use(
-    catchAsync(async (req, res, next) => {
-        let userID = req.url.split("/")[1];
-        if (userID?.length !== 24)
-            return res.status(404).json({ userMessage: "User not found", devMessage: "Invalid user ID" });
-        let userData = await User.findById(userID);
-        if (userData) {
-            req.userData = userData;
-            next();
-        } else {
-            res.status(404).json({
-                success: false,
-                userMessage: "User not found",
-                devMessage: "User ID does not exists",
-            });
-        }
-    })
-);
-
-// TO BE TESTED
-// get user details
-router.get(
-    "/:userid",
-    catchAsync(async (req, res, next) => {
-        let userData = req.userData;
-        let { id, username, email, fname, lname, country, location } = userData;
-        let friends = await userData.getFriends();
-        let games = await userData.getGames();
+// get the logged in user details
+router.get("/", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        const user = await User.findById(userId);
+        let { id, username, email, fname, lname, country, location } = user;
+        let friends = await user.getFriends();
+        let games = await user.getGames();
         return res.status(200).json({ id, username, email, friends, fname, lname, country, location, games });
-    })
-);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/friends", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        let user = await User.findById(userId);
+        let friends = await user.getFriends();
+        return res.status(200).json(friends);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/challenges", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        let user = await User.findById(userId);
+        let challenges = await Challenge.find({ challenged: user.username });
+        challenges = challenges.map((challenge) => {
+            let { id, challenged, challenger, color, roomID, timeLimit } = challenge;
+            return { id, challenged, challenger, color, roomID, timeLimit };
+        });
+        console.log(challenges);
+        res.status(200).json(challenges);
+    } catch (err) {
+        next(err);
+    }
+});
+
+// TODO
+// get history of games played
+router.get("/games", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        const user = await User.findById(userId);
+        let games = await user.getGames();
+        if (!games) games = [];
+        return res.status(200).json(gamesData);
+    } catch (err) {
+        next(err);
+    }
+});
+
+// TODO
+router.get("/games/:gameid", checkAuth, async (req, res, next) => {
+    try {
+    } catch (err) {
+        next(err);
+    }
+});
+
+// TODO
+router.get("");
 
 // TO BE TESTED
 // update user details
-router.patch(
-    "/:userid",
-    checkAuth,
-    catchAsync(async (req, res, next) => {
-        let { userid } = req.params;
+router.patch("/", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
         let updatedData = req.body;
-        console.log("Updated data: ", updatedData);
-        // console.log(updatedData)
-        await User.findByIdAndUpdate(userid, { ...updatedData });
-        let { id, username, email, fname, lname, location, country, fullName } = await User.findById(userid);
-        // console.log(req.userData);
-        console.log({ id, username, email, fname, lname, location, country, fullName });
-        return res.json({ success: true, user: { id, username, email, fname, lname, location, country, fullName } });
-    })
-);
+        await User.findByIdAndUpdate(userId, { ...updatedData });
+        let { id, username, email, fname, lname, location, country, fullName } = await User.findById(userId);
+        return res.status(200).json({ user: { id, username, email, fname, lname, location, country, fullName } });
+    } catch (err) {
+        next(err);
+    }
+});
 
 // TO BE TESTED
 // delete the user
-router.delete(
-    "/:userid",
-    checkAuth,
-    catchAsync(async (req, res, next) => {
-        let { userData } = req;
-        await userData.deleteOne();
-    })
-);
+router.delete("/", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        let user = await User.findById(userId);
+        await user.deleteOne();
+        return res.status(204).json({ message: "Account deleted succesfully" });
+    } catch (err) {
+        next(err);
+    }
+});
 
-// get friends of the user
-router.get(
-    "/:userid/friends",
-    checkAuth,
-    catchAsync(async (req, res, next) => {
-        const friends = await req.userData.getFriends();
-        return res.json({ success: true, friends });
-    })
-);
+// TO BE TESTED
+// TODO: add some logic to notify the challenger if the challenged user declines the challenge
+// accept or decline a challenge
+// challengeID here refers to the roomID associated with the challenge
+router.delete("/challenges/:challengeID", checkAuth, async (req, res, next) => {
+    try {
+        let { challengeID } = req.params;
+        let challenge = await Challenge.findById(challengeID);
+        if (!challenge)
+            return res
+                .status(404)
+                .json({ message: "Challenge not found", description: "Challenge ID does not exists" });
+        await challenge.deleteOne();
+        return res.status(200).json({});
+    } catch (err) {
+        next(err);
+    }
+});
 
 // TO BE TESTED
 // add a friend
-router.post(
-    "/:userid/friends/:friendusername",
-    checkAuth,
-    catchAsync(async (req, res, next) => {
-        let { friendusername } = req.params;
-        if (req.userData.username === friendusername)
-            res.json({ success: false, error: { message: "Cannot add yourself as friend" } });
-        let friendData = await User.findOne({ username: friendusername });
-        if (friendData) {
-            if (friendData.friends.includes(req.userData._id)) {
-                res.json({ success: false, error: { message: "User is already added as a friend" } });
-            } else {
-                friendData.friends.push(req.userData._id);
-                await friendData.save();
-                req.userData.friends.push(friendData._id);
-                await req.userData.save();
-                res.json({ success: true });
-            }
+router.post("/friends/:friendusername", checkAuth, async (req, res, next) => {
+    let { friendusername } = req.params;
+    let { userId } = req;
+    const user = await User.findById(userId);
+    if (req.user.username === friendusername)
+        res.json({
+            error: { description: "Cannot add yourself as friend", message: "Cannot add this user as friends" },
+        });
+    let friendData = await User.findOne({ username: friendusername });
+    if (friendData) {
+        if (friendData.friends.includes(req.user._id)) {
+            res.json({
+                error: {
+                    message: "User is already added as a friend",
+                    description: "User is already added as a friend",
+                },
+            });
         } else {
-            res.status(404).json({ success: false, error: { message: "username does not exist" } });
+            friendData.friends.push(req.user._id);
+            await friendData.save();
+            req.user.friends.push(friendData._id);
+            await req.user.save();
+            res.status(204).json(null);
         }
-    })
-);
+    } else {
+        res.status(404).json({
+            error: { message: "User not found", description: "username not found in DB" },
+        });
+    }
+});
 
 // TODO
 // remove a user from friends list
 router.delete(
-    "/:userid/friends/:friendid",
+    "/friends/:friendid",
     checkAuth,
     catchAsync(async (req, res, next) => {
         const { friendid } = req.params;
-        const { userData } = req;
+        const { userId } = req;
+        const user = await User.findById(userId);
 
         // Find the friend user to be removed
         const friendData = await User.findById(friendid);
         if (!friendData) {
-            return res.status(404).json({ success: false, error: { message: "Friend user not found" } });
+            return res.status(404).json({ error: { message: "Friend user not found" } });
         }
 
         // Remove the friend from the user's friends list
-        const friendIndex = userData.friends.indexOf(friendData._id);
+        const friendIndex = user.friends.indexOf(friendData._id);
         if (friendIndex === -1) {
-            return res
-                .status(400)
-                .json({ success: false, error: { message: "Friend user not found in the friends list" } });
+            return res.status(400).json({ error: { message: "Friend user not found in the friends list" } });
         }
-        userData.friends.splice(friendIndex, 1);
-        await userData.save();
+        user.friends.splice(friendIndex, 1);
+        await user.save();
 
         // Remove the user from the friend's friends list
-        const userIndex = friendData.friends.indexOf(userData._id);
+        const userIndex = friendData.friends.indexOf(user._id);
         if (userIndex === -1) {
-            return res
-                .status(400)
-                .json({ success: false, error: { message: "User not found in the friend's friends list" } });
+            return res.status(400).json({ error: { message: "User not found in the friend's friends list" } });
         }
         friendData.friends.splice(userIndex, 1);
         await friendData.save();
 
-        return res.json({ success: true });
+        return res.json({});
     })
 );
 
-// get current challenges of the user
-router.get(
-    "/:userid/challenges",
-    checkAuth,
-    catchAsync(async (req, res, next) => {
-        let { userData } = req;
-        let challenges = await Challenge.find({ challenged: userData.username });
-        if (!challenges) challenges = [];
-        console.log("Challenges to", userData.username, challenges);
-        res.json({ success: true, challenges: challenges });
-    })
-);
+// =============================================================
 
 // TO BE TESTED
-// accept or decline a challenge
-// challengeID here refers to the roomID associated with the challenge
-router.delete(
-    "/:userid/challenges/:challengeID",
-    checkAuth,
-    catchAsync(async (req, res) => {
-        let challengeResponse = req.query.response;
-        let { challengeID } = req.params;
-        if (challengeResponse === "accept") {
-            let { deletedCount } = await Challenge.deleteOne({ roomID: challengeID });
-            return res.json({ success: true });
-        } else if (challengeResponse === "decline") {
-            let { deletedCount } = await Challenge.deleteOne({ roomID: challengeID });
-            return res.json({ success: true });
-        } else {
-            res.json({ success: false, error: { message: "Invalid query parameter" } });
-        }
-    })
-);
+// get user details
+router.get("/:userid", async (req, res, next) => {
+    try {
+        let userId = req.params.userid;
+        const user = await User.findById(userId);
+        let { id, username, email, fname, lname, country, location } = user;
+        let friends = await user.getFriends();
+        let games = await user.getGames();
+        return res.status(200).json({ id, username, email, friends, fname, lname, country, location, games });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// get friends of the user
+router.get("/:userid/friends", async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.userid);
+        const friends = await user.getFriends();
+        return res.json({ friends });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// get current challenges of the user
+router.get("/:userid/challenges", checkAuth, async (req, res, next) => {
+    try {
+        let { userId } = req;
+        const user = await user.findById(userId);
+        let challenges = await Challenge.find({ challenged: user.username });
+        if (!challenges) challenges = [];
+        console.log("Challenges to", user.username, challenges);
+        res.json({ challenges: challenges });
+    } catch (err) {
+        next(err);
+    }
+});
 
 // TODO
 // get history of games played
@@ -183,10 +234,10 @@ router.get(
     "/:userid/games",
     checkAuth,
     catchAsync(async (req, res, next) => {
-        const userData = await User.findOne();
-        let gamesData = await userData.getGames();
+        const user = await User.findOne();
+        let gamesData = await user.getGames();
         if (!gamesData) gamesData = [];
-        return res.status(200).json({ success: true, data: gamesData });
+        return res.status(200).json({ data: gamesData });
     })
 );
 
@@ -195,7 +246,7 @@ router.get(
 router.post("/:userid/game", checkAuth, async (req, res, next) => {
     const gameData = req.body;
     const gameDoc = await Game.create(gameData);
-    return res.json({ success: true, data: gameDoc });
+    return res.json({ data: gameDoc });
 });
 
 // TODO
@@ -207,9 +258,9 @@ router.get(
         const { gameid } = req.params;
         const gameData = await Game.findById(gameid);
         if (gameData) {
-            return res.status(200).json({ success: true, data: gameData });
+            return res.status(200).json({ data: gameData });
         } else {
-            return res.status(404).json({ success: false, error: { message: "Game not found" } });
+            return res.status(404).json({ error: { message: "Game not found" } });
         }
     })
 );

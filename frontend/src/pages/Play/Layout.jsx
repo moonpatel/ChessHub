@@ -1,7 +1,7 @@
-import { Avatar, Box, Card, Divider, Flex, Image, MediaQuery, NavLink, Text, Title } from '@mantine/core'
+import { Avatar, Flex, Image, MediaQuery, NavLink } from '@mantine/core'
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom'
-import { getUserData } from '../../../utils/auth';
+import { Outlet } from 'react-router-dom'
+import { getUserData } from '../../utils/auth';
 
 const Layout = () => {
     const user = getUserData();

@@ -1,18 +1,18 @@
 import { Avatar, Button, Flex, Group, Image, Loader, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core'
 import React, { useContext, useEffect, useState } from 'react'
 import ChessBoard from '../Chess/ChessBoard'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { socket } from '../../socket'
-import { getUserData } from '../../../utils/auth'
+import { getUserData } from '../../utils/auth'
 import { ChessGameContext } from '../../context/chess-game-context'
 import GameHistory from '../../components/GameHistory'
-import Timer from './Timer'
+import MainLoader from '../../components/MainLoader'
 import { useDisclosure } from '@mantine/hooks'
 import { SOCKET_EVENTS } from '../../constants'
-const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, CONNECTION, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
+const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
 
 const ChessGame = () => {
-    const { setGameHistory, isTimerOn, setIsTimerOn, hasGameEnded, gameEndedReason, endGame } = useContext(ChessGameContext);
+    const { setGameHistory, hasGameEnded, gameEndedReason, endGame } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
 
     const user = getUserData();
@@ -67,7 +67,7 @@ const ChessGame = () => {
             console.log('Socket disconnected due to', reason);
         });
 
-        socket.on(CHESS_OPPONENT_MOVE, (data) => {
+        socket.on(CHESS_OPPONENT_MOVE, () => {
             // console.log(data);
             // setIsTimerOn(true);
         })
@@ -76,9 +76,9 @@ const ChessGame = () => {
             setIsWaiting(false);
         });
 
-        socket.on(USER_RESIGNED, (roomID, username) => {
+        socket.on(USER_RESIGNED, () => {
             endGame('RESIGN');
-        })
+        });
 
         return () => {
             socket.offAny();
@@ -87,7 +87,7 @@ const ChessGame = () => {
     }, []);
 
     if (!hasJoinedRoom) return (
-        <Loader variant='bars' />
+        <MainLoader />
     )
 
     return (
@@ -104,7 +104,9 @@ const ChessGame = () => {
                             style={{ width: "500px" }}
                             p="2px"
                             label={isWaiting ? "Waiting for opponent..." : opponent}
-                            icon={<Avatar radius="3px" children={opponent[0].toUpperCase()} />}
+                            icon={<Avatar radius="3px" >
+                                {opponent[0].toUpperCase}
+                            </Avatar>}
                             description={"description"}
                         />
                         {/* <Timer on={!isTimerOn} /> */}
@@ -128,7 +130,9 @@ const ChessGame = () => {
                             style={{ width: "500px" }}
                             p="2px"
                             label={username}
-                            icon={<Avatar radius="3px" children={username[0].toUpperCase()} />}
+                            icon={<Avatar radius="3px" >
+                                {username[0].toUpperCase()}
+                            </Avatar>}
                             description={"description"}
                         />
                         {/* <Timer on={isTimerOn} /> */}
@@ -140,7 +144,7 @@ const ChessGame = () => {
                         height: '100%',
                         textAlign: 'center',
                         borderRadius: '10px',
-                        backgroundColor:'#272623'
+                        backgroundColor: '#272623'
                     }} bg='gray' justify='start' py='md' align='center' direction='column' h="600px">
                         <Title my='20px'>Game Data</Title>
                         <Flex direction='column' w='100%'>

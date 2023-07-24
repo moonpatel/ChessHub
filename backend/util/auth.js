@@ -52,14 +52,15 @@ function checkAuthMiddleware(req, res, next) {
     }
     let authToken = req.cookies["auth-token"];
     if (!authToken) {
-        return res.status(401).json({ userMessage: "Not authenticated", devMessage: "Auth token not found" });
+        return res.status(401).json({ message: "Not authenticated", description: "Auth token not found" });
     }
     try {
         const validatedToken = validateJSONToken(authToken);
-        req.userid = validatedToken;
+        req.userId = validatedToken.id;
+        req.isAuthenticated = true;
     } catch (error) {
         console.log("NOT AUTH. TOKEN INVALID.");
-        return res.status(401).json({ userMessage: "Not authenticated", devMessage: "Invalid auth token" });
+        return res.status(401).json({ message: "Not authenticated", description: "Invalid auth token" });
     }
     next();
 }

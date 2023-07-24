@@ -1,7 +1,7 @@
-import { Avatar, Button, Card, Flex, Image, Select, Text, TextInput, Title } from '@mantine/core'
+import { Avatar, Button, Card, Flex, Select, Text, Title } from '@mantine/core'
 import React from 'react'
 import { Form, redirect, useParams } from 'react-router-dom'
-import { getAuthToken, getUserData } from '../../../utils/auth'
+import { getUserData } from '../../utils/auth'
 
 const ChallengeFriend = () => {
     const params = useParams();
@@ -9,12 +9,12 @@ const ChallengeFriend = () => {
 
     return (
         <Card
-        maw={450} sx={{
-            width: '100%',
-            height: '600px',
-            textAlign: 'center',
-            backgroundColor:'#262523'
-        }}
+            maw={450} sx={{
+                width: '100%',
+                height: '600px',
+                textAlign: 'center',
+                backgroundColor: '#262523'
+            }}
         >
             <Form action={`/play/friend/${friend_username}`} method='POST'>
                 <Flex align="center" direction="column" justify="center" gap="xs" my="lg">
@@ -42,20 +42,19 @@ export const playFriendAction = async ({ request, params }) => {
     let timeLimit = formData.get('timeLimit');
     let username = getUserData().username;
     let challenged = params.friend_username;
-    console.log(color, timeLimit, username, challenged);
 
-    let roomIDURL = `${import.meta.env.VITE_BACKEND_HOST}/api/room/create`;
+    let roomIDURL = `${import.meta.env.VITE_BACKEND_HOST}/api/room`;
     let reqBody = { challenger: username, challenged, timeLimit, color }
 
     try {
-        console.log(reqBody);
         const response = await fetch(roomIDURL, {
             method: 'POST', body: JSON.stringify(reqBody), headers: {
-                'Authorization': `Bearer ${getAuthToken()}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         });
 
+        console.log(response.status);
         const resJSON = await response.json();
         const { roomID } = resJSON;
         console.log('Room ID:', roomID);

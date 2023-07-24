@@ -1,20 +1,16 @@
 import React from 'react'
-import { Button, Card, Flex, List, Stack, TextInput, Title } from '@mantine/core'
+import { Button, Card, Flex, TextInput, Title } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
-import { getAuthToken, getUserData } from '../../../utils/auth'
 import FriendsList from '../../components/FriendsList'
 
 const Friends = () => {
-    let { id: userid } = getUserData();
     const form = useForm({ initialValues: { username: '' }, })
 
     const addFriend = async () => {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}/friends/${form.values.username}`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_HOST}/api/user/friends/${form.values.username}`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            }
+            credentials: 'include'
         });
         const resData = await response.json();
         if (resData.success === false) {

@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import { ChessGameContext } from '../context/chess-game-context'
-import { Button, Flex, Group, ScrollArea, Text, Tooltip, createStyles } from '@mantine/core';
+import { Button, Flex, ScrollArea, Tooltip, createStyles } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 
-const useStyles = createStyles(theme => {
+const useStyles = createStyles(() => {
     return {
         movebtn: {
             fontSize: '14px',
@@ -26,7 +26,7 @@ const useStyles = createStyles(theme => {
 
 const GameHistory = () => {
     let { classes } = useStyles();
-    const { gameHistory, jumpTo, currentIndex, goBack, goAhead } = useContext(ChessGameContext)
+    const { gameHistory, jumpTo, goBack, goAhead } = useContext(ChessGameContext)
 
     let gameHistoryJSX = [];
     for (let i = 0; i < gameHistory.length;) {

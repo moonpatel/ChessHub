@@ -73,7 +73,7 @@ const LoginForm = () => {
                 setIsLoggedIn(true);
                 return navigate('/');
             } else {
-                setErrorMsg(resData.userMessage || "Something went wrong");
+                setErrorMsg(resData.message || "Something went wrong");
             }
         } catch (err) {
             setIsLoading(false);
@@ -123,8 +123,8 @@ const SignupForm = () => {
             } else {
                 setIsLoading(false);
                 console.log(resData);
-                console.log(resData.devMessage);
-                setErrorMsg(resData.userMessage);
+                console.log(resData.description);
+                setErrorMsg(resData.message);
                 resData?.error?.username && setError('username', { message: resData.error.username });
                 resData?.error?.email && setError('email', { message: resData.error.email });
             }

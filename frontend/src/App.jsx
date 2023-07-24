@@ -1,9 +1,7 @@
-import './App.css'
 import { createBrowserRouter, redirect, RouterProvider } from 'react-router-dom'
 import Home from './pages/Home'
 import MainLayout from './layout/MainLayout'
 import Settings from './pages/Settings/Settings'
-import Profile from './pages/Settings/Profile'
 import Friends from './pages/Settings/Friends'
 import Password from './pages/Settings/Password'
 import Themes from './pages/Settings/Themes'
@@ -11,12 +9,11 @@ import PlayLayout from './pages/Play/Layout'
 import PlayFriend from './pages/Play/PlayFriend'
 import Play from './pages/Play/Play'
 import AuthenticationPage, { loginAction, signupAction } from './pages/Authentication/Authentication'
-import { getAuthToken, getUserData } from '../utils/auth'
-import { logoutAction } from './components/Logout'
+import { getAuthToken, getUserData } from './utils/auth'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
 import ChessGameContextProvider from './context/chess-game-context'
-import { action as profileAction } from './pages/Settings/Profile'
+import Profile, { action as profileAction } from './pages/Settings/Profile'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -58,7 +55,7 @@ const router = createBrowserRouter([{
 }, {
   path: '/signup', element: <AuthenticationPage isLogin={false} />, action: signupAction, loader: () => { if (getAuthToken()) return redirect('/signup'); else return null; }
 }, {
-  path: '/logout', loader: () => { getAuthToken() || redirect('/home') }, action: logoutAction
+  path: '/logout', loader: () => { getAuthToken() || redirect('/home') }
 }]);
 
 function App() {

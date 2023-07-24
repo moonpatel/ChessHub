@@ -4,20 +4,22 @@ const { createRoom } = require("../socket");
 const { checkAuth } = require("../util/auth");
 const { Challenge } = require("../models/challenge");
 
-async function fetchChallenge({ challenger, challenged }) {}
+// async function fetchChallenge({ challenger, challenged }) {}
 
 // rooms can only be created through HTTP requests and destroyed only by socket.io server
 // and vice versa is not true
-router.post("/create", checkAuth, async (req, res, next) => {
+router.post("/", checkAuth, async (req, res, next) => {
     console.log(req.body);
     // challenger and challenged are username, color is the color played by challenger, timeLimit is the timeLimit for one player
     const { challenger, challenged, color, timeLimit } = req.body;
 
     let challenge = await Challenge.findOne({ challenger });
-
     // a user can create only one challenge at a time
     if (challenge) {
-        return res.status(405).json({ success: false, error: { message: "Cannot create new challenge" } });
+        return res.status(405).json({
+            message: "Cannot create new challenge",
+            description: "User already created a challenge",
+        });
     }
 
     // get email of the challenged person
@@ -45,7 +47,8 @@ router.post("/create", checkAuth, async (req, res, next) => {
     //     `Challenge from ${challenger}`,
     //     `To accept the challenge follow the link: http://192.168.136.99:5173/game/challenges/${challenged}/${roomID} \n login through: http://192.168.136.99:5173/login \n roomid:${roomID}`
     // );
-    res.json({ roomID });
+    console.log(roomID);
+    res.status(201).json({ roomID });
 });
 
 module.exports = router;

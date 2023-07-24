@@ -1,4 +1,4 @@
-import { Group, NavLink, Text, ThemeIcon, UnstyledButton } from '@mantine/core'
+import { NavLink, Text, ThemeIcon } from '@mantine/core'
 import { GearIcon, HomeIcon, PlayIcon } from '@radix-ui/react-icons'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -31,7 +31,7 @@ const NavbarLink = ({ label, icon, to, index, active, setActive }) => {
             component={Link}
             to={to}
             icon={
-                <ThemeIcon variant="filled" color={active===index?'gray':'lime'}>
+                <ThemeIcon variant="filled" color={active === index ? 'gray' : 'lime'}>
                     {icon}
                 </ThemeIcon>
             }

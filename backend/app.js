@@ -44,8 +44,8 @@ app.use((error, req, res, next) => {
     const status = error.status || 500;
     console.log(error);
     res.status(status).json({
-        userMessage: "Something went wrong",
-        devMessage: error?.message || "Internal server error",
+        message: "Something went wrong",
+        description: error?.message || "Internal server error",
     });
 });
 
