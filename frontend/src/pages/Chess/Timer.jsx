@@ -1,5 +1,6 @@
 import React from 'react'
 
+import PropTypes from 'prop-types';
 import { Box } from '@mantine/core';
 
 import useCountDown from '../../hooks/useCountDown'
@@ -13,6 +14,10 @@ const Timer = ({ on }) => {
             {minutes}:{seconds}
         </Box>
     )
+}
+
+Timer.propTypes = {
+    on: PropTypes.bool
 }
 
 export default Timer

@@ -9,7 +9,7 @@ import Themes from './pages/Settings/Themes'
 import PlayLayout from './pages/Play/Layout'
 import PlayFriend from './pages/Play/PlayFriend'
 import Play from './pages/Play/Play'
-import AuthenticationPage, { loginAction, signupAction } from './pages/Authentication/Authentication'
+import AuthenticationPage from './pages/Authentication/Authentication'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
 import Profile, { action as profileAction } from './pages/Settings/Profile'
@@ -52,9 +52,9 @@ const router = createBrowserRouter([{
   ]
 },
 {
-  path: '/login', element: <AuthenticationPage isLogin={true} />, action: loginAction, loader: () => { if (getAuthToken()) return redirect('/home'); else return null; }
+  path: '/login', element: <AuthenticationPage isLogin={true} />, loader: () => { if (getAuthToken()) return redirect('/home'); else return null; }
 }, {
-  path: '/signup', element: <AuthenticationPage isLogin={false} />, action: signupAction, loader: () => { if (getAuthToken()) return redirect('/signup'); else return null; }
+  path: '/signup', element: <AuthenticationPage isLogin={false} />, loader: () => { if (getAuthToken()) return redirect('/signup'); else return null; }
 }, {
   path: '/logout', loader: () => { getAuthToken() || redirect('/home') }
 }]);

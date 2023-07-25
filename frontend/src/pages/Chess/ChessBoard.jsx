@@ -37,7 +37,7 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = () => {
     const { classes } = useStyles();
-    const { getChessBoard, handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
+    const { getChessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
     const roomID = localStorage.getItem('roomID');
     const chessBoard = getChessBoard();
     const myColor = localStorage.getItem('myColor')

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types';
 import { NavLink, Text, ThemeIcon } from '@mantine/core'
 import { GearIcon, HomeIcon, PlayIcon } from '@radix-ui/react-icons'
 
@@ -13,7 +14,6 @@ const NavbarLinks = () => {
 }
 
 const NavbarLink = ({ label, icon, to, index, active, setActive }) => {
-
     return (
         <NavLink
             sx={(theme) => ({
@@ -44,6 +44,15 @@ const NavbarLink = ({ label, icon, to, index, active, setActive }) => {
         >
         </NavLink>
     )
+}
+
+NavbarLink.propTypes = {
+    label: PropTypes.string,
+    icon: PropTypes.func,
+    to: PropTypes.string,
+    index: PropTypes.number,
+    active: PropTypes.number,
+    setActive: PropTypes.func
 }
 
 const linksList = [

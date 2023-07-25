@@ -2,8 +2,9 @@ import { Image, createStyles } from '@mantine/core';
 import React, { useContext, useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core'
 import { ChessGameContext } from '../context/chess-game-context';
+import PropTypes from 'prop-types';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
     'chess-piece': {
         outlineStyle: 'none',
         boxShadow: 'none',
@@ -77,6 +78,14 @@ const Piece = ({ cell }) => {
             <div style={{ width: '100%', zIndex: 100 }}></div>
         )
     }
+}
+
+Piece.propTypes = {
+    cell: PropTypes.shape({
+        square: PropTypes.string.isRequired,
+        type: PropTypes.oneOf(['p', 'r', 'n', 'b', 'q', 'k']),
+        color: PropTypes.oneOf(['w', 'b'])
+    })
 }
 
 export default Piece

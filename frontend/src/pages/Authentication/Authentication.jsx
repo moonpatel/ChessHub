@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 
-import { redirect, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { Button, Card, Container, Text, TextInput, Title } from '@mantine/core';
 import { useForm } from 'react-hook-form'
 import { ZodError, z } from 'zod';
@@ -53,6 +54,10 @@ const AuthenticationPage = (props) => {
         </Container>
     );
 };
+
+AuthenticationPage.propTypes = {
+    isLogin: PropTypes.bool
+}
 
 const LoginForm = () => {
     const { setIsLoggedIn } = useContext(UserDataContext)

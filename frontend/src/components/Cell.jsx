@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 
+import PropTypes from 'prop-types';
 import { socket } from '../socket';
 import { Box, Flex } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
@@ -9,7 +10,6 @@ import { ChessGameContext } from '../context/chess-game-context';
 
 import { SOCKET_EVENTS } from '../constants';
 const { CHESS_MOVE } = SOCKET_EVENTS
-
 
 const Cell = ({ cell }) => {
     let roomID = localStorage.getItem('roomID');
@@ -55,6 +55,14 @@ const Mark = () => {
     return (
         <Box w="36%" h="36%" sx={{ backgroundColor: '#77777755', borderRadius: '100%' }} m="auto"></Box>
     )
+}
+
+Cell.propTypes = {
+    cell: PropTypes.shape({
+        square: PropTypes.string.isRequired,
+        type: PropTypes.oneOf(['p', 'r', 'n', 'b', 'q', 'k']),
+        color: PropTypes.oneOf(['w', 'b'])
+    })
 }
 
 

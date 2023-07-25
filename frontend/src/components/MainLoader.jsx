@@ -2,6 +2,7 @@ import React from 'react'
 
 import { createPortal } from 'react-dom'
 import { Loader, Title } from '@mantine/core'
+import PropTypes from 'prop-types';
 
 import loaderImage from '../assets/images/chess_board_loader.png'
 
@@ -26,5 +27,10 @@ const MainLoader = ({ errorMessage }) => {
         </>
     )
 }
+
+MainLoader.propTypes = {
+    errorMessage: PropTypes.string
+}
+
 
 export default MainLoader

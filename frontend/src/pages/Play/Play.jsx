@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types';
 import { Card, Flex, Image, NavLink, Title } from '@mantine/core'
 
 const Play = () => {
@@ -33,6 +34,13 @@ const CardItem = ({ label, description, src, to }) => {
             sx={{ backgroundColor: '#1f1f1a', borderRadius: '5px' }}
         />
     )
+}
+
+CardItem.propTypes = {
+    label: PropTypes.string,
+    description: PropTypes.string,
+    src: PropTypes.string,
+    to: PropTypes.string
 }
 
 const dataList = [
