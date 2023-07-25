@@ -17,6 +17,7 @@ const Piece = ({ cell }) => {
     let { square, type, color } = cell;
     let marked = isSquareMarked(square);
     let logo = null;
+
     switch (type) {
         case 'p':
             logo = color === 'w' ? 'pawn_white' : 'pawn_black';
@@ -45,7 +46,6 @@ const Piece = ({ cell }) => {
     });
 
     let borderColor = marked ? '#77777766' : 'transparent'
-
 
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,

@@ -1,11 +1,15 @@
 import React, { useContext } from 'react'
-import Piece from './Piece';
+
 import { socket } from '../socket';
 import { Box, Flex } from '@mantine/core';
 import { useDroppable } from '@dnd-kit/core'
+
+import Piece from './Piece';
 import { ChessGameContext } from '../context/chess-game-context';
+
 import { SOCKET_EVENTS } from '../constants';
 const { CHESS_MOVE } = SOCKET_EVENTS
+
 
 const Cell = ({ cell }) => {
     let roomID = localStorage.getItem('roomID');
@@ -13,6 +17,7 @@ const Cell = ({ cell }) => {
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
     const { isOver, setNodeRef } = useDroppable({ id: square });
     let squareColor = getSquareColor(square);
+
     let marked = isSquareMarked(square);
     let borderColor = isOver ? '#77777777' : 'transparent';
     let borderWidth = type ? '3px' : '5px'

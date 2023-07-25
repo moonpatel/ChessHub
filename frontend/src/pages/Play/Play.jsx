@@ -1,6 +1,7 @@
-import { Card, Flex, Image, NavLink, Title } from '@mantine/core'
 import React from 'react'
+
 import { Link } from 'react-router-dom'
+import { Card, Flex, Image, NavLink, Title } from '@mantine/core'
 
 const Play = () => {
     return (
@@ -8,7 +9,7 @@ const Play = () => {
             width: '100%',
             height: '600px',
             textAlign: 'center',
-            backgroundColor:'#262523'
+            backgroundColor: '#262523'
         }}>
             <Flex gap="5px" px="20px" justify='center' align='center' wrap='nowrap' direction='column'>
                 <Title order={2} >Play Chess</Title>

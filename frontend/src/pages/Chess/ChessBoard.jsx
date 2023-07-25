@@ -1,11 +1,14 @@
-import React, { useContext, useEffect, useReducer, useRef } from 'react';
-import Cell from '../../components/Cell';
-import { socket } from '../../socket';
+import React, { useContext, useEffect } from 'react';
+
 import { Flex, createStyles } from '@mantine/core';
 import { DndContext } from '@dnd-kit/core'
+
+import Cell from '../../components/Cell';
 import { ChessGameContext } from '../../context/chess-game-context';
+import { socket } from '../../socket';
 import { SOCKET_EVENTS } from '../../constants';
 const { CHESS_OPPONENT_MOVE, CHESS_MOVE } = SOCKET_EVENTS
+
 const useStyles = createStyles((theme) => ({
     chessboard: {
         [theme.fn.largerThan('md')]: {
@@ -35,15 +38,9 @@ const useStyles = createStyles((theme) => ({
 const ChessBoard = () => {
     const { classes } = useStyles();
     const { getChessBoard, handleOpponentMove, handleDrop, hasGameEnded, gameEndedReason } = useContext(ChessGameContext)
-    let roomID = localStorage.getItem('roomID');
+    const roomID = localStorage.getItem('roomID');
     const chessBoard = getChessBoard();
-    let myColor = localStorage.getItem('myColor')
-
-    // if (hasGameEnded) {
-    //     console.log('Game ended due to', gameEndedReason)
-    // } else {
-    //     console.log('Game not ended yet')
-    // }
+    const myColor = localStorage.getItem('myColor')
 
     useEffect(() => {
         socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)

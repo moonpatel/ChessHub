@@ -1,12 +1,12 @@
-import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import React, { useEffect, useState } from 'react'
+
 import { useNavigate } from 'react-router-dom';
+import { Button, Group, Stack, Text, Title } from '@mantine/core';
 
 const Challenges = () => {
     const navigate = useNavigate();
     const [challenges, setChallenges] = useState([]);
     const [error, setError] = useState(null);
-    console.log(challenges)
 
     useEffect(() => {
         if (error) return;
@@ -20,7 +20,7 @@ const Challenges = () => {
                 if (response.ok) {
                     setChallenges(data);
                 } else {
-                    setError('Cannot')
+                    setError('Cannot fetch challenges')
                 }
             } catch (error) {
                 console.log(error);
@@ -33,10 +33,10 @@ const Challenges = () => {
 
     if (!challenges || challenges.length === 0) {
         return (
-            <>
+            <React.Fragment>
                 <Title mt="20px" mb="10px" order={3}>Challenges</Title>
                 <Text>No challenges found</Text>
-            </>
+            </React.Fragment>
         )
     }
 

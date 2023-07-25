@@ -1,6 +1,8 @@
-import { Avatar, Button, Card, Flex, Select, Text, Title } from '@mantine/core'
 import React from 'react'
+
 import { Form, redirect, useParams } from 'react-router-dom'
+import { Avatar, Button, Card, Flex, Select, Text, Title } from '@mantine/core'
+
 import { getUserData } from '../../utils/auth'
 
 const ChallengeFriend = () => {

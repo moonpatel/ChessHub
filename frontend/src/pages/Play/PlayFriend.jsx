@@ -1,7 +1,9 @@
 import React from 'react'
-import { Button, Card, Flex, Image, Modal, NativeSelect, Text, TextInput, Title } from '@mantine/core'
+
 import { useDisclosure } from '@mantine/hooks'
 import { IconSearch } from '@tabler/icons-react'
+import { Button, Card, Flex, Image, Modal, NativeSelect, Text, TextInput, Title } from '@mantine/core'
+
 import FriendsList from '../../components/FriendsList'
 import Challenges from '../../components/Challenges'
 

@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
-import useCountDown from '../../hooks/useCountDown'
+import React from 'react'
+
 import { Box } from '@mantine/core';
-import { ChessGameContext } from '../../context/chess-game-context';
+
+import useCountDown from '../../hooks/useCountDown'
 
 const Timer = ({ on }) => {
     // const { isTimerOn } = useContext(ChessGameContext)

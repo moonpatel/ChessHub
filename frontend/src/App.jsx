@@ -1,6 +1,7 @@
 import { createBrowserRouter, redirect, RouterProvider } from 'react-router-dom'
-import Home from './pages/Home'
+
 import MainLayout from './layout/MainLayout'
+import Home from './pages/Home'
 import Settings from './pages/Settings/Settings'
 import Friends from './pages/Settings/Friends'
 import Password from './pages/Settings/Password'
@@ -9,11 +10,11 @@ import PlayLayout from './pages/Play/Layout'
 import PlayFriend from './pages/Play/PlayFriend'
 import Play from './pages/Play/Play'
 import AuthenticationPage, { loginAction, signupAction } from './pages/Authentication/Authentication'
-import { getAuthToken, getUserData } from './utils/auth'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import ChessGame from './pages/Chess/ChessGame'
-import ChessGameContextProvider from './context/chess-game-context'
 import Profile, { action as profileAction } from './pages/Settings/Profile'
+import ChessGameContextProvider from './context/chess-game-context'
+import { getAuthToken, getUserData } from './utils/auth'
 
 const router = createBrowserRouter([{
   path: '/',

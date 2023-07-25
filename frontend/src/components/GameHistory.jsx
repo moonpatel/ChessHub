@@ -1,7 +1,9 @@
 import React, { useContext } from 'react'
-import { ChessGameContext } from '../context/chess-game-context'
+
 import { Button, Flex, ScrollArea, Tooltip, createStyles } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+
+import { ChessGameContext } from '../context/chess-game-context'
 
 const useStyles = createStyles(() => {
     return {
@@ -48,7 +50,7 @@ const GameHistory = () => {
             </Flex>
         )
     }
-    // console.log(currentIndex)
+
     return (
         <div style={{ width: '100%', userSelect: 'none' }}>
             <ScrollArea h={400} scrollbarSize={6} >

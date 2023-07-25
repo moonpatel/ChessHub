@@ -1,7 +1,9 @@
 import React from 'react'
+
+import { useForm } from '@mantine/form'
 import { Button, Card, Flex, TextInput, Title } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
-import { useForm } from '@mantine/form'
+
 import FriendsList from '../../components/FriendsList'
 
 const Friends = () => {

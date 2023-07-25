@@ -1,13 +1,15 @@
-import { Avatar, Button, Flex, Group, Image, Loader, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core'
 import React, { useContext, useEffect, useState } from 'react'
-import ChessBoard from '../Chess/ChessBoard'
+
 import { useNavigate } from 'react-router-dom'
+import { useDisclosure } from '@mantine/hooks'
+import { Avatar, Button, Flex, Image, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core'
+
 import { socket } from '../../socket'
 import { getUserData } from '../../utils/auth'
 import { ChessGameContext } from '../../context/chess-game-context'
+import ChessBoard from '../Chess/ChessBoard'
 import GameHistory from '../../components/GameHistory'
 import MainLoader from '../../components/MainLoader'
-import { useDisclosure } from '@mantine/hooks'
 import { SOCKET_EVENTS } from '../../constants'
 const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
 
@@ -91,7 +93,7 @@ const ChessGame = () => {
     )
 
     return (
-        <>
+        <React.Fragment>
             <Modal onClose={modalFunctions.close} opened={hasGameEnded && gameEndedModalOpen} centered>
                 <Text>Game ended due to {gameEndedReason}</Text>
                 <Button color='lime' onClick={exitGame}>Go back</Button>
@@ -156,7 +158,7 @@ const ChessGame = () => {
                     </Flex>
                 </MediaQuery>
             </Flex>
-        </>
+        </React.Fragment>
     )
 }
 

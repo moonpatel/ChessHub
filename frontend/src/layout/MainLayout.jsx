@@ -1,10 +1,12 @@
-import { AppShell, Burger, Container, Header, MediaQuery, Navbar, Paper, Text, createStyles, useMantineTheme } from '@mantine/core'
 import React, { useContext, useState } from 'react'
-import NavbarLinks from '../components/NavbarLinks';
+
 import { Outlet } from 'react-router-dom'
-import Logout from '../components/Logout';
+import { AppShell, Burger, Container, Header, MediaQuery, Navbar, Paper, Text, createStyles, useMantineTheme } from '@mantine/core'
+
 import UserDataContextProvider, { UserDataContext } from '../context/user-data-context';
 import MainLoader from '../components/MainLoader';
+import NavbarLinks from '../components/NavbarLinks';
+import Logout from '../components/Logout';
 
 const useStyles = createStyles((theme) => ({
     body: {
@@ -27,7 +29,7 @@ const MainLayout = () => {
     const { classes } = useStyles();
     const theme = useMantineTheme();
     const [opened, setOpened] = useState(false);
-    const { isLoggedIn,errorMessage } = useContext(UserDataContext);
+    const { isLoggedIn, errorMessage } = useContext(UserDataContext);
 
     if (!isLoggedIn) {
         return <MainLoader errorMessage={errorMessage} />

@@ -1,12 +1,13 @@
 import React, { createContext, useReducer, useRef, useState } from 'react'
-import { ChessModified, chessInit } from '../utils/chess';
-import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
+
 import { socket } from '../socket';
+import { ChessModified, chessInit } from '../utils/chess';
+
+import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
 const { GAME_END, CHESS_MOVE } = SOCKET_EVENTS;
-export const ChessGameContext = createContext();
-// myColor: null, chess: null, chessBoard: null, moveHints: null, selected: null, dispatch: null, handleOpponentMove: null, handleSquareClick: null, getSquareColor: null, isSquareMarked: null, selectPiece: null, handleDrop: null
 
+export const ChessGameContext = createContext();
 
 const reducer = (state, action) => {
     // console.log('Before', state);

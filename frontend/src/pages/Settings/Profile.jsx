@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
-import { Avatar, Button, Flex, Grid, Group, Stack, Text, TextInput, Title } from '@mantine/core'
-import { getUserData } from '../../utils/auth'
-import { UserDataContext } from '../../context/user-data-context'
+
 import { useForm } from '@mantine/form'
 import { Form } from 'react-router-dom'
+import { Avatar, Button, Flex, Grid, Group, Stack, Text, TextInput, Title } from '@mantine/core'
+
+import { getUserData } from '../../utils/auth'
+import { UserDataContext } from '../../context/user-data-context'
 import MainLoader from '../../components/MainLoader'
 
 const Profile = () => {

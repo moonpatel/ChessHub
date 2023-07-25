@@ -1,6 +1,8 @@
-import { Avatar, Flex, Image, MediaQuery, NavLink } from '@mantine/core'
 import React from 'react'
+
 import { Outlet } from 'react-router-dom'
+import { Avatar, Flex, Image, MediaQuery, NavLink } from '@mantine/core'
+
 import { getUserData } from '../../utils/auth';
 
 const Layout = () => {

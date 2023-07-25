@@ -1,7 +1,9 @@
-import { Avatar, Flex, Loader, NavLink, Text, Title } from '@mantine/core';
-import { Link } from 'react-router-dom';
-import { UserDataContext } from '../context/user-data-context';
 import React, { useContext } from 'react';
+
+import { Link } from 'react-router-dom';
+import { Avatar, Flex, Loader, NavLink, Text, Title } from '@mantine/core';
+
+import { UserDataContext } from '../context/user-data-context';
 
 const FriendsList = () => {
     const { friends } = useContext(UserDataContext)

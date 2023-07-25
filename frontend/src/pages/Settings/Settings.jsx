@@ -1,7 +1,8 @@
+import React from 'react'
+
+import { Link, Outlet } from 'react-router-dom';
 import { Box, Flex, NavLink, Title } from '@mantine/core'
 import { ColorWheelIcon, GearIcon, GlobeIcon, LockOpen1Icon, PersonIcon } from '@radix-ui/react-icons'
-import React from 'react'
-import { Link, Outlet } from 'react-router-dom';
 
 const Settings = () => {
     return (

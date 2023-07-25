@@ -1,7 +1,9 @@
 import React from 'react'
+
 import { createPortal } from 'react-dom'
-import loaderImage from '../assets/images/chess_board_loader.png'
 import { Loader, Title } from '@mantine/core'
+
+import loaderImage from '../assets/images/chess_board_loader.png'
 
 const MainLoader = ({ errorMessage }) => {
     return (
@@ -22,10 +24,6 @@ const MainLoader = ({ errorMessage }) => {
 
             }
         </>
-        // <div style={{ backgroundColor: '#272321', width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', placeItems: 'center' }}>
-        //     <img draggable='false' src={loaderImage} style={{ width: '300px', height: '300px', marginTop: '180px', display: 'block' }} />
-        //     <Loader variant='bars' />
-        // </div>
     )
 }
 

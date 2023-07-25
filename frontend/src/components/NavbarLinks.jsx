@@ -1,7 +1,8 @@
+import React, { useState } from 'react'
+
+import { Link } from 'react-router-dom'
 import { NavLink, Text, ThemeIcon } from '@mantine/core'
 import { GearIcon, HomeIcon, PlayIcon } from '@radix-ui/react-icons'
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 const NavbarLinks = () => {
     const [active, setActive] = useState(null);

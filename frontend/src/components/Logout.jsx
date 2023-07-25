@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+
+import { useNavigate } from 'react-router-dom'
 import { Button, Flex, Modal, Text, Title } from '@mantine/core'
-import { redirect, useNavigate } from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks'
 
 const Logout = () => {
@@ -21,17 +22,16 @@ const Logout = () => {
             const resData = await response.json();
             setIsLoading(false);
             if (response.ok) {
-                console.log('Logged out')
                 localStorage.removeItem('user');
-                close();
                 localStorage.removeItem('loggedIn');
+                close();
                 return navigate('/login');
             } else {
                 return setErrorMsg(resData.message || "Something went wrong")
             }
         } catch (err) {
             setIsLoading(false)
-            console.log(err)
+            console.error(err)
             setErrorMsg("Something went wrong");
         }
     }

@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react';
+
+import { redirect, useNavigate } from 'react-router-dom';
 import { Button, Card, Container, Text, TextInput, Title } from '@mantine/core';
-import { Form, redirect, useNavigate } from 'react-router-dom';
-import { ZodError, z } from 'zod';
 import { useForm } from 'react-hook-form'
+import { ZodError, z } from 'zod';
+
 import { UserDataContext } from '../../context/user-data-context';
 
 let host = import.meta.env.VITE_BACKEND_HOST;
@@ -122,8 +124,6 @@ const SignupForm = () => {
                 return navigate('/');
             } else {
                 setIsLoading(false);
-                console.log(resData);
-                console.log(resData.description);
                 setErrorMsg(resData.message);
                 resData?.error?.username && setError('username', { message: resData.error.username });
                 resData?.error?.email && setError('email', { message: resData.error.email });
@@ -156,68 +156,5 @@ const SignupForm = () => {
         </form>
     );
 };
-
-export const loginAction = async ({ request }) => {
-    try {
-        const data = await request.formData();
-        let url = `${import.meta.env.VITE_BACKEND_HOST}/api/auth/login`;
-
-        const authData = {
-            username: data.get('username'),
-            password: data.get('password')
-        }
-
-
-
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify(authData),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-
-        if (response.status >= 400) return response;
-        else {
-            const responseBody = await response.json();
-            localStorage.setItem('token', responseBody.token);
-            localStorage.setItem('user', JSON.stringify(responseBody.user))
-            return redirect('/home');
-        }
-    } catch (err) {
-        if (err instanceof ZodError) {
-
-        } else {
-            console.er
-        }
-    }
-}
-
-export const signupAction = async ({ request }) => {
-    const data = await request.formData();
-    let url = `${import.meta.env.VITE_BACKEND_HOST}/api/auth/signup`;
-
-    const authData = {
-        username: data.get('username'),
-        email: data.get('email'),
-        password: data.get('password')
-    }
-
-    const response = await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(authData),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-
-    if (response.status >= 400) return response;
-    else {
-        const responseBody = await response.json();
-        localStorage.setItem('token', responseBody.token);
-        localStorage.setItem('user', JSON.stringify(responseBody.user))
-        return redirect('/home');
-    }
-}
 
 export default AuthenticationPage;
