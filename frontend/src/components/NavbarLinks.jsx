@@ -48,7 +48,7 @@ const NavbarLink = ({ label, icon, to, index, active, setActive }) => {
 
 NavbarLink.propTypes = {
     label: PropTypes.string,
-    icon: PropTypes.func,
+    icon: PropTypes.object,
     to: PropTypes.string,
     index: PropTypes.number,
     active: PropTypes.number,
@@ -59,7 +59,6 @@ const linksList = [
     { label: 'Home', icon: <HomeIcon />, to: "/home" },
     { label: 'Play Chess', icon: <PlayIcon />, to: "/play" },
     { label: 'Settings', icon: <GearIcon />, to: "/settings" },
-
 ]
 
 export default NavbarLinks

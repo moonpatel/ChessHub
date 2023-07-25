@@ -1,5 +1,7 @@
 import React, { createContext, useReducer, useRef, useState } from 'react'
 
+import PropTypes from 'prop-types';
+
 import { socket } from '../socket';
 import { ChessModified, chessInit } from '../utils/chess';
 
@@ -235,6 +237,10 @@ const ChessGameContextProvider = ({ children }) => {
             <audio src='/src/assets/audio/move-check.mp3' ref={checkAudioRef} />
         </ChessGameContext.Provider>
     )
+}
+
+ChessGameContextProvider.propTypes = {
+    children: PropTypes.object
 }
 
 export default ChessGameContextProvider

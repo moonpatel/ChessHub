@@ -1,5 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react'
 
+import PropTypes from 'prop-types';
+
 export const UserDataContext = createContext();
 
 const UserDataContextProvider = ({ children }) => {
@@ -37,6 +39,10 @@ const UserDataContextProvider = ({ children }) => {
             {children}
         </UserDataContext.Provider>
     )
+}
+
+UserDataContextProvider.propTypes = {
+    children: PropTypes.object
 }
 
 

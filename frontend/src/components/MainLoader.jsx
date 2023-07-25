@@ -11,7 +11,7 @@ const MainLoader = ({ errorMessage }) => {
         <>
             {
                 createPortal(<div style={{ position: 'absolute', backgroundColor: '#272321', width: '100vw', height: '100vh', top: 0, left: 0, display: 'flex', flexDirection: 'column', placeItems: 'center', zIndex: 1000 }}>
-                    <img draggable='false' src={loaderImage} style={{ width: '300px', height: '300px', marginTop: '180px', display: 'block' }} />
+                    <img draggable='false' alt='chessboard' src={loaderImage} style={{ width: '300px', height: '300px', marginTop: '180px', display: 'block' }} />
                     {
                         errorMessage
                             ?

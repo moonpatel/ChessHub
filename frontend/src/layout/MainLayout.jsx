@@ -8,7 +8,7 @@ import MainLoader from '../components/MainLoader';
 import NavbarLinks from '../components/NavbarLinks';
 import Logout from '../components/Logout';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
     body: {
         width: '100%',
         height: '100%'

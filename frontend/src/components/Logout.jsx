@@ -41,7 +41,7 @@ const Logout = () => {
             <Modal opened={isOpen} onClose={close} title={<Title order={3}>Logout</Title>} centered>
                 <Text>Are you sure you want to logout?</Text>
                 <Flex gap={'sm'} my="20px">
-                    <form onClick={logoutHandler}>
+                    <form onSubmit={logoutHandler}>
                         <Button loading={isLoading} type="submit" color='red' px='xl'>Logout</Button>
                     </form>
                     <Button disabled={isLoading} color='gray'>Cancel</Button>
