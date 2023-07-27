@@ -79,7 +79,7 @@ function socketIOServerInit(server) {
                     // io.to(roomID).emit("new user joined the room");
                     console.log(data, "joined");
                     let room = getRoom(roomID);
-                    io.to(roomID).emit(USER_JOINED_ROOM, data.username);
+                    socket.to(roomID).emit(USER_JOINED_ROOM, data.username);
                     socket.emit(result, room.gameHistory); // room joined successfully
                 } else {
                     socket.emit(result); // room is full

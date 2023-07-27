@@ -11,10 +11,11 @@ import ChessBoard from '../Chess/ChessBoard'
 import GameHistory from '../../components/GameHistory'
 import MainLoader from '../../components/MainLoader'
 import { SOCKET_EVENTS } from '../../constants'
+import Timer from './Timer'
 const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
 
 const ChessGame = () => {
-    const { setGameHistory, hasGameEnded, gameEndedReason, endGame } = useContext(ChessGameContext);
+    const { setGameHistory, hasGameEnded, gameEndedReason, endGame, handleOpponentMove, isTimerOn } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
 
     const user = getUserData();
@@ -26,6 +27,7 @@ const ChessGame = () => {
     const roomID = localStorage.getItem('roomID');
     const navigate = useNavigate();
     const opponent = localStorage.getItem('opponent');
+    let connected = socket.id;
 
     const exitGame = () => {
         // cleanup game related data
@@ -69,10 +71,7 @@ const ChessGame = () => {
             console.log('Socket disconnected due to', reason);
         });
 
-        socket.on(CHESS_OPPONENT_MOVE, () => {
-            // console.log(data);
-            // setIsTimerOn(true);
-        })
+        socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)
 
         socket.on(USER_JOINED_ROOM, () => {
             setIsWaiting(false);
@@ -87,6 +86,10 @@ const ChessGame = () => {
             socket.disconnect()
         }
     }, []);
+
+    useEffect(() => {
+        console.log('Connection useEffect()');
+    }, [connected]);
 
     if (!hasJoinedRoom) return (
         <MainLoader />
@@ -111,7 +114,7 @@ const ChessGame = () => {
                             </Avatar>}
                             description={"description"}
                         />
-                        {/* <Timer on={!isTimerOn} /> */}
+                        <Timer on={!isTimerOn} />
                     </div>
                     {
                         // TODO: handle isWaiting state
@@ -137,7 +140,7 @@ const ChessGame = () => {
                             </Avatar>}
                             description={"description"}
                         />
-                        {/* <Timer on={isTimerOn} /> */}
+                        <Timer on={isTimerOn} />
                     </div>
                 </Flex>
                 <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>

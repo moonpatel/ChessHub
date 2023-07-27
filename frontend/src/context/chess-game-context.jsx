@@ -12,7 +12,6 @@ const { GAME_END, CHESS_MOVE } = SOCKET_EVENTS;
 export const ChessGameContext = createContext();
 
 const reducer = (state, action) => {
-    // console.log('Before', state);
     try {
         switch (action.type) {
             case SELECT_PIECE:
@@ -78,12 +77,9 @@ const reducer = (state, action) => {
                 return state;
         }
     } catch (err) {
-        console.log('Error', err);
-        console.log('After', state);
-        // state.chess.getBoard()
+        console.error(err);
+        return state;
     }
-    // console.log('After', state);
-    return state;
 }
 
 function chessGameStateInit(myColor) {
@@ -107,6 +103,16 @@ const ChessGameContextProvider = ({ children }) => {
     const [{ chess, chessBoard, moveHints, selected, gameHistory, currentIndex, hasGameEnded, gameEndedReason }, dispatch] = useReducer(reducer, myColor, chessGameStateInit);
     const [isTimerOn, setIsTimerOn] = useState(true);
 
+    const chessRef = useRef(chess);
+    const moveHintsRef = useRef(moveHints);
+    const selectedRef = useRef(selected);
+    const gameHistoryRef = useRef(gameHistory);
+    const currentIndexRef = useRef(currentIndex);
+    chessRef.current = chess;
+    selectedRef.current = selected;
+    moveHintsRef.current = moveHints;
+    gameHistoryRef.current = gameHistory;
+    currentIndexRef.current = currentIndex;
 
     const moveAudioRef = useRef(null);
     const captureAudioRef = useRef(null);
@@ -116,38 +122,35 @@ const ChessGameContextProvider = ({ children }) => {
     // data received through socket
     function handleOpponentMove(data) {
         let { from, to } = data;
-        console.log(from, to, chess.get(to), chess.ascii());
-        if (!chess.get(to)) {
+        if (!chessRef.current.get(to)) {
             dispatch({ type: MOVE_PIECE, val: { from, to } });
             moveAudioRef.current.play();
-            console.log(chess.ascii())
             return;
         } else {
             dispatch({ type: CAPTURE_PIECE, val: { from, to } });
             captureAudioRef.current.play();
-            console.log(chess.ascii())
             return;
         }
     }
 
     // called when user clicks a square
     function handleSquareClick(square, emitToSocketCallback) {
-        let { type, color } = chess.get(square);
-        let marked = moveHints.includes(square);
+        let { type, color } = chessRef.current.get(square);
+        let marked = moveHintsRef.current.includes(square);
 
-        if (chess.turn() === myColor) {
+        if (chessRef.current.turn() === myColor) {
             if (type && color === myColor) {
                 return dispatch({ type: SELECT_PIECE, val: square });
             }
-            if (!type && selected && marked) {
+            if (!type && selectedRef.current && marked) {
                 dispatch({ type: MOVE_PIECE, val: { from: selected, to: square } })
-                emitToSocketCallback({ from: selected, to: square })
+                emitToSocketCallback({ from: selectedRef.current, to: square })
                 setIsTimerOn(false)
                 captureAudioRef.current.play();
             }
             if (type && marked) {
-                dispatch({ type: CAPTURE_PIECE, val: { from: selected, to: square } })
-                emitToSocketCallback({ from: selected, to: square })
+                dispatch({ type: CAPTURE_PIECE, val: { from: selectedRef.current, to: square } })
+                emitToSocketCallback({ from: selectedRef.current, to: square })
                 setIsTimerOn(false);
                 moveAudioRef.current.play();
             }
@@ -159,8 +162,8 @@ const ChessGameContextProvider = ({ children }) => {
     function handleDrop(moveData) {
         let { from, to } = moveData;
         // console.log(from, to, ch ess.get(to), chess.ascii())
-        if (moveHints.includes(to)) {
-            if (chess.get(to)) {
+        if (moveHintsRef.current.includes(to)) {
+            if (chessRef.current.get(to)) {
                 dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
                 captureAudioRef.current.play();
                 // setIsTimerOn(false)
@@ -175,17 +178,17 @@ const ChessGameContextProvider = ({ children }) => {
     }
 
     function selectPiece({ square, color: pieceColor }) {
-        if (pieceColor === myColor && myColor === chess.turn()) {
+        if (pieceColor === myColor && myColor === chessRef.current.turn()) {
             dispatch({ type: SELECT_PIECE, val: square });
         }
     }
 
     function getSquareColor(square) {
-        return chess.squareColor(square) === 'light' ? "w" : "b";
+        return chessRef.current.squareColor(square) === 'light' ? "w" : "b";
     }
 
     function isSquareMarked(square) {
-        return moveHints.includes(square);
+        return moveHintsRef.current.includes(square);
     }
 
     function jumpTo(index) {
@@ -193,24 +196,24 @@ const ChessGameContextProvider = ({ children }) => {
     }
 
     function getChessBoard() {
-        if (currentIndex === -1 || gameHistory.length === 0) {
+        if (currentIndexRef.current === -1 || gameHistoryRef.current.length === 0) {
             return new ChessModified().getBoard();
         } else {
             // console.log(chess);
-            let currentChessBoard = new ChessModified(gameHistory[currentIndex].fen).getBoard();
+            let currentChessBoard = new ChessModified(gameHistoryRef.current[currentIndexRef.current].fen).getBoard();
             return currentChessBoard;
         }
     }
 
     function goBack() {
-        if (currentIndex > 0) {
-            jumpTo(currentIndex - 1);
+        if (currentIndexRef.current > 0) {
+            jumpTo(currentIndexRef.current - 1);
         }
     }
 
     function goAhead() {
-        if (currentIndex < gameHistory.length - 1) {
-            jumpTo(currentIndex + 1);
+        if (currentIndexRef.current < gameHistoryRef.current.length - 1) {
+            jumpTo(currentIndexRef.current + 1);
         }
     }
 
