@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Form, redirect, useParams } from 'react-router-dom'
+import { Form, redirect, useActionData, useParams } from 'react-router-dom'
 import { Avatar, Button, Card, Flex, Select, Text, Title } from '@mantine/core'
 
 import { getUserData } from '../../utils/auth'
@@ -8,6 +8,8 @@ import { getUserData } from '../../utils/auth'
 const ChallengeFriend = () => {
     const params = useParams();
     let friend_username = params["friend_username"];
+    const res = useActionData();
+    console.log(res);
 
     return (
         <Card
@@ -31,6 +33,9 @@ const ChallengeFriend = () => {
                     { value: 'RANDOM', label: 'Random' }
                 ]} />
                 <Button color='lime' type='submit' >Challenge</Button>
+                <Text style={{ color: 'red' }}>
+                    {res?.message}
+                </Text>
             </Form>
         </Card>
     )
@@ -57,17 +62,22 @@ export const playFriendAction = async ({ request, params }) => {
         });
 
         console.log(response.status);
-        const resJSON = await response.json();
-        const { roomID } = resJSON;
-        console.log('Room ID:', roomID);
+        if (response.ok) {
 
-        // set properties of the game
-        localStorage.setItem('roomID', roomID);
-        localStorage.setItem('myColor', color);
-        localStorage.setItem('timeLimit', timeLimit);
-        localStorage.setItem('opponent', challenged);
+            const resJSON = await response.json();
+            const { roomID } = resJSON;
+            console.log('Room ID:', roomID);
 
-        return redirect(`/game/friend/${roomID}`);
+            // set properties of the game
+            localStorage.setItem('roomID', roomID);
+            localStorage.setItem('myColor', color);
+            localStorage.setItem('timeLimit', timeLimit);
+            localStorage.setItem('opponent', challenged);
+
+            return redirect(`/game/friend/${roomID}`);
+        } else {
+            return response;
+        }
     } catch (err) {
         console.log(err)
         return err;
