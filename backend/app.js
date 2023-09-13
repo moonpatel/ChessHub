@@ -23,7 +23,7 @@ const { socketIOServerInit } = require("./socket");
 app.get("/health-check", (req, res, next) => {
     res.status(200).send("OK");
 });
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "*", credentials: true }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
     // res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
