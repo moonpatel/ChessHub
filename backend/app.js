@@ -8,8 +8,10 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+const port = process.env.PORT;
+
 mongoose
-    .connect("mongodb://127.0.0.1:27017/test")
+    .connect(process.env.CONNECTION_STRING)
     .then((res) => console.log("Connected to MongoDB"))
     .catch((err) => console.log("Error in connecting to database"));
 
@@ -52,6 +54,6 @@ app.use((error, req, res, next) => {
     });
 });
 
-server.listen(8080, () => {
-    console.log("Listening on server 8080");
+server.listen(port, () => {
+    console.log("Listening on server", port);
 });
