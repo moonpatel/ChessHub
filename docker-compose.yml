@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+    frontend:
+        build: ./frontend
+        ports:
+            - 5173:5173
+    backend:
+        build: ./backend
+        ports:
+            - 8080:8080
+        environment:
+            - PORT=8080
