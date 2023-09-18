@@ -46,17 +46,19 @@ const Piece = ({ cell }) => {
         }
     });
 
-    let borderColor = marked ? '#77777766' : 'transparent'
+    let borderColor = marked ? '#77777744' : 'transparent'
 
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         cursor: isDragging ? 'grabbing' : 'pointer',
-        zIndex: isDragging ? 1000 : 10,
+        zIndex: 1000,
         aspectRatio: '1',
         touchAction: 'none',
         borderRadius: '10px',
         outline: 'none'
-    } : undefined;
+    } : {
+        zIndex: 10
+    };
 
     useEffect(() => {
         if (isDragging) {
@@ -67,15 +69,17 @@ const Piece = ({ cell }) => {
 
     if (logo) {
         return (
-            <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', borderRadius: '50%', boxSizing: 'border-box', borderWidth: '8px', width: '100%', height: '100%', borderStyle: 'solid', borderColor }}>
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <div style={{ borderRadius: '50%', position: 'absolute', boxSizing: 'border-box', borderWidth: '7px', width: '100%', height: '100%', borderStyle: 'solid', borderColor }}>
                 </div>
-                <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/images/${logo}.png`} />
+                <div style={{ width: '100%', height: '100%' }}>
+                    <Image classNames={{ root: classes['chess-piece'] }} ref={setNodeRef} style={style} sx={{ cursor: 'pointer' }} {...listeners} {...attributes} src={`/src/assets/images/${logo}.png`} />
+                </div>
             </div>
         )
     } else {
         return (
-            <div style={{ width: '100%', zIndex: 100 }}></div>
+            <div style={{ width: '100%' }}></div>
         )
     }
 }

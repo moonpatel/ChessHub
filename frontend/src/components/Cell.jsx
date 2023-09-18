@@ -19,7 +19,7 @@ const Cell = ({ cell }) => {
     let squareColor = getSquareColor(square);
 
     let marked = isSquareMarked(square);
-    let borderColor = isOver ? '#77777777' : 'transparent';
+    let borderColor = isOver ? '#77777744' : 'transparent';
     let borderWidth = type ? '3px' : '5px'
 
     const handleClick = () => {
@@ -30,22 +30,17 @@ const Cell = ({ cell }) => {
     }
 
     let content = null;
-    if (marked) {
+    if (marked && !type) {
         content = <Mark />
     } else if (type) {
         content = <Piece cell={cell} />
     }
 
     return (
-        <Flex ref={setNodeRef} style={{ aspectRatio: '1/1' }} sx={theme => {
+        <Flex ref={setNodeRef} sx={theme => {
             let color = theme.colors.lime;
-            return { backgroundColor: squareColor === 'b' ? color[8] : color[1], filter: 'saturate(0.5)' }
+            return { backgroundColor: squareColor === 'b' ? '#769854' : '#e8edcd', aspectRatio: '1/1' }
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
-            {
-                isOver ?
-                    <div style={{ width: '100%', height: '100%', position: 'absolute', borderWidth, boxSizing: 'border-box', borderStyle: 'solid', borderColor }}></div>
-                    : null
-            }
             {content}
         </Flex>
     )
