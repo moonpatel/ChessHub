@@ -9,9 +9,9 @@ import Piece from './Piece';
 import { ChessGameContext } from '../context/chess-game-context';
 
 import { SOCKET_EVENTS } from '../constants';
-const { CHESS_MOVE } = SOCKET_EVENTS
+const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS
 
-const Cell = ({ cell }) => {
+const Cell = ({ cell, callbacks }) => {
     let roomID = localStorage.getItem('roomID');
     let { square, type } = cell;
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
@@ -23,9 +23,8 @@ const Cell = ({ cell }) => {
     let borderWidth = type ? '3px' : '5px'
 
     const handleClick = () => {
-        handleSquareClick(square, (moveData) => {
-            // moveData contains fen string, from, to squares of the move
-            socket.emit(CHESS_MOVE, roomID, moveData);
+        handleSquareClick(square, callbacks.pieceClickCallback, () => {
+            socket.emit(GAME_END, roomID);
         });
     }
 

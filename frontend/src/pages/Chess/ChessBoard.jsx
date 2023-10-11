@@ -7,7 +7,7 @@ import Cell from '../../components/Cell';
 import { ChessGameContext } from '../../context/chess-game-context';
 import { socket } from '../../socket';
 import { SOCKET_EVENTS } from '../../constants';
-const { CHESS_OPPONENT_MOVE, CHESS_MOVE } = SOCKET_EVENTS
+const { GAME_END } = SOCKET_EVENTS
 
 const useStyles = createStyles((theme) => ({
     chessboard: {
@@ -35,34 +35,28 @@ const useStyles = createStyles((theme) => ({
     }
 }))
 
-const ChessBoard = () => {
+const ChessBoard = ({ callbacks }) => {
     const { classes } = useStyles();
-    const { getChessBoard, handleOpponentMove, handleDrop } = useContext(ChessGameContext)
-    const roomID = localStorage.getItem('roomID');
+    const { getChessBoard, handleDrop } = useContext(ChessGameContext)
     const chessBoard = getChessBoard();
-    const myColor = localStorage.getItem('myColor')
-
-    useEffect(() => {
-        socket.on(CHESS_OPPONENT_MOVE, handleOpponentMove)
-
-        return () => {
-            socket.off(CHESS_OPPONENT_MOVE);
-        }
-    }, []);
+    const myColor = localStorage.getItem('myColor');
+    const roomID = localStorage.getItem('roomID');
 
     if (myColor === 'w') {
         return (
             <DndContext onDragEnd={evt => {
                 let from = evt.active.id;
                 let to = evt.over.id;
-                handleDrop({ from, to });
+                handleDrop({ from, to }, callbacks.pieceDropCallback, () => {
+                    socket.emit(GAME_END, roomID);
+                });
             }}>
                 <Flex className={classes.chessboard} sx={{ userSelect: 'none' }}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
                             return (
                                 <Flex className={classes.boardrow} key={rowIndex * 2}>
-                                    {row.map(cell => <Cell key={cell.square} cell={cell} />)}
+                                    {row.map(cell => <Cell callbacks={{ pieceClickCallback: callbacks.pieceClickCallback }} key={cell.square} cell={cell} />)}
                                 </Flex>
                             )
                         })}
@@ -75,16 +69,16 @@ const ChessBoard = () => {
             <DndContext onDragEnd={evt => {
                 let from = evt.active.id;
                 let to = evt.over.id;
-                handleDrop({ from, to }, (moveData) => {
-                    socket.emit(CHESS_MOVE, roomID, moveData);
-                })
+                handleDrop({ from, to }, callbacks.pieceDropCallback, () => {
+                    socket.emit(GAME_END, roomID);
+                });
             }}>
                 <Flex className={classes.chessboard}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
                             return (
                                 <Flex className={classes.boardrow} key={rowIndex * 2}>
-                                    {row.map(cell => <Cell key={cell.square} cell={cell} />).reverse()}
+                                    {row.map(cell => <Cell callbacks={{ pieceClickCallback: callbacks.pieceClickCallback }} key={cell.square} cell={cell} />).reverse()}
                                 </Flex>
                             )
                         }).reverse()}

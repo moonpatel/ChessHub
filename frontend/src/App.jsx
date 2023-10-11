@@ -11,10 +11,11 @@ import PlayFriend from './pages/Play/PlayFriend'
 import Play from './pages/Play/Play'
 import AuthenticationPage from './pages/Authentication/Authentication'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
-import ChessGame from './pages/Chess/ChessGame'
 import Profile, { action as profileAction } from './pages/Settings/Profile'
-import ChessGameContextProvider from './context/chess-game-context'
 import { getAuthToken, getUserData } from './utils/auth'
+import Computer from './pages/Play/Computer'
+import ComputerGame from './pages/Play/ComputerGame'
+import MultiplayerGame from './pages/Play/MultiplayerGame'
 
 const router = createBrowserRouter([{
   path: '/',
@@ -28,17 +29,15 @@ const router = createBrowserRouter([{
         { index: true, element: <Play /> },
         { path: 'friend/:friend_username', element: <ChallengeFriend />, action: playFriendAction },
         { path: 'friend', element: <PlayFriend /> },
-        { path: 'computer', element: <div>Computer</div> },
+        { path: 'computer', element: <Computer /> },
         { path: 'online', element: <div>Online</div> }
       ]
     },
     {
-      path: "game/friend/:roomID", element:
-        <div>
-          <ChessGameContextProvider>
-            <ChessGame />
-          </ChessGameContextProvider>
-        </div>
+      path: "game/friend/:roomID", element: <MultiplayerGame />
+    },
+    {
+      path: "game/computer", element: <ComputerGame />
     },
     {
       path: 'settings', element: <Settings />, children: [

@@ -6,16 +6,22 @@ const engine = new Engine(
         "C:\\Users\\MOON\\Downloads\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
 );
 
-engine.init().then(() => {
-    nextMove({ position: "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3" });
-});
+engine
+    .init()
+    .then((eng) => {
+        return eng.setoption("UCI_LimitStrength", true);
+    })
+    .then((eng) => {
+        eng.setoption("UCI_Elo");
+    });
 
 const nextMove = async ({ position }) => {
     await engine.isready();
     console.log("Chess engine ready");
     engine.position(position);
-    const result = await engine.go({ depth: 22 });
+    const result = await engine.go({ depth: 10 });
     console.log("Best move or position", position, "is", result.bestmove);
+    return result.bestmove;
 };
 
-module.exports = {};
+module.exports = { nextMove };

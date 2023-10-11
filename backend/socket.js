@@ -3,6 +3,7 @@ const { SOCKET_EVENTS } = require("./constants");
 const { Chess } = require("chess.js");
 const { User } = require("./models/user");
 const { Game } = require("./models/game");
+const { nextMove } = require("./chessbot");
 const {
     CHESS_MOVE,
     CHESS_OPPONENT_MOVE,
@@ -59,6 +60,33 @@ function socketIOServerInit(server) {
         cors: {
             origin: process.env.CORS_ALLOWED_HOST,
         },
+    });
+
+    const ioBot = io.of("/chessbot");
+
+    ioBot.on("connection", (socket) => {
+        let id = socket.id;
+        console.log(id, "connected on /chessbot");
+        const chess = new Chess();
+
+        socket.onAny((evt) => {
+            console.log(evt);
+        });
+
+        socket.on("disconnect", (reason) => {
+            console.log(id, "disconnected due to", reason);
+        });
+
+        socket.on(CHESS_MOVE, async (roomID, moveData) => {
+            console.log("CHESS_MOVE");
+            chess.move(moveData);
+            let move = moveData.from + moveData.to;
+            console.log(move);
+            const botMove = await nextMove({ position: chess.fen() });
+            console.log({ from: botMove.substring(0, 2), to: botMove.substring(2) });
+            chess.move({ from: botMove.substring(0, 2), to: botMove.substring(2) });
+            socket.emit("CHESS_BOT_MOVE", { from: botMove.substring(0, 2), to: botMove.substring(2) });
+        });
     });
 
     io.on("connection", (socket) => {

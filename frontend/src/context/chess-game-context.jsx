@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useRef, useState } from 'react'
 
 import PropTypes from 'prop-types';
 
-import { socket } from '../socket';
+import { socket, socketBot } from '../socket';
 import { ChessModified, chessInit } from '../utils/chess';
 
 import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
@@ -25,16 +25,18 @@ const reducer = (state, action) => {
                     let updatedGameHistory = state.gameHistory;
                     let { san, after } = newChessObj.move(action.val);
                     updatedGameHistory.push({ move: san, fen: after });
+                    let newState;
                     if (newChessObj.isCheckmate()) {
-                        socket.emit(GAME_END, localStorage.getItem('roomID'));
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                        action.val.callback();
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
                     } else if (newChessObj.isStalemate()) {
-                        socket.emit(GAME_END, localStorage.getItem('roomID'));
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                        action.val.callback();
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
                     }
                     else {
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
                     }
+                    return newState;
                 }
             case CAPTURE_PIECE:
                 {
@@ -42,16 +44,18 @@ const reducer = (state, action) => {
                     let updatedGameHistory = state.gameHistory;
                     let { san, after } = newChessObj.move(action.val);
                     updatedGameHistory.push({ move: san, fen: after });
+                    let newState;
                     if (newChessObj.isCheckmate()) {
-                        socket.emit(GAME_END, localStorage.getItem('roomID'));
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
+                        action.val.callback();
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
                     } else if (newChessObj.isStalemate()) {
-                        socket.emit(GAME_END, localStorage.getItem('roomID'));
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
+                        action.val.callback();
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
                     }
                     else {
-                        return { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
+                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
                     }
+                    return newState;
                 }
             case JUMP_TO:
                 {
@@ -120,21 +124,22 @@ const ChessGameContextProvider = ({ children }) => {
     const checkAudioRef = useRef(null);
 
     // data received through socket
-    function handleOpponentMove(data) {
+    function handleOpponentMove(data, callback) {
         let { from, to } = data;
+        console.log(data);
         if (!chessRef.current.get(to)) {
-            dispatch({ type: MOVE_PIECE, val: { from, to } });
-            moveAudioRef.current.play();
+            dispatch({ type: MOVE_PIECE, val: { from, to, callback } });
+            // moveAudioRef.current.play();
             return;
         } else {
-            dispatch({ type: CAPTURE_PIECE, val: { from, to } });
-            captureAudioRef.current.play();
+            dispatch({ type: CAPTURE_PIECE, val: { from, to, callback } });
+            // captureAudioRef.current.play();
             return;
         }
     }
 
     // called when user clicks a square
-    function handleSquareClick(square, emitToSocketCallback) {
+    function handleSquareClick(square, emitToSocketCallback, callback) {
         let { type, color } = chessRef.current.get(square);
         let marked = moveHintsRef.current.includes(square);
 
@@ -143,36 +148,35 @@ const ChessGameContextProvider = ({ children }) => {
                 return dispatch({ type: SELECT_PIECE, val: square });
             }
             if (!type && selectedRef.current && marked) {
-                dispatch({ type: MOVE_PIECE, val: { from: selected, to: square } })
+                dispatch({ type: MOVE_PIECE, val: { from: selected, to: square, callback } })
                 emitToSocketCallback({ from: selectedRef.current, to: square })
                 setIsTimerOn(false)
-                captureAudioRef.current.play();
+                moveAudioRef.current.play();
+                return;
             }
             if (type && marked) {
-                dispatch({ type: CAPTURE_PIECE, val: { from: selectedRef.current, to: square } })
+                console.log({ from: selectedRef.current, to: square })
+                dispatch({ type: CAPTURE_PIECE, val: { from: selectedRef.current, to: square, callback } })
                 emitToSocketCallback({ from: selectedRef.current, to: square })
                 setIsTimerOn(false);
-                moveAudioRef.current.play();
+                captureAudioRef.current.play();
+                return;
             }
-        } else {
-            return;
         }
     }
 
-    function handleDrop(moveData) {
+    function handleDrop(moveData, emitToSocketCallback, callback) {
         let { from, to } = moveData;
-        // console.log(from, to, ch ess.get(to), chess.ascii())
         if (moveHintsRef.current.includes(to)) {
             if (chessRef.current.get(to)) {
-                dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to } });  // capture piece
+                dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to, callback } });  // capture piece
                 captureAudioRef.current.play();
-                // setIsTimerOn(false)
-                socket.emit(CHESS_MOVE, roomID, moveData);
+                emitToSocketCallback(moveData);
             } else {
-                dispatch({ type: MOVE_PIECE, val: { from: from, to: to } }); // move piece
+                dispatch({ type: MOVE_PIECE, val: { from: from, to: to, callback } }); // move piece
                 moveAudioRef.current.play();
-                // setIsTimerOn(false)
-                socket.emit(CHESS_MOVE, roomID, moveData);
+                console.log(moveData);
+                emitToSocketCallback(moveData);
             }
         }
     }

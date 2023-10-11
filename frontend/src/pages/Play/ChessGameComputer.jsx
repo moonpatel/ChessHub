@@ -1,95 +1,36 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useDisclosure } from '@mantine/hooks';
+import React, { useContext, useEffect } from 'react'
+import { ChessGameContext } from '../../context/chess-game-context';
+import { socketBot as socket } from '../../socket';
+import { getUserData } from '../../utils/auth';
+import { Avatar, Button, Flex, Image, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core';
+import ChessBoard from '../Chess/ChessBoard';
+import GameHistory from '../../components/GameHistory';
+import { useNavigate } from 'react-router-dom';
+import { SOCKET_EVENTS } from '../../constants';
+const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS
 
-import { useNavigate } from 'react-router-dom'
-import { useDisclosure } from '@mantine/hooks'
-import { Avatar, Button, Flex, Image, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core'
-
-import { socket, socketBot } from '../../socket'
-import { getUserData } from '../../utils/auth'
-import { ChessGameContext } from '../../context/chess-game-context'
-import ChessBoard from '../Chess/ChessBoard'
-import GameHistory from '../../components/GameHistory'
-import MainLoader from '../../components/MainLoader'
-import { SOCKET_EVENTS } from '../../constants'
-import Timer from './Timer'
-const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM } = SOCKET_EVENTS;
-
-const ChessGame = () => {
-    const { setGameHistory, hasGameEnded, gameEndedReason, endGame, handleOpponentMove, isTimerOn } = useContext(ChessGameContext);
+const ChessGameComputer = () => {
+    const { hasGameEnded, gameEndedReason, handleOpponentMove } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
-
+    const navigate = useNavigate();
     const user = getUserData();
     let username = user.username;
-    let userid = user.id;
-    let color = localStorage.getItem('myColor');
-    const [hasJoinedRoom, setHasJoinedRoom] = useState(localStorage.getItem('socketid'));
-    const [isWaiting, setIsWaiting] = useState(true);
+    let color = localStorage.getItem('myColor') || 'w';
     const roomID = localStorage.getItem('roomID');
-    const navigate = useNavigate();
-    const opponent = localStorage.getItem('opponent');
 
-    const exitGame = () => {
-        // cleanup game related data
-        localStorage.removeItem('socketid');
-        localStorage.removeItem('roomID');
-        localStorage.removeItem('opponent');
-        localStorage.removeItem('myColor');
-        localStorage.removeItem('timeLimit');
-        socket.disconnect();
-        navigate('/play/friend');
-    }
-
-    const resign = () => {
-        socket.emit(USER_RESIGNED, roomID, username);
-        endGame('RESIGN');
-        exitGame();
-    }
-    const pieceDropCallback = (moveData) => {
-        socket.emit(CHESS_MOVE, roomID, moveData);
-    }
-
-    const pieceClickCallback = (moveData) => {
-        // moveData contains fen string, from, to squares of the move
-        socket.emit(CHESS_MOVE, roomID, moveData);
-    }
 
     useEffect(() => {
         socket.connect();
-        socket.on(CONNECT, () => {
-            console.log('Connected');
-        });
 
-        socket.on(JOIN_ROOM_SUCCESS, (fetchedGameHistory) => {
-            setGameHistory(fetchedGameHistory);
-            setHasJoinedRoom(true);
-        });
-
-        socket.on(ROOM_FULL, () => {
-            console.log('Room is full');
+        socket.onAny(evt => {
+            console.log("event", evt);
         })
 
-        socket.on(JOIN_ROOM_ERROR, (err) => {
-            console.error("Error:", err);
-        })
-
-        socket.emit(JOIN_ROOM, roomID, { username, color, userid })
-
-        socket.on(DISCONNECT, (reason) => {
-            console.log('Socket disconnected due to', reason);
-        });
-
-        socket.on(CHESS_OPPONENT_MOVE, (data) => {
+        socket.on("CHESS_BOT_MOVE", (data) => {
             handleOpponentMove(data, () => {
                 socket.emit(GAME_END, roomID);
             })
-        })
-
-        socket.on(USER_JOINED_ROOM, () => {
-            setIsWaiting(false);
-        });
-
-        socket.on(USER_RESIGNED, () => {
-            endGame('RESIGN');
         });
 
         return () => {
@@ -98,9 +39,27 @@ const ChessGame = () => {
         }
     }, []);
 
-    if (!hasJoinedRoom) return (
-        <MainLoader />
-    )
+    const exitGame = () => {
+        console.log("Ending game");
+        socket.disconnect();
+        navigate("/play/computer");
+    }
+
+    const pieceDropCallback = (moveData) => {
+        console.log("Hello");
+        socket.emit(CHESS_MOVE, roomID, moveData);
+    }
+    const pieceClickCallback = (moveData) => {
+        // moveData contains fen string, from, to squares of the move
+        socket.emit(CHESS_MOVE, roomID, moveData);
+    }
+
+    // const resign = () => {
+    //     socket.emit(USER_RESIGNED);
+    //     endGame('RESIGN');
+    //     exitGame();
+    // }
+
 
     return (
         <React.Fragment>
@@ -115,13 +74,12 @@ const ChessGame = () => {
                         <NavLink
                             style={{ width: "500px" }}
                             p="2px"
-                            label={isWaiting ? "Waiting for opponent..." : opponent}
+                            // label={isWaiting ? "Waiting for opponent..." : opponent}
                             icon={<Avatar radius="3px" >
-                                {opponent?.at(0)?.toUpperCase}
+                                Computer
                             </Avatar>}
                             description={"description"}
                         />
-                        <Timer on={!isTimerOn} />
                     </div>
                     {
                         // TODO: handle isWaiting state
@@ -147,7 +105,6 @@ const ChessGame = () => {
                             </Avatar>}
                             description={"description"}
                         />
-                        <Timer on={isTimerOn} />
                     </div>
                 </Flex>
                 <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
@@ -163,7 +120,7 @@ const ChessGame = () => {
                             <GameHistory />
                         </Flex>
                         <Flex>
-                            <Button onClick={resign} color='red'>Exit Game</Button>
+                            <Button onClick={exitGame} color='red'>Exit </Button>
                         </Flex>
                     </Flex>
                 </MediaQuery>
@@ -172,4 +129,4 @@ const ChessGame = () => {
     )
 }
 
-export default ChessGame
+export default ChessGameComputer
