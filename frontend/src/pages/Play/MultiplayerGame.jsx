@@ -1,6 +1,6 @@
 import React from 'react'
 import ChessGameContextProvider from '../../context/chess-game-context'
-import ChessGame from '../Chess/ChessGame'
+import ChessGameMultiplayer from './ChessGameMultiplayer'
 
 const MultiplayerGame = () => {
 
@@ -8,7 +8,7 @@ const MultiplayerGame = () => {
     return (
         <div>
             <ChessGameContextProvider>
-                <ChessGame multiplayer={false} />
+                <ChessGameMultiplayer />
             </ChessGameContextProvider>
         </div>
     )
