@@ -1,6 +1,9 @@
 # ChessHub
 ChessHub is a web application for chess enthusiasts that allows players to compete against each other.
 
+![Capture](https://github.com/moonpatel/ChessHub/assets/95487062/d4bc47fe-9364-43e6-8a6e-081daee55d98)
+
+
 ## Technologies used
 1. <a href="https://react.dev/">ReactJS</a>
 2. <a href="https://www.mongodb.com/">MongoDB</a>
