@@ -123,25 +123,25 @@ router.post("/friends/:friendusername", checkAuth, async (req, res, next) => {
     let { friendusername } = req.params;
     let { userId } = req;
     const user = await User.findById(userId);
-    if (req.user.username === friendusername)
-        res.json({
+    if (user.username === friendusername)
+        res.status(405).json({
             error: { description: "Cannot add yourself as friend", message: "Cannot add this user as friends" },
         });
     let friendData = await User.findOne({ username: friendusername });
     if (friendData) {
-        if (friendData.friends.includes(req.user._id)) {
-            res.json({
+        if (friendData.friends.includes(user._id)) {
+            res.status(409).json({
                 error: {
                     message: "User is already added as a friend",
                     description: "User is already added as a friend",
                 },
             });
         } else {
-            friendData.friends.push(req.user._id);
+            friendData.friends.push(user._id);
             await friendData.save();
-            req.user.friends.push(friendData._id);
-            await req.user.save();
-            res.status(204).json(null);
+            user.friends.push(friendData._id);
+            await user.save();
+            res.status(201).json({});
         }
     } else {
         res.status(404).json({

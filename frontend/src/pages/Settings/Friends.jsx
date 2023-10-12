@@ -10,13 +10,17 @@ const Friends = () => {
     const form = useForm({ initialValues: { username: '' }, })
 
     const addFriend = async () => {
+        console.log(form.values);
         const response = await fetch(`${import.meta.env.VITE_BACKEND_HOST}/api/user/friends/${form.values.username}`, {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            body: JSON.stringify({ username: form.values.username })
         });
-        const resData = await response.json();
-        if (resData.success === false) {
+        if (!response.ok) {
+            const resData = await response.json();
             form.setErrors({ username: resData.error.message })
+        } else {
+            console.log("Friend added");
         }
     }
 
