@@ -49,9 +49,33 @@ npm install
 cd frontend
 npm run dev
 ```
-10. Start the backend
+10. The stockfish chess engine binary in the repo is for Linux systems only. If you are not using Linux then download the required stockfish chess engine binary from
+    <a href="https://stockfishchess.org/download/">stockfish</a> website. Also add the path of the engine to the CHESS_ENGINE_PATH variable in .env file in backend.
+12. Start the backend
 ```
 cd backend
 npm run dev
 ```
-11. Visit http://localhost:5173 in your browser to view the application.
+12. Visit http://localhost:5173 in your browser to view the application.
+
+## Setting up project using docker
+There is an alternative option to set up the project using docker. Make sure you have docker and docker-compose installed on your system.
+1. Star the repository
+2. Fork the repo. (Click on the fork button in the top right corner).
+3. Clone the forked repo to your local machine.
+```
+git clone https://github.com/moonpatel/ChessHub.git 
+```
+4. Change the present working directory.
+```
+cd ChessHub
+```
+5. Build the docker images for frontend and backend.
+```
+docker-compose build
+```
+6. Run the docker containers.
+```
+docker-compose up
+```
+7. Visit the website from your browser -> http://localhost:5173
