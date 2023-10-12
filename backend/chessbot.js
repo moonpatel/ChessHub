@@ -1,7 +1,8 @@
+const path = require("path");
 const { Engine } = require("node-uci");
 
 require("dotenv").config();
-const engine = new Engine(process.env.CHESS_ENGINE_PATH || "./engine/stockfish16.exe");
+const engine = new Engine(path.join(__dirname, process.env.CHESS_ENGINE_PATH || "engine/stockfish16.exe"));
 
 engine
     .init()
@@ -10,6 +11,9 @@ engine
     })
     .then((eng) => {
         eng.setoption("UCI_Elo");
+    })
+    .catch((err) => {
+        console.error(err);
     });
 
 const nextMove = async ({ position }) => {
