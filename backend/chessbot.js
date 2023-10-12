@@ -1,10 +1,7 @@
-const chess = require("chess.js");
 const { Engine } = require("node-uci");
 
-const engine = new Engine(
-    process.env.CHESS_ENGINE_PATH ||
-        "C:\\Users\\MOON\\Downloads\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
-);
+require("dotenv").config();
+const engine = new Engine(process.env.CHESS_ENGINE_PATH || "./engine/stockfish16.exe");
 
 engine
     .init()
