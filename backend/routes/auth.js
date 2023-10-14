@@ -60,7 +60,7 @@ router.post("/signup", async (req, res, next) => {
         const authToken = createJSONToken(userDoc.id);
 
         const { id, username, email } = userDoc;
-        res.status(201).cookie("auth-token", authToken, { httpOnly: true, sameSite: "strict" }).json({
+        res.setHeader('Host',process.env.HOSTNAME).status(201).cookie("auth-token", authToken, { httpOnly: true, sameSite: "strict" }).json({
             success: true,
             user: { id, username, email },
             token: authToken,
@@ -99,7 +99,7 @@ router.post("/login", async (req, res, next) => {
 
         const token = createJSONToken(user.id);
         res.cookie("auth-token", token, { httpOnly: true, sameSite: "strict" });
-        return res
+        return res.setHeader('Host',process.env.HOSTNAME)
             .status(200)
             .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
     } catch (error) {
@@ -112,7 +112,7 @@ router.post("/login", async (req, res, next) => {
 
 router.delete("/logout", checkAuth, (req, res, next) => {
     try {
-        res.clearCookie("auth-token", { httpOnly: true, sameSite: "strict" });
+        res.setHeader('Host',process.env.HOSTNAME).clearCookie("auth-token", { httpOnly: true, sameSite: "strict" });
         res.status(200).json({ success: true });
     } catch (err) {
         next(err);
