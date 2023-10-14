@@ -22,7 +22,9 @@ ChessHub is a web application for chess enthusiasts that allows players to compe
 
 ## How to contribtute to this repository ?
 You can contribute to this repository by checking out existing issues or creating your own in the issue section (if you experience any bugs in the application or you want to propose a new feature).
-1. Star the repository
+
+### Setting up the project locally
+1. Make sure to star the repository before going ahead.
 2. Fork the repo. (Click on the fork button in the top right corner).
 3. Clone the forked repo to your local machine.
 ```
@@ -36,7 +38,7 @@ cd ChessHub
 ```
 git checkout -b new-branch
 ```
-6. Create a .env file in both frontend and backend directory according to the .env.example files with the required environment variables.
+6. Create a .env file in both frontend and backend directory according to the .env.example files with the required environment variables. The stockfish chess engine binary in the repo is for Linux systems only. If you are not using Linux then download the required stockfish chess engine binary from <a href="https://stockfishchess.org/download/">stockfish</a> website and place it in backend/engine directory. Also add the path of the engine to the CHESS_ENGINE_PATH variable in .env file in backend directory.
 7. Install the dependencies for frontend.
 ```
 cd frontend
@@ -52,27 +54,25 @@ npm install
 cd frontend
 npm run dev
 ```
-10. The stockfish chess engine binary in the repo is for Linux systems only. If you are not using Linux then download the required stockfish chess engine binary from
-    <a href="https://stockfishchess.org/download/">stockfish</a> website. Also add the path of the engine to the CHESS_ENGINE_PATH variable in .env file in backend.
-12. Start the backend
+10. Start the backend
 ```
 cd backend
 npm run dev
 ```
-12. Visit http://localhost:5173 in your browser to view the application.
+11. Visit http://localhost:5173 in your browser to view the application.
 
-## Setting up project using docker
+### Setting up project using docker (Recommended)
 There is an alternative option to set up the project using docker. Make sure you have docker and docker-compose installed on your system.
-1. Star the repository
-2. Fork the repo. (Click on the fork button in the top right corner).
-3. Clone the forked repo to your local machine.
+1. Fork the repo. (Click on the fork button in the top right corner).
+2. Clone the forked repo to your local machine.
 ```
 git clone https://github.com/moonpatel/ChessHub.git 
 ```
-4. Change the present working directory.
+3. Change the present working directory.
 ```
 cd ChessHub
 ```
+4. Add .env files to both your frontend and backend directories based on their respective .env.example templates (can be found inside the directories itself).
 5. Build the docker images for frontend and backend.
 ```
 docker-compose build
