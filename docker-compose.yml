@@ -3,11 +3,18 @@ version: "3.7"
 services:
     frontend:
         build: ./frontend
+        command: sh -c "npm rebuild esbuild && npm run dev"
+        volumes:
+            - ./frontend:/usr/src/app
         ports:
-            - 5173:5173
+            - 127.0.0.1:5173:5173
     backend:
         build: ./backend
+        command: nodemon -L app.js
+        volumes:
+            - ./backend:/usr/src/app
         ports:
-            - 8080:8080
+            - 127.0.0.1:8080:8080
         environment:
             - PORT=8080
+            - CHESS_ENGINE_PATH=engine/stockfish16
