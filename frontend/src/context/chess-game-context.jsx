@@ -2,12 +2,12 @@ import React, { createContext, useReducer, useRef, useState } from 'react'
 
 import PropTypes from 'prop-types';
 
-import { socket, socketBot } from '../socket';
+import { socket } from '../socket';
 import { ChessModified, chessInit } from '../utils/chess';
 
 import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
 const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
-const { GAME_END, CHESS_MOVE } = SOCKET_EVENTS;
+const { GAME_END } = SOCKET_EVENTS;
 
 export const ChessGameContext = createContext();
 
@@ -145,10 +145,12 @@ const ChessGameContextProvider = ({ children }) => {
 
         if (chessRef.current.turn() === myColor) {
             if (type && color === myColor) {
-                return dispatch({ type: SELECT_PIECE, val: square });
+                selectPiece({square,color});
+                return;
             }
             if (!type && selectedRef.current && marked) {
-                dispatch({ type: MOVE_PIECE, val: { from: selected, to: square, callback } })
+                let moveData = { from: selectedRef.current, to: square };
+                dispatch({ type: MOVE_PIECE, val: { from: selectedRef.current, to: square, callback } })
                 emitToSocketCallback({ from: selectedRef.current, to: square })
                 setIsTimerOn(false)
                 moveAudioRef.current.play();
@@ -231,11 +233,15 @@ const ChessGameContextProvider = ({ children }) => {
         socket.emit(GAME_END, roomID);
     }
 
+    function getPieceColor(square) {
+        return chessRef.current.get(square).color
+    }
+
     return (
         <ChessGameContext.Provider value={{
             myColor, chess, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
             selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
-            isTimerOn, hasGameEnded, gameEndedReason, endGame
+            isTimerOn, hasGameEnded, gameEndedReason, endGame,getPieceColor
         }}>
             {children}
             <audio src='/src/assets/audio/move-self.mp3' ref={moveAudioRef} />
