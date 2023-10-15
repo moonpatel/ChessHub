@@ -18,6 +18,19 @@ const {
 // roomID => { timeLimit,gameHistory , players:{'b': {username,userid}, 'w':{username,userid} } }
 let activeRooms = new Map();
 
+// chess - chess object
+// moveData - {from,to} => lan notation
+function isValidMove(chess,moveData) {
+    let newChess = new Chess();
+    newChess.loadPgn(chess.pgn());
+    try {
+        newChess.move(moveData);
+        return true;
+    } catch(err) {
+        return false;
+    }
+}
+
 function createRoom(roomID, timeLimit) {
     console.log(roomID, "created");
     activeRooms.set(roomID, { timeLimit, players: {}, gameHistory: [] });
@@ -73,12 +86,25 @@ function socketIOServerInit(server) {
             console.log(evt);
         });
 
+        socket.on('INIT', async (data) => {
+            if(data.color === 'b') {
+                console.log(data.color);
+                const botMove = await nextMove({position:chess.fen()});
+                console.log({ from: botMove.substring(0, 2), to: botMove.substring(2) });
+                chess.move({from:botMove.substring(0,2),to:botMove.substring(2)});
+                setTimeout(() => {
+                    socket.emit("CHESS_BOT_MOVE",{from:botMove.substring(0,2),to:botMove.substring(2)})
+                }, 500);
+            }
+        });
+
         socket.on("disconnect", (reason) => {
             console.log(id, "disconnected due to", reason);
         });
 
         socket.on(CHESS_MOVE, async (roomID, moveData) => {
             console.log("CHESS_MOVE");
+            if(!isValidMove(chess,moveData)) return;
             chess.move(moveData);
             let move = moveData.from + moveData.to;
             console.log(move);

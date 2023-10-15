@@ -13,7 +13,7 @@ import AuthenticationPage from './pages/Authentication/Authentication'
 import ChallengeFriend, { playFriendAction } from './pages/Play/ChallengeFriend'
 import Profile, { action as profileAction } from './pages/Settings/Profile'
 import { getAuthToken, getUserData } from './utils/auth'
-import Computer from './pages/Play/Computer'
+import Computer, { playComputerAction } from './pages/Play/Computer'
 import ComputerGame from './pages/Play/ComputerGame'
 import MultiplayerGame from './pages/Play/MultiplayerGame'
 
@@ -29,7 +29,7 @@ const router = createBrowserRouter([{
         { index: true, element: <Play /> },
         { path: 'friend/:friend_username', element: <ChallengeFriend />, action: playFriendAction },
         { path: 'friend', element: <PlayFriend /> },
-        { path: 'computer', element: <Computer /> },
+        { path: 'computer', element: <Computer />, action: playComputerAction },
         { path: 'online', element: <div>Online</div> }
       ]
     },

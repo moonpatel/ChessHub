@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react'
 import { ChessGameContext } from '../../context/chess-game-context';
 import { socketBot as socket } from '../../socket';
 import { getUserData } from '../../utils/auth';
-import { Avatar, Button, Flex, Image, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core';
+import { Avatar, Button, Flex, MediaQuery, Modal, NavLink, Text, Title } from '@mantine/core';
 import ChessBoard from '../Chess/ChessBoard';
 import GameHistory from '../../components/GameHistory';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ const ChessGameComputer = () => {
 
     useEffect(() => {
         socket.connect();
+        socket.emit('INIT', {color});
 
         socket.onAny(evt => {
             console.log("event", evt);
@@ -42,11 +43,11 @@ const ChessGameComputer = () => {
     const exitGame = () => {
         console.log("Ending game");
         socket.disconnect();
+        localStorage.removeItem('myColor');
         navigate("/play/computer");
     }
 
     const pieceDropCallback = (moveData) => {
-        console.log("Hello");
         socket.emit(CHESS_MOVE, roomID, moveData);
     }
     const pieceClickCallback = (moveData) => {
@@ -83,16 +84,16 @@ const ChessGameComputer = () => {
                     </div>
                     {
                         // TODO: handle isWaiting state
-                        false ?
-                            <>
-                                <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width={600} miw={480} src="/src/assets/images/chess_board.png" />
-                                </MediaQuery>
-                                <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width="100%" maw={540} src="/src/assets/images/chess_board.png" />
-                                </MediaQuery>
-                            </>
-                            :
+                        // false ?
+                        //     <>
+                        //         <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+                        //             <Image width={600} miw={480} src="/src/assets/images/chess_board.png" />
+                        //         </MediaQuery>
+                        //         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                        //             <Image width="100%" maw={540} src="/src/assets/images/chess_board.png" />
+                        //         </MediaQuery>
+                        //     </>
+                        //     :
                             <ChessBoard callbacks={{ pieceDropCallback, pieceClickCallback }} />
                     }
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
