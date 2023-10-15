@@ -37,20 +37,36 @@ const useStyles = createStyles((theme) => ({
 
 const ChessBoard = ({ callbacks }) => {
     const { classes } = useStyles();
-    const { getChessBoard, handleDrop } = useContext(ChessGameContext)
+    const { getChessBoard, handleDrop,selected,selectPiece,getPieceColor } = useContext(ChessGameContext)
     const chessBoard = getChessBoard();
     const myColor = localStorage.getItem('myColor');
     const roomID = localStorage.getItem('roomID');
 
+    const dragEndCallback =evt => {
+        let from = evt.active.id;
+        let to = evt.over.id;
+        if(from !== to) {
+            handleDrop({from,to}, callbacks.pieceDropCallback, () => {
+                socket.emit(GAME_END, roomID);
+            });
+            return;
+        }
+        if(from === to) {
+            console.log("handleDrop",from,to);
+            let moveData = from === to ? {from:selected,to} : {from,to};
+            handleDrop(moveData, callbacks.pieceDropCallback, () => {
+                socket.emit(GAME_END, roomID);
+            });
+        } else {
+            console.log("handleDrop",from,to,"2");
+            let pieceColor = getPieceColor(to);
+            pieceColor && selectPiece({square:to,color:pieceColor});
+        }
+    }
+
     if (myColor === 'w') {
         return (
-            <DndContext onDragEnd={evt => {
-                let from = evt.active.id;
-                let to = evt.over.id;
-                handleDrop({ from, to }, callbacks.pieceDropCallback, () => {
-                    socket.emit(GAME_END, roomID);
-                });
-            }}>
+            <DndContext onDragEnd={dragEndCallback}>
                 <Flex className={classes.chessboard} sx={{ userSelect: 'none' }}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
@@ -66,13 +82,7 @@ const ChessBoard = ({ callbacks }) => {
         )
     } else {
         return (
-            <DndContext onDragEnd={evt => {
-                let from = evt.active.id;
-                let to = evt.over.id;
-                handleDrop({ from, to }, callbacks.pieceDropCallback, () => {
-                    socket.emit(GAME_END, roomID);
-                });
-            }}>
+            <DndContext onDragEnd={dragEndCallback}>
                 <Flex className={classes.chessboard}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
