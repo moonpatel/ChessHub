@@ -61,7 +61,6 @@ router.post("/signup", async (req, res, next) => {
 
         const { id, username, email } = userDoc;
         res.setHeader('Host',process.env.HOSTNAME).status(201).cookie("auth-token", authToken, { httpOnly: true, sameSite: "strict" }).json({
-            success: true,
             user: { id, username, email },
             token: authToken,
         });
@@ -91,7 +90,6 @@ router.post("/login", async (req, res, next) => {
         const pwIsValid = await isValidPassword(password, user.password_hash);
         if (!pwIsValid) {
             return res.status(401).json({
-                success: false,
                 message: "Invalid credentials",
                 description: "Invalid credentials",
             });
@@ -101,7 +99,7 @@ router.post("/login", async (req, res, next) => {
         res.cookie("auth-token", token, { httpOnly: true, sameSite: "strict" });
         return res.setHeader('Host',process.env.HOSTNAME)
             .status(200)
-            .json({ token, user: { id: user.id, username: user.username, email: user.email }, success: true });
+            .json({ token, user: { id: user.id, username: user.username, email: user.email } });
     } catch (error) {
         if (error instanceof ZodError) {
             return res.status(401).json({ message: "Invalid Credentials", description: "Invalid schema" });
@@ -113,7 +111,7 @@ router.post("/login", async (req, res, next) => {
 router.delete("/logout", checkAuth, (req, res, next) => {
     try {
         res.setHeader('Host',process.env.HOSTNAME).clearCookie("auth-token", { httpOnly: true, sameSite: "strict" });
-        res.status(200).json({ success: true });
+        res.status(200).json({});
     } catch (err) {
         next(err);
     }
