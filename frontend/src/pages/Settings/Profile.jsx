@@ -74,7 +74,7 @@ const Profile = () => {
 
 export const action = async ({ request }) => {
     const data = await request.formData();
-    let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${getUserData().id}`
+    let url = `${import.meta.env.VITE_BACKEND_HOST}/api/user`
 
     const reqBody = {
         fname: data.get('fname'), lname: data.get('lname'), country: data.get('country'), location: data.get('location')
@@ -91,9 +91,12 @@ export const action = async ({ request }) => {
     })
     const resData = await response.json();
     console.log(resData)
-    if (!resData.success) {
-        return resData.error;
-    } else return null;
+    if (response.ok) {
+        return null;
+    } else {
+        let resData = await response.json();
+        return resData;
+    } 
 }
 
 

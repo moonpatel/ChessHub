@@ -20,6 +20,7 @@ const extractUserDetails = async (req, res, next) => {
   next();
 };
 
+// TO BE TESTED
 // get the logged in user details
 router.get("/", checkAuth, extractUserDetails, async (req, res, next) => {
   try {
@@ -69,6 +70,7 @@ router.patch("/", checkAuth, async (req, res, next) => {
   }
 });
 
+// TO BE TRIED ONCE
 // TO BE TESTED
 // delete logged in user account
 router.delete("/", checkAuth, extractUserDetails, async (req, res, next) => {
@@ -81,6 +83,7 @@ router.delete("/", checkAuth, extractUserDetails, async (req, res, next) => {
   }
 });
 
+// TO BE TESTED
 // get all friends of logged in user
 router.get(
   "/friends",
@@ -100,20 +103,20 @@ router.get(
 // TO BE TESTED
 // add a friend
 router.post(
-  "/friends/:friendusername",
+  "/friends",
   checkAuth,
   extractUserDetails,
   async (req, res, next) => {
-    let { friendusername } = req.params;
+    let { friendUsername } = req.body;
     const { user } = req;
-    if (user.username === friendusername)
+    if (user.username === friendUsername)
       res.status(405).json({
         error: {
           description: "Cannot add yourself as friend",
           message: "Cannot add this user as friends",
         },
       });
-    let friendData = await User.findOne({ username: friendusername });
+    let friendData = await User.findOne({ username: friendUsername });
     if (friendData) {
       if (friendData.friends.includes(user._id)) {
         res.status(409).json({
@@ -140,22 +143,25 @@ router.post(
   }
 );
 
-// TODO
+// TO BE TESTED
 // remove a user from friends list
 router.delete(
-  "/friends/:friendid",
+  "/friends",
   checkAuth,
   extractUserDetails,
   catchAsync(async (req, res, next) => {
-    const { friendid } = req.params;
+    const { friendUsername } = req.body;
     const { user } = req;
 
     // Find the friend user to be removed
-    const friendData = await User.findById(friendid);
+    const friendData = await User.findOne({ username: friendUsername });
     if (!friendData) {
-      return res
-        .status(404)
-        .json({ error: { message: "Friend user not found" } });
+      return res.status(404).json({
+        error: {
+          message: "Cannot add username that does not exists",
+          description: "username to be added as friend not found.",
+        },
+      });
     }
 
     // Remove the friend from the user's friends list
@@ -182,6 +188,7 @@ router.delete(
   })
 );
 
+// TO BE TESTED
 // get all logged in users challenges
 router.get(
   "/challenges",
@@ -225,28 +232,54 @@ router.delete("/challenges/:challengeID", checkAuth, async (req, res, next) => {
   }
 });
 
-// TODO
-// get history of games played
+// TO BE TESTED
+// get history of games played by logged in user
 router.get("/games", checkAuth, extractUserDetails, async (req, res, next) => {
   try {
     const { user } = req;
     let games = await user.getGames();
     if (!games) games = [];
-    return res.status(200).json(gamesData);
+    return res.status(200).json(games);
   } catch (err) {
     next(err);
   }
 });
 
-// TODO
+// TO BE TESTED
 // get game details of a certain game played by logged in user
-router.get("/games/:gameid", checkAuth, async (req, res, next) => {
-  try {
-	
-  } catch (err) {
-    next(err);
+router.get(
+  "/games/:gameid",
+  checkAuth,
+  extractUserDetails,
+  async (req, res, next) => {
+    try {
+      let { gameid } = req.params;
+      let { user } = req;
+      let gameDoc = await Game.findById(gameid);
+
+      if (!gameDoc) {
+        return res.status(404).json({
+          message: "Game not found",
+          description: "Game id is invalid",
+        });
+      }
+
+      if (
+        user.id == gameDoc.white._id.toString() ||
+        user.id == gameDoc.black._id.toString()
+      ) {
+        return res.status(200).json(gameDoc);
+      } else {
+        res.status(404).json({
+          message: "Game not found",
+          description: "Game id does not belong to the logged in user",
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 // TODO
 // add a game
@@ -257,6 +290,16 @@ router.post("/games", checkAuth, async (req, res, next) => {
 });
 
 // =============================================================
+
+// get all users
+router.get("/users", async (req, res, next) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // TO BE TESTED
 // get user details
@@ -283,20 +326,11 @@ router.get("/users/:username", async (req, res, next) => {
   }
 });
 
-// get all users
-router.get("/users", async (req, res, next) => {
-  try {
-    const users = await User.find();
-    return res.status(200).json(users);
-  } catch (err) {
-    next(err);
-  }
-});
-
+// TO BE TESTED
 // get friends of given user
-router.get("/:username/friends", async (req, res, next) => {
+router.get("/users/:username/friends", async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.userid);
+    const user = await User.findOne({ username: req.params.username });
     const friends = await user.getFriends();
     return res.json({ friends });
   } catch (err) {
@@ -304,8 +338,10 @@ router.get("/:username/friends", async (req, res, next) => {
   }
 });
 
+// IS IT REQUIRED?
+// TO BE TESTED
 // get current challenges of the user
-router.get("/:username/challenges", checkAuth, async (req, res, next) => {
+router.get("/users/:username/challenges", checkAuth, async (req, res, next) => {
   try {
     let { userId } = req;
     const user = await User.findById(userId);
@@ -318,33 +354,37 @@ router.get("/:username/challenges", checkAuth, async (req, res, next) => {
   }
 });
 
-// TODO
+// TO BE TESTED
 // get history of games played
-router.get(
-  "/:username/games",
-  checkAuth,
-  catchAsync(async (req, res, next) => {
-    const user = await User.findOne();
+router.get("/users/:username/games", checkAuth, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
     let gamesData = await user.getGames();
     if (!gamesData) gamesData = [];
-    return res.status(200).json({ data: gamesData });
-  })
-);
+    return res.status(200).json(gamesData);
+  } catch (err) {
+    next(err);
+  }
+});
 
-// TODO
+// TO BE TESTED
 // get a particular game
 router.get(
-  "/:username/games/:gameid",
+  "/users/:username/games/:gameid",
   checkAuth,
-  catchAsync(async (req, res, next) => {
-    const { gameid } = req.params;
-    const gameData = await Game.findById(gameid);
-    if (gameData) {
-      return res.status(200).json({ data: gameData });
-    } else {
-      return res.status(404).json({ error: { message: "Game not found" } });
+  async (req, res, next) => {
+    try {
+      const { gameid } = req.params;
+      const gameData = await Game.findById(gameid);
+      if (gameData) {
+        return res.status(200).json(gameData);
+      } else {
+        return res.status(404).json({ error: { message: "Game not found" } });
+      }
+    } catch (err) {
+      next(err);
     }
-  })
+  }
 );
 
 module.exports = router;

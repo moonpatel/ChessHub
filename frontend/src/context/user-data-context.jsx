@@ -13,8 +13,7 @@ const UserDataContextProvider = ({ children }) => {
     async function fetchUserDetails() {
         try {
             if (isLoggedIn) {
-                let { id: userid } = JSON.parse(localStorage.getItem('user'));
-                let userDetailsUrl = `${import.meta.env.VITE_BACKEND_HOST}/api/user/${userid}`
+                let userDetailsUrl = `${import.meta.env.VITE_BACKEND_HOST}/api/user`
                 const response = await fetch(userDetailsUrl, {
                     credentials: 'include'
                 });
