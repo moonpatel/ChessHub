@@ -24,9 +24,9 @@ const ChessGameComputer = () => {
         socket.connect();
         socket.emit('INIT', {color});
 
-        socket.onAny(evt => {
-            console.log("event", evt);
-        })
+        // socket.onAny(evt => {
+        //     console.log("event", evt);
+        // })
 
         socket.on("CHESS_BOT_MOVE", (data) => {
             handleOpponentMove(data, () => {
@@ -102,7 +102,7 @@ const ChessGameComputer = () => {
                             p="2px"
                             label={username}
                             icon={<Avatar radius="3px" >
-                                {username[0].toUpperCase()}
+                                {username?.at(0).toUpperCase()}
                             </Avatar>}
                             description={"description"}
                         />

@@ -6,7 +6,7 @@ import { socket } from '../socket';
 import { ChessModified, chessInit } from '../utils/chess';
 
 import { DISPATCH_EVENTS, SOCKET_EVENTS } from '../constants';
-const { CAPTURE_PIECE, MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
+const { MOVE_PIECE, SELECT_PIECE, JUMP_TO, SET_GAME_HISTORY, END_GAME } = DISPATCH_EVENTS
 const { GAME_END } = SOCKET_EVENTS;
 
 export const ChessGameContext = createContext();
@@ -28,31 +28,22 @@ const reducer = (state, action) => {
                     let newState;
                     if (newChessObj.isCheckmate()) {
                         action.val.callback();
+                        action.val.playAudioCallback("CHECKMATE");
                         newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
-                    } else if (newChessObj.isStalemate()) {
-                        action.val.callback();
-                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
-                    }
-                    else {
+                    } else if(newChessObj.isCheck() || newChessObj.inCheck()) {
+                        action.val.playAudioCallback("CHECK");
                         newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
-                    }
-                    return newState;
-                }
-            case CAPTURE_PIECE:
-                {
-                    let newChessObj = new ChessModified(state.chess.fen());
-                    let updatedGameHistory = state.gameHistory;
-                    let { san, after } = newChessObj.move(action.val);
-                    updatedGameHistory.push({ move: san, fen: after });
-                    let newState;
-                    if (newChessObj.isCheckmate()) {
-                        action.val.callback();
-                        newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'CHECKMATE' };
                     } else if (newChessObj.isStalemate()) {
                         action.val.callback();
+                        action.val.playAudioCallback("STALEMATE");
                         newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1, hasGameEnded: true, gameEndedReason: 'STALEMATE' };
                     }
                     else {
+                        if(!state.chess.get(action.val.to)) {
+                            action.val.playAudioCallback("MOVE");
+                        } else {
+                            action.val.playAudioCallback("CAPTURE");
+                        }
                         newState = { ...state, chess: newChessObj, chessBoard: newChessObj.getBoard(), moveHints: [], selected: null, gameHistory: updatedGameHistory, currentIndex: updatedGameHistory.length - 1 };
                     }
                     return newState;
@@ -88,7 +79,7 @@ const reducer = (state, action) => {
 
 function chessGameStateInit(myColor) {
     let chess = chessInit(myColor);
-    let chessBoard = chess.getBoard()
+    let chessBoard = chess.getBoard();
     let moveHints = [];
     let gameHistory = [];
     let selected = null;
@@ -123,19 +114,35 @@ const ChessGameContextProvider = ({ children }) => {
     const gameEndAudioRef = useRef(null);
     const checkAudioRef = useRef(null);
 
-    // data received through socket
+    function playAudioCallback(action) {
+        switch(action) {
+            case "MOVE":
+                moveAudioRef.current.play();
+                break;
+            case "CAPTURE":
+                captureAudioRef.current.play();
+                break;
+            case "CHECK":
+                checkAudioRef.current.play();
+                break;
+            case "CHECKMATE":
+            case "STALEMATE":
+            case "GAME_END":
+                gameEndAudioRef.current.play();
+                break;
+            case "CASTLE":
+                
+                break;
+            default:
+                break;
+        }
+    }
+
+    // data - received through socket
     function handleOpponentMove(data, callback) {
         let { from, to } = data;
-        console.log(data);
-        if (!chessRef.current.get(to)) {
-            dispatch({ type: MOVE_PIECE, val: { from, to, callback } });
-            // moveAudioRef.current.play();
-            return;
-        } else {
-            dispatch({ type: CAPTURE_PIECE, val: { from, to, callback } });
-            // captureAudioRef.current.play();
-            return;
-        }
+        console.log("Opponent move:",from,to);
+        dispatch({type:MOVE_PIECE,val: { from, to, callback,playAudioCallback }});
     }
 
     // called when user clicks a square
@@ -147,22 +154,10 @@ const ChessGameContextProvider = ({ children }) => {
             if (type && color === myColor) {
                 selectPiece({square,color});
                 return;
-            }
-            if (!type && selectedRef.current && marked) {
-                let moveData = { from: selectedRef.current, to: square };
-                dispatch({ type: MOVE_PIECE, val: { from: selectedRef.current, to: square, callback } })
+            } else if(marked) {
+                dispatch({ type: MOVE_PIECE, val: { from: selectedRef.current, to: square, callback,playAudioCallback } })
+                console.log("Move:",{ from: selectedRef.current, to: square })
                 emitToSocketCallback({ from: selectedRef.current, to: square })
-                setIsTimerOn(false)
-                moveAudioRef.current.play();
-                return;
-            }
-            if (type && marked) {
-                console.log({ from: selectedRef.current, to: square })
-                dispatch({ type: CAPTURE_PIECE, val: { from: selectedRef.current, to: square, callback } })
-                emitToSocketCallback({ from: selectedRef.current, to: square })
-                setIsTimerOn(false);
-                captureAudioRef.current.play();
-                return;
             }
         }
     }
@@ -170,16 +165,9 @@ const ChessGameContextProvider = ({ children }) => {
     function handleDrop(moveData, emitToSocketCallback, callback) {
         let { from, to } = moveData;
         if (moveHintsRef.current.includes(to)) {
-            if (chessRef.current.get(to)) {
-                dispatch({ type: CAPTURE_PIECE, val: { from: from, to: to, callback } });  // capture piece
-                captureAudioRef.current.play();
-                emitToSocketCallback(moveData);
-            } else {
-                dispatch({ type: MOVE_PIECE, val: { from: from, to: to, callback } }); // move piece
-                moveAudioRef.current.play();
-                console.log(moveData);
-                emitToSocketCallback(moveData);
-            }
+            dispatch({ type: MOVE_PIECE, val: { from: from, to: to, callback,playAudioCallback } });  // capture piece
+            console.log("Move:",{ from,to })
+            emitToSocketCallback(moveData);
         }
     }
 
@@ -246,7 +234,7 @@ const ChessGameContextProvider = ({ children }) => {
             {children}
             <audio src='/src/assets/audio/move-self.mp3' ref={moveAudioRef} />
             <audio src='/src/assets/audio/capture.mp3' ref={captureAudioRef} />
-            <audio src='/src/assets/audio/game-end.webm.mp3' ref={gameEndAudioRef} />
+            <audio src='/src/assets/audio/game-end.webm' ref={gameEndAudioRef} />
             <audio src='/src/assets/audio/move-check.mp3' ref={checkAudioRef} />
         </ChessGameContext.Provider>
     )
