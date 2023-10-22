@@ -53,7 +53,6 @@ const Cell = ({ cell, callbacks }) => {
                         fontWeight: 'bold',
                     }}
                 >
-                    
                     {rowLabel}
                     <br />
                     {columnLabel}
