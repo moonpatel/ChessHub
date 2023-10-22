@@ -6,13 +6,14 @@ const Computer = () => {
   
   return (
     <Card
-      maw={450}
+      maw={600}
       sx={{
         width: "100%",
-        height: "600px",
+        height: "75vh",
         textAlign: "center",
         backgroundColor: "#262523",
       }}
+      p={'30px'}
     >
       <Flex align="center" justify="center" gap="xs" my="lg">
         <Image

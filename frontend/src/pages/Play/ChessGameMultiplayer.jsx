@@ -109,11 +109,10 @@ const ChessGameMultiplayer = () => {
                 <Button color='lime' onClick={exitGame}>Go back</Button>
                 <Button mx='md' color='lime' onClick={modalFunctions.close}>OK</Button>
             </Modal>
-            <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
-                <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Flex gap="xl" justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
+                <Flex gap="xs" justify='center' h='100vh' align='start' wrap='nowrap' direction='column' >
+                    <div style={{ width:"100%", height:'6vh', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <NavLink
-                            style={{ width: "500px" }}
                             p="2px"
                             label={isWaiting ? "Waiting for opponent..." : opponent}
                             icon={<Avatar radius="3px" >
@@ -125,19 +124,19 @@ const ChessGameMultiplayer = () => {
                     </div>
                     {
                         // TODO: handle isWaiting state
-                        false ?
-                            <>
-                                <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width={600} miw={480} src="/src/assets/images/chess_board.png" />
-                                </MediaQuery>
-                                <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width="100%" maw={540} src="/src/assets/images/chess_board.png" />
-                                </MediaQuery>
-                            </>
-                            :
-                            <ChessBoard callbacks={{ pieceDropCallback, pieceClickCallback }} />
+                        // false ?
+                        //     <>
+                        //         <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+                        //             <Image width={600} miw={480} src="/src/assets/images/chess_board.png" />
+                        //         </MediaQuery>
+                        //         <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                        //             <Image width="100%" maw={540} src="/src/assets/images/chess_board.png" />
+                        //         </MediaQuery>
+                        //     </>
+                        //     :
+                        <ChessBoard callbacks={{ pieceDropCallback, pieceClickCallback }} />
                     }
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ width:"100%", height:'6vh', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <NavLink
                             style={{ width: "500px" }}
                             p="2px"
@@ -151,9 +150,9 @@ const ChessGameMultiplayer = () => {
                     </div>
                 </Flex>
                 <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
-                    <Flex maw={450} sx={{
+                    <Flex maw={600} sx={{
                         width: '100%',
-                        height: '100%',
+                        height: '840px',
                         textAlign: 'center',
                         borderRadius: '10px',
                         backgroundColor: '#272623'

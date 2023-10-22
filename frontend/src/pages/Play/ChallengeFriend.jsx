@@ -13,12 +13,13 @@ const ChallengeFriend = () => {
 
     return (
         <Card
-            maw={450} sx={{
-                width: '100%',
-                height: '600px',
+            sx={{
+                width: '600px',
+                height: '80%',
                 textAlign: 'center',
                 backgroundColor: '#262523'
             }}
+            px='20px'
         >
             <Form action={`/play/friend/${friend_username}`} method='POST'>
                 <Flex align="center" direction="column" justify="center" gap="xs" my="lg">
