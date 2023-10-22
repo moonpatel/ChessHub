@@ -67,11 +67,11 @@ const ChessBoard = ({ callbacks }) => {
     if (myColor === 'w') {
         return (
             <DndContext onDragEnd={dragEndCallback}>
-                <Flex h='80vh' sx={{ userSelect: 'none' }}>
+                <Flex className={classes.chessboard} sx={{ userSelect: 'none' }}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
                             return (
-                                <Flex key={rowIndex * 2}>
+                                <Flex className={classes.boardrow} key={rowIndex * 2}>
                                     {row.map(cell => <Cell callbacks={{ pieceClickCallback: callbacks.pieceClickCallback }} key={cell.square} cell={cell} />)}
                                 </Flex>
                             )
@@ -83,11 +83,11 @@ const ChessBoard = ({ callbacks }) => {
     } else {
         return (
             <DndContext onDragEnd={dragEndCallback}>
-                <Flex h='80vh' sx={{userSelect:'none'}}>
+                <Flex className={classes.chessboard}>
                     <div>
                         {chessBoard.map((row, rowIndex) => {
                             return (
-                                <Flex key={rowIndex * 2}>
+                                <Flex className={classes.boardrow} key={rowIndex * 2}>
                                     {row.map(cell => <Cell callbacks={{ pieceClickCallback: callbacks.pieceClickCallback }} key={cell.square} cell={cell} />).reverse()}
                                 </Flex>
                             )

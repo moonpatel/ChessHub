@@ -70,7 +70,7 @@ const ChessGameComputer = () => {
                 <Button mx='md' color='lime' onClick={modalFunctions.close}>OK</Button>
             </Modal>
             <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
-                <Flex gap="xs" justify='center' h='100vh' align='start' wrap='nowrap' direction='column' >
+                <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <NavLink
                             style={{ width: "500px" }}
@@ -111,9 +111,9 @@ const ChessGameComputer = () => {
                     </div>
                 </Flex>
                 <MediaQuery smallerThan="lg" styles={{ display: 'none' }}>
-                    <Flex maw={600} sx={{
+                    <Flex maw={450} sx={{
                         width: '100%',
-                        height: '840px',
+                        height: '100%',
                         textAlign: 'center',
                         borderRadius: '10px',
                         backgroundColor: '#272623'

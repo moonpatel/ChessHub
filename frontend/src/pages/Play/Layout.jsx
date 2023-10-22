@@ -9,8 +9,8 @@ const Layout = () => {
     const user = getUserData();
     let username = user.username;
     return (
-        <Flex h='100vh' justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
-            <Flex gap="xs" h={'95vh'} justify='center' align='start' wrap='nowrap' direction='column' >
+        <Flex gap="xl" miw={360} justify='center' align='center' wrap='nowrap' mt={{ base: '50px', sm: '0px' }} direction={{ base: 'column', lg: 'row' }}>
+            <Flex gap="xs" justify='center' align='start' wrap='nowrap' direction='column' >
                 <NavLink
                     p="2px"
                     label={"opponent"}
@@ -18,7 +18,7 @@ const Layout = () => {
                     description={"description"}
                 />
                 <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-                    <img draggable={false} height={'100%'} style={{aspectRatio:'1'}} miw={480} src="/src/assets/images/chess_board.png" />
+                    <img draggable={false} width={600} miw={480} src="/src/assets/images/chess_board.png" />
                 </MediaQuery>
                 <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
                     <img draggable={false} width="100%" maw={540} src="/src/assets/images/chess_board.png" />
