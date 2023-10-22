@@ -52,8 +52,8 @@ const GameHistory = () => {
     }
 
     return (
-        <div style={{ width: '100%', userSelect: 'none' }}>
-            <ScrollArea h={400} scrollbarSize={6} >
+        <div style={{ width: '600px', userSelect: 'none' }}>
+            <ScrollArea h={'640px'} scrollbarSize={6} >
                 <Flex direction='column' align='start' w='100%'>
                     {gameHistoryJSX}
                 </Flex>

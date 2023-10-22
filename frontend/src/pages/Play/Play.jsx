@@ -6,13 +6,13 @@ import { Card, Flex, Image, NavLink, Title } from '@mantine/core'
 
 const Play = () => {
     return (
-        <Card maw={450} sx={{
-            width: '100%',
-            height: '600px',
+        <Card sx={{
+            width: '540px',
+            height: '75%',
             textAlign: 'center',
             backgroundColor: '#262523'
         }}>
-            <Flex gap="5px" px="20px" justify='center' align='center' wrap='nowrap' direction='column'>
+            <Flex gap="15px" px="20px" justify='center' align='center' wrap='nowrap' direction='column'>
                 <Title order={2} >Play Chess</Title>
                 <Image my="md" withPlaceholder width={200} height={120} src={null} />
                 {
@@ -32,6 +32,7 @@ const CardItem = ({ label, description, src, to }) => {
             icon={<Image src={src} width={50} />}
             description={description}
             sx={{ backgroundColor: '#1f1f1a', borderRadius: '5px' }}
+            p='20px'
         />
     )
 }

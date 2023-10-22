@@ -36,7 +36,7 @@ const Cell = ({ cell, callbacks }) => {
     }
 
     return (
-        <Flex ref={setNodeRef} sx={theme => {
+        <Flex ref={setNodeRef} w='10vh' sx={theme => {
             let color = theme.colors.lime;
             return { backgroundColor: squareColor === 'b' ? '#769854' : '#e8edcd', aspectRatio: '1/1' }
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >

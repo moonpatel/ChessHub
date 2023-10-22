@@ -22,12 +22,13 @@ const PlayFriend = () => {
                 </div>
             </Modal>
             <Card
-                maw={450} sx={{
-                    width: '100%',
-                    height: '600px',
+                sx={{
+                    width: '600px',
+                    height: '90%',
                     textAlign: 'center',
                     backgroundColor: '#262523'
                 }}
+                px='30px'
             >
                 <Flex align="center" justify="center" gap="xs" my="lg">
                     <Image width="30px" src="https://www.chess.com/bundles/web/images/color-icons/handshake.fb30f50b.svg" />
