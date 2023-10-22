@@ -76,9 +76,11 @@ const ChessGameComputer = () => {
                             style={{ width: "500px" }}
                             p="2px"
                             // label={isWaiting ? "Waiting for opponent..." : opponent}
-                            icon={<Avatar radius="3px" >
-                                Computer
-                            </Avatar>}
+                            // icon={<Avatar radius="3px" style={{ minWidth: "4.374rem" }} >
+                            //     Computer
+                            // </Avatar>}
+                            icon = { <img src="https://www.chess.com/bundles/web/images/color-icons/computer.2318c3b4.svg" alt="computer-icon" style={{height:"38px" , width:"38px" ,borderRadius:"3px"}} /> }
+
                             description={"description"}
                         />
                     </div>
