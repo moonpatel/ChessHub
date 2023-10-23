@@ -6,9 +6,10 @@ import { useDroppable } from '@dnd-kit/core';
 import Piece from './Piece';
 import { ChessGameContext } from '../context/chess-game-context';
 import { SOCKET_EVENTS } from '../constants';
+
 const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS;
 
-const Cell = ({ cell, callbacks }) => {
+const Cell = ({ cell, callbacks, isFirstColumn, isFirstRow }) => {
     let roomID = localStorage.getItem('roomID');
     let { square, type } = cell;
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext);
@@ -31,33 +32,22 @@ const Cell = ({ cell, callbacks }) => {
         content = <Piece cell={cell} />;
     }
 
-    // Calculate the label for the cell based on its position
-    const rowLabel = 8 - parseInt(square[1]);
-    const columnLabel = String.fromCharCode('a'.charCodeAt(0) + parseInt(square[0]));
-
     return (
         <Flex ref={setNodeRef} sx={theme => {
             let color = theme.colors.lime;
             return { backgroundColor: squareColor === 'b' ? '#769854' : '#e8edcd', aspectRatio: '1/1' };
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"}>
-            <div style={{ position: 'relative' }}>
-                {content}
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        color: squareColor === 'w' ? 'black' : 'white',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                    }}
-                >
-                    {rowLabel}
-                    <br />
-                    {columnLabel}
+            {isFirstColumn && (
+                <div style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)' }}>
+                    {8 - parseInt(square[1]) + 1}
                 </div>
-            </div>
+            )}
+            {isFirstRow && (
+                <div style={{ position: 'absolute', top: '5px', left: '50%', transform: 'translateX(-50%)' }}>
+                    {String.fromCharCode('a'.charCodeAt(0) + parseInt(square[0]) - (isFirstColumn ? 0 : 1))}
+                </div>
+            )}
+            {content}
         </Flex>
     );
 };
@@ -74,6 +64,8 @@ Cell.propTypes = {
         type: PropTypes.oneOf(['p', 'r', 'n', 'b', 'q', 'k']),
         color: PropTypes.oneOf(['w', 'b']),
     }),
+    isFirstColumn: PropTypes.bool,
+    isFirstRow: PropTypes.bool,
 };
 
 export default Cell;
