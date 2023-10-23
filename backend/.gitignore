@@ -1,3 +1,4 @@
 node_modules
 _test_
 .env
+engine/stockfish

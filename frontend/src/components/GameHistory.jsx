@@ -1,9 +1,9 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react';
 
 import { Button, Flex, ScrollArea, Tooltip, createStyles } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
-import { ChessGameContext } from '../context/chess-game-context'
+import { ChessGameContext } from '../context/chess-game-context';
 
 const useStyles = createStyles(() => {
     return {
@@ -23,12 +23,32 @@ const useStyles = createStyles(() => {
                 backgroundColor: '#555555',
             }
         }
-    }
-})
+    };
+});
 
 const GameHistory = () => {
     let { classes } = useStyles();
-    const { gameHistory, jumpTo, goBack, goAhead } = useContext(ChessGameContext)
+    const { gameHistory, jumpTo, goBack, goAhead } = useContext(ChessGameContext);
+
+    // event listeners for keyboard keys
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'ArrowLeft') {
+                // console.log('left arrow clicked')
+                goBack();
+            } else if (event.key === 'ArrowRight') {
+                // console.log('right arrow clicked')
+                goAhead();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        // event listener will cleanup when the component unmounts
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [goBack, goAhead]);
 
     let gameHistoryJSX = [];
     for (let i = 0; i < gameHistory.length;) {
@@ -71,7 +91,7 @@ const GameHistory = () => {
                 </Tooltip>
             </Flex>
         </div>
-    )
-}
+    );
+};
 
-export default GameHistory
+export default GameHistory;
