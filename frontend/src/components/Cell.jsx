@@ -9,7 +9,7 @@ import { SOCKET_EVENTS } from '../constants';
 
 const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS;
 
-const Cell = ({ cell, callbacks, isFirstColumn, isFirstRow }) => {
+const Cell = ({ cell, callbacks, rowLabel, columnLabel }) => {
     let roomID = localStorage.getItem('roomID');
     let { square, type } = cell;
     const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext);
@@ -37,14 +37,14 @@ const Cell = ({ cell, callbacks, isFirstColumn, isFirstRow }) => {
             let color = theme.colors.lime;
             return { backgroundColor: squareColor === 'b' ? '#769854' : '#e8edcd', aspectRatio: '1/1' };
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"}>
-            {isFirstColumn && (
+            {rowLabel && (
                 <div style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)' }}>
-                    {8 - parseInt(square[1]) + 1}
+                    {rowLabel}
                 </div>
             )}
-            {isFirstRow && (
+            {columnLabel && (
                 <div style={{ position: 'absolute', top: '5px', left: '50%', transform: 'translateX(-50%)' }}>
-                    {String.fromCharCode('a'.charCodeAt(0) + parseInt(square[0]) - (isFirstColumn ? 0 : 1))}
+                    {columnLabel}
                 </div>
             )}
             {content}
@@ -64,8 +64,8 @@ Cell.propTypes = {
         type: PropTypes.oneOf(['p', 'r', 'n', 'b', 'q', 'k']),
         color: PropTypes.oneOf(['w', 'b']),
     }),
-    isFirstColumn: PropTypes.bool,
-    isFirstRow: PropTypes.bool,
+    rowLabel: PropTypes.string,
+    columnLabel: PropTypes.string,
 };
 
 export default Cell;
