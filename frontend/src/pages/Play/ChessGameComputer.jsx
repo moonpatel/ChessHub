@@ -11,7 +11,7 @@ import { SOCKET_EVENTS } from '../../constants';
 const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS
 
 const ChessGameComputer = () => {
-    const { hasGameEnded, gameEndedReason, handleOpponentMove } = useContext(ChessGameContext);
+    const { chessCopy, myColor, hasGameEnded, gameEndedReason, preMoves, handleOpponentMove, handlePreMove } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
     const navigate = useNavigate();
     const user = getUserData();
@@ -23,15 +23,14 @@ const ChessGameComputer = () => {
     useEffect(() => {
         socket.connect();
         socket.emit('INIT', {color});
-
         // socket.onAny(evt => {
         //     console.log("event", evt);
         // })
 
         socket.on("CHESS_BOT_MOVE", (data) => {
-            handleOpponentMove(data, () => {
-                socket.emit(GAME_END, roomID);
-            })
+            handleOpponentMove(data,
+                () => socket.emit(GAME_END, roomID),
+            );
         });
 
         return () => {
@@ -39,6 +38,15 @@ const ChessGameComputer = () => {
             socket.disconnect();
         }
     }, []);
+
+    useEffect(() => {
+        if(chessCopy.turn() === myColor && preMoves.length) {
+            handlePreMove(
+                () => socket.emit(GAME_END, roomID),
+                (moveData) => socket.emit(CHESS_MOVE, roomID, moveData)
+            )
+        }
+    }, [chessCopy])
 
     const exitGame = () => {
         console.log("Ending game");
