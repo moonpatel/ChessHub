@@ -8,7 +8,7 @@ import { ZodError, z } from 'zod';
 
 import { UserDataContext } from '../../context/user-data-context';
 
-let host = 'http://localhost:8080';
+let host = import.meta.env.VITE_BACKEND_HOST;
 
 const loginSchema = z.object({
     username: z.string().min(5, { message: 'Username should not be less than 5 characters' }).max(15, { message: 'Username should not be more than 15 characters' }),
