@@ -15,7 +15,7 @@ import Timer from '../Chess/Timer'
 const { CONNECT, DISCONNECT, CHESS_OPPONENT_MOVE, USER_RESIGNED, JOIN_ROOM, JOIN_ROOM_ERROR, JOIN_ROOM_SUCCESS, ROOM_FULL, USER_JOINED_ROOM, CHESS_MOVE } = SOCKET_EVENTS;
 
 const ChessGameMultiplayer = () => {
-    const { setGameHistory, hasGameEnded, gameEndedReason, endGame, handleOpponentMove, isTimerOn } = useContext(ChessGameContext);
+    const { chessCopy, myColor, preMoves, setGameHistory, hasGameEnded, gameEndedReason, endGame, handleOpponentMove, handlePreMove, isTimerOn } = useContext(ChessGameContext);
     const [gameEndedModalOpen, modalFunctions] = useDisclosure(true);
 
     const user = getUserData();
@@ -97,6 +97,16 @@ const ChessGameMultiplayer = () => {
             socket.disconnect();
         }
     }, []);
+
+    useEffect(() => {
+        if(chessCopy.turn() === myColor && preMoves.length) {
+            handlePreMove(
+                () => socket.emit(GAME_END, roomID),
+                (moveData) => socket.emit(CHESS_MOVE, roomID, moveData)
+            )
+        }
+    }, [chessCopy])
+
 
     if (!hasJoinedRoom) return (
         <MainLoader />
