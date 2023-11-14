@@ -185,6 +185,16 @@ const ChessGameContextProvider = ({ children }) => {
         return moveHintsRef.current.includes(square);
     }
 
+    function isLastMoveSquare(square) {
+        
+        if (currentIndexRef.current < 0)
+            return false;
+        let [lastMove] = chessRef.current.history({verbose: true}).slice(-1);
+        if (square != lastMove.to && square!=lastMove.from)
+            return false;
+        return true;
+    }
+
     function jumpTo(index) {
         dispatch({ type: JUMP_TO, val: index })
     }
@@ -227,7 +237,7 @@ const ChessGameContextProvider = ({ children }) => {
 
     return (
         <ChessGameContext.Provider value={{
-            myColor, chess, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked,
+            myColor, chess, chessBoard, moveHints, selected, handleOpponentMove, handleSquareClick, getSquareColor, isSquareMarked, isLastMoveSquare,
             selectPiece, handleDrop, gameHistory, jumpTo, getChessBoard, currentIndex, goAhead, goBack, setGameHistory,
             isTimerOn, hasGameEnded, gameEndedReason, endGame,getPieceColor
         }}>

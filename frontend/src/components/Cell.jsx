@@ -14,9 +14,10 @@ const { CHESS_MOVE, GAME_END } = SOCKET_EVENTS
 const Cell = ({ cell, callbacks }) => {
     let roomID = localStorage.getItem('roomID');
     let { square, type } = cell;
-    const { getSquareColor, isSquareMarked, handleSquareClick } = useContext(ChessGameContext)
+    const { getSquareColor, isSquareMarked, handleSquareClick, isLastMoveSquare } = useContext(ChessGameContext)
     const { isOver, setNodeRef } = useDroppable({ id: square });
     let squareColor = getSquareColor(square);
+    let historyCell = isLastMoveSquare(square);
 
     let marked = isSquareMarked(square);
     let borderColor = isOver ? '#77777744' : 'transparent';
@@ -38,7 +39,7 @@ const Cell = ({ cell, callbacks }) => {
     return (
         <Flex ref={setNodeRef} w='10vh' sx={theme => {
             let color = theme.colors.lime;
-            return { backgroundColor: squareColor === 'b' ? '#769854' : '#e8edcd', aspectRatio: '1/1' }
+            return { backgroundColor: historyCell ? '#c0cc5c' : (squareColor === 'b' ? '#769854' : '#e8edcd'), aspectRatio: '1/1' }
         }} onClick={handleClick} bg={squareColor === 'w' ? "white" : "gray"} >
             {content}
         </Flex>
