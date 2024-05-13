@@ -1,3 +1,5 @@
+const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -8,6 +10,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+const MODE = process.env.MODE || "DEV"
 const port = process.env.PORT;
 
 mongoose
@@ -44,6 +47,18 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/room", roomRoutes);
+
+if (MODE=="PROD") {
+    console.log('Hello')
+    app.use(express.static('../frontend/dist'));
+    app.get("/*", (req,res,next) => {
+        try {
+            res.sendFile(path.join(__dirname,"../frontend/dist/index.html"))
+        } catch(err) {
+            next(err)
+        }
+    })
+}
 
 app.use((error, req, res, next) => {
     const status = error.status || 500;
