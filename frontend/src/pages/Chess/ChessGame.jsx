@@ -128,10 +128,10 @@ const ChessGame = () => {
                         false ?
                             <>
                                 <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width={600} miw={480} src="/src/assets/images/chess_board.png" />
+                                    <Image width={600} miw={480} src="/assets/images/chess_board.png" />
                                 </MediaQuery>
                                 <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                                    <Image width="100%" maw={540} src="/src/assets/images/chess_board.png" />
+                                    <Image width="100%" maw={540} src="/assets/images/chess_board.png" />
                                 </MediaQuery>
                             </>
                             :

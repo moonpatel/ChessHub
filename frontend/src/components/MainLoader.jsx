@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import { Loader, Title } from '@mantine/core'
 import PropTypes from 'prop-types';
 
-import loaderImage from '../assets/images/chess_board_loader.png'
+import loaderImage from '/assets/images/chess_board_loader.png'
 
 const MainLoader = ({ errorMessage }) => {
     return (

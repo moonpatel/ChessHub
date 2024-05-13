@@ -18,10 +18,10 @@ const Layout = () => {
                     description={"description"}
                 />
                 <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-                    <img draggable={false} height={'100%'} style={{aspectRatio:'1'}} miw={480} src="/src/assets/images/chess_board.png" />
+                    <img draggable={false} height={'100%'} style={{aspectRatio:'1'}} miw={480} src="/assets/images/chess_board.png" />
                 </MediaQuery>
                 <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                    <img draggable={false} width="100%" maw={540} src="/src/assets/images/chess_board.png" />
+                    <img draggable={false} width="100%" maw={540} src="/assets/images/chess_board.png" />
                 </MediaQuery>
                 <NavLink
                     p="2px"
