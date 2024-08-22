@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "export MODE=PROD && node app.js",
-    "dev": "export MODE=DEV && app.js"
+    "dev": "export MODE=DEV && nodemon app.js"
   },
   "keywords": [],
   "author": "",
